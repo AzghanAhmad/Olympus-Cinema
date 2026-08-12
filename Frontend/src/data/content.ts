@@ -1,0 +1,131 @@
+import { NewsArticle, CinemaEvent, UserProfile } from '@/types/content';
+import { Booking } from '@/types/booking';
+
+export const MOCK_NEWS: NewsArticle[] = [
+  {
+    id: 'n1',
+    title: 'Introducing the Grand IMAX Dual-Laser Experience',
+    slug: 'grand-imax-dual-laser-launch',
+    category: 'Cinema Tech',
+    summary: 'Our main theater now features state-of-the-art 4K dual-laser projection and 12-channel spatial sound for unprecedented depth.',
+    content: 'We are thrilled to unveil our fully upgraded Grand IMAX Auditorium. Featuring dual 4K RGB laser projection, screen brightness has increased by 60%, delivering deeper blacks and vibrant cinematic contrast...',
+    author: 'Elena Rostova',
+    publishedAt: '2026-08-01',
+    imageUrl: 'https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?q=80&w=1000&auto=format&fit=crop',
+    isFeatured: true,
+  },
+  {
+    id: 'n2',
+    title: 'Christopher Nolan Retrospective Screening Week',
+    slug: 'christopher-nolan-retrospective-week',
+    category: 'Special Screening',
+    summary: 'Join us for a week-long celebration featuring Inception, Interstellar, The Dark Knight, and Oppenheimer on 70mm film film prints.',
+    content: 'Experience cinema history as it was meant to be seen. Over seven consecutive days, Olympus Cinemas will present four timeless Christopher Nolan masterpieces in authentic 70mm analog film format...',
+    author: 'Marcus Vance',
+    publishedAt: '2026-08-05',
+    imageUrl: 'https://images.unsplash.com/photo-1517604931442-7e0c8ed2963c?q=80&w=1000&auto=format&fit=crop',
+    isFeatured: false,
+  },
+  {
+    id: 'n3',
+    title: 'Gourmet Artisanal Concessions Menu Unveiled',
+    slug: 'gourmet-concessions-menu-launch',
+    category: 'Dining & Hospitality',
+    summary: 'Pair your film with truffle butter popcorn, craft cocktails, and handcrafted stone-baked pizza brought straight to your VIP seat.',
+    content: 'Cinema dining reaches new heights. Our revised culinary experience features locally sourced ingredients, organic sodas, and sommelier-curated wine pairings...',
+    author: 'Chef David Lin',
+    publishedAt: '2026-08-10',
+    imageUrl: 'https://images.unsplash.com/photo-1585647347384-2593bc35786b?q=80&w=1000&auto=format&fit=crop',
+    isFeatured: false,
+  },
+];
+
+export const MOCK_EVENTS: CinemaEvent[] = [
+  {
+    id: 'e1',
+    title: 'Midnight Premiere: Dune Part Two Fan Night',
+    slug: 'dune-2-midnight-premiere',
+    subtitle: 'Exclusive Collectible Posters, Red Carpet Photobooth & IMAX Special Q&A',
+    date: '2026-08-20',
+    time: '23:30',
+    location: 'Olympus Grand Hall',
+    description: 'Be among the first in the world to witness the epic journey. Ticket includes complimentary popcorn, limited edition IMAX prints, and live red carpet photobooth setup.',
+    imageUrl: 'https://images.unsplash.com/photo-1518709268805-4e9042af9f23?q=80&w=1000&auto=format&fit=crop',
+    ctaText: 'Reserve Premiere Pass',
+  },
+  {
+    id: 'e2',
+    title: 'Classical Soundtracks Live Orchestra Showcase',
+    slug: 'live-orchestra-soundtracks',
+    subtitle: 'Performing Hans Zimmer, John Williams & Ennio Morricone Hits',
+    date: '2026-09-02',
+    time: '19:30',
+    location: 'Main Symphonic Cinema Hall',
+    description: 'A 50-piece symphony orchestra plays the memorable themes of Hollywood cinema accompanied by synchronized 4K film highlights on our massive 80ft screen.',
+    imageUrl: 'https://images.unsplash.com/photo-1465847899084-d164df4dedc6?q=80&w=1000&auto=format&fit=crop',
+    ctaText: 'Book Symphony Seats',
+  },
+];
+
+export const MOCK_USER: UserProfile = {
+  id: 'usr-8812',
+  name: 'Alexander Wright',
+  email: 'alexander.wright@cinema.com',
+  phone: '+1 (555) 234-5678',
+  avatarUrl: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?q=80&w=300&auto=format&fit=crop',
+  role: 'ADMIN',
+  joinedDate: '2025-01-15',
+  totalBookings: 14,
+};
+
+export const MOCK_BOOKINGS: Booking[] = [
+  {
+    id: 'bk-9901',
+    bookingCode: 'APX-774219',
+    screeningId: 'scr-101',
+    movieId: 'm1',
+    movieTitle: 'Dune: Part Two',
+    moviePoster: 'https://images.unsplash.com/photo-1534447677768-be436bb09401?q=80&w=1000&auto=format&fit=crop',
+    hallName: 'Olympus Grand Hall',
+    screenType: 'IMAX 3D',
+    date: '2026-08-13',
+    startTime: '14:30',
+    seats: [
+      { id: 'E-4', row: 'E', number: 4, category: 'STANDARD', price: 16.50, status: 'OCCUPIED' },
+      { id: 'E-5', row: 'E', number: 5, category: 'STANDARD', price: 16.50, status: 'OCCUPIED' },
+    ],
+    customer: {
+      fullName: 'Alexander Wright',
+      email: 'alexander.wright@cinema.com',
+      phone: '+1 (555) 234-5678',
+    },
+    totalPrice: 33.00,
+    status: 'CONFIRMED',
+    createdAt: '2026-08-11T10:15:00Z',
+    qrCodeValue: 'APX-774219-M1-E4-E5',
+  },
+  {
+    id: 'bk-9902',
+    bookingCode: 'APX-661042',
+    screeningId: 'scr-201',
+    movieId: 'm2',
+    movieTitle: 'Oppenheimer',
+    moviePoster: 'https://images.unsplash.com/photo-1440404653325-ab127d49abc1?q=80&w=1000&auto=format&fit=crop',
+    hallName: 'Olympus Atmos Hall',
+    screenType: 'DOLBY ATMOS',
+    date: '2026-08-10',
+    startTime: '19:00',
+    seats: [
+      { id: 'F-4', row: 'F', number: 4, category: 'PREMIUM', price: 20.00, status: 'USED' },
+    ],
+    customer: {
+      fullName: 'Alexander Wright',
+      email: 'alexander.wright@cinema.com',
+      phone: '+1 (555) 234-5678',
+    },
+    totalPrice: 20.00,
+    status: 'USED',
+    createdAt: '2026-08-08T14:20:00Z',
+    qrCodeValue: 'APX-661042-M2-F4',
+  },
+];
