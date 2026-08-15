@@ -32,7 +32,7 @@ export default function AdminSettingsPage() {
 
   const handleSave = (e: React.FormEvent) => {
     e.preventDefault();
-    setCinemaName(localCinema.trim() || 'Olympus');
+    setCinemaName(localCinema.trim() || 'Crystal Entertainment');
     setMaxTicketsPerPerson(Math.min(50, Math.max(1, Number(localMax) || 15)));
     setSeatHoldMinutes(Math.min(60, Math.max(1, Number(localHold) || 10)));
     setTotalSeats(Math.max(1, Number(localSeats) || 438));
@@ -64,10 +64,10 @@ export default function AdminSettingsPage() {
               value={localCinema}
               onChange={(e) => setLocalCinema(e.target.value)}
               className="w-full py-2.5 px-3 bg-secondary text-foreground text-sm rounded-xl border border-border"
-              placeholder="Olympus"
+              placeholder="Crystal Entertainment"
             />
             <span className="text-[11px] text-muted-foreground mt-1 block">
-              Shown on bookings and public pages (e.g. Olympus Cinema).
+              Shown on bookings and public pages.
             </span>
           </div>
 
@@ -81,7 +81,7 @@ export default function AdminSettingsPage() {
               className="w-full py-2.5 px-3 bg-secondary text-foreground text-sm rounded-xl border border-border"
             />
             <span className="text-[11px] text-muted-foreground mt-1 block">
-              Reference capacity for Olympus. Seat map layout remains the Olympus chart; use Screens admin for seat status.
+              Reference seat capacity. Use Screens admin for seat status.
             </span>
           </div>
 

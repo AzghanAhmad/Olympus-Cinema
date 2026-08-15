@@ -1,4 +1,5 @@
 import { Seat, SeatCategory, SeatStatus } from '@/types/screening';
+import type { CinemaScreen, SeatRowLayout } from '@/types/cinemaLayout';
 
 /** Olympus hall layout from seating chart: left block | center aisle | right block */
 export const OLYMPUS_ROW_LAYOUT: Record<string, { left: number; right: number }> = {
@@ -33,49 +34,70 @@ export const OLYMPUS_TOTAL_SEATS = OLYMPUS_ROWS.reduce((sum, row) => {
 }, 0);
 
 /** Seat number after which the center aisle gap appears */
-export function getAisleAfter(rowLetter: string): number {
+export function getAisleAfter(rowLetter: string, rows?: SeatRowLayout[]): number {
+  if (rows) {
+    return rows.find((r) => r.label === rowLetter)?.left ?? 0;
+  }
   return OLYMPUS_ROW_LAYOUT[rowLetter]?.left ?? 0;
 }
 
-export function generateMockSeats(hallId: string, priceStandard = 15, priceVIP = 25): Seat[] {
+export function aisleAfterByRow(rows: SeatRowLayout[]): Record<string, number> {
+  return Object.fromEntries(rows.map((r) => [r.label, r.left]));
+}
+
+function defaultCategory(
+  rowIndex: number,
+  rowLabel: string,
+  col: number,
+  seatsInRow: number
+): SeatCategory {
+  if (rowIndex === 0 && (col === 1 || col === seatsInRow)) return 'WHEELCHAIR';
+  if (rowIndex >= 5 && rowIndex <= 11) return 'PREMIUM';
+  if (rowIndex >= 12) return 'VIP';
+  return 'STANDARD';
+}
+
+function priceForCategory(
+  category: SeatCategory,
+  priceStandard: number,
+  priceVIP: number
+): number {
+  if (category === 'VIP') return priceVIP;
+  if (category === 'PREMIUM') return Number((priceStandard * 1.25).toFixed(2));
+  return priceStandard;
+}
+
+/** Build bookable seats from a saved cinema screen layout */
+export function generateSeatsFromScreen(
+  screen: CinemaScreen,
+  priceStandard = 15,
+  priceVIP = 25,
+  /** When true, skip demo occupied/reserved so admin map stays editable */
+  adminMode = false
+): Seat[] {
   const seats: Seat[] = [];
 
-  OLYMPUS_ROWS.forEach((rowLetter, rowIndex) => {
-    const { left, right } = OLYMPUS_ROW_LAYOUT[rowLetter];
-    const seatsInRow = left + right;
+  screen.rows.forEach((row, rowIndex) => {
+    const seatsInRow = row.left + row.right;
 
     for (let col = 1; col <= seatsInRow; col++) {
-      const id = `${rowLetter}-${col}`;
+      const id = `${row.label}-${col}`;
+      const meta = screen.seatMeta[id];
+      const category =
+        meta?.category ?? defaultCategory(rowIndex, row.label, col, seatsInRow);
+      const price = priceForCategory(category, priceStandard, priceVIP);
 
-      let category: SeatCategory = 'STANDARD';
-      let price = priceStandard;
+      let status: SeatStatus = meta?.disabled ? 'DISABLED' : 'AVAILABLE';
 
-      // Front (near screen): standard; mid: premium; rear: VIP
-      if (rowIndex >= 5 && rowIndex <= 11) {
-        category = 'PREMIUM';
-        price = priceStandard * 1.25;
-      } else if (rowIndex >= 12) {
-        category = 'VIP';
-        price = priceVIP;
-      }
-
-      // Wheelchair accessible seats at front corners
-      if (rowLetter === 'A' && (col === 1 || col === seatsInRow)) {
-        category = 'WHEELCHAIR';
-        price = priceStandard;
-      }
-
-      let status: SeatStatus = 'AVAILABLE';
-      const seed = rowIndex * 23 + col;
-      if (seed % 7 === 0) {
-        status = 'OCCUPIED';
-      } else if (seed % 13 === 0) {
-        status = 'RESERVED';
+      if (!adminMode && status === 'AVAILABLE') {
+        const seed = rowIndex * 23 + col;
+        if (seed % 7 === 0) status = 'OCCUPIED';
+        else if (seed % 13 === 0) status = 'RESERVED';
       }
 
       seats.push({
         id,
-        row: rowLetter,
+        row: row.label,
         number: col,
         category,
         price: Number(price.toFixed(2)),
@@ -85,4 +107,19 @@ export function generateMockSeats(hallId: string, priceStandard = 15, priceVIP =
   });
 
   return seats;
+}
+
+export function generateMockSeats(hallId: string, priceStandard = 15, priceVIP = 25): Seat[] {
+  const fallback: CinemaScreen = {
+    id: hallId,
+    name: 'Crystal Entertainment',
+    screenType: 'STANDARD 4K',
+    rows: OLYMPUS_ROWS.map((label) => ({
+      label,
+      left: OLYMPUS_ROW_LAYOUT[label].left,
+      right: OLYMPUS_ROW_LAYOUT[label].right,
+    })),
+    seatMeta: {},
+  };
+  return generateSeatsFromScreen(fallback, priceStandard, priceVIP);
 }

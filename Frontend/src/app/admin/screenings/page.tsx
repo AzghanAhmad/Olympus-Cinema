@@ -1,27 +1,29 @@
 'use client';
 
 import React, { useState } from 'react';
-import { MOCK_SCREENINGS, MOCK_HALLS } from '@/data/screenings';
+import { MOCK_SCREENINGS } from '@/data/screenings';
 import { MOCK_MOVIES } from '@/data/movies';
 import { Screening } from '@/types/screening';
 import { Plus, Edit2, Trash2, X } from 'lucide-react';
 import { formatDate } from '@/lib/utils';
 import { toast } from '@/store/useToastStore';
+import { useCinemaLayoutStore } from '@/store/useCinemaLayoutStore';
 
 export default function AdminScreeningsPage() {
+  const halls = useCinemaLayoutStore((s) => s.screens);
   const [screenings, setScreenings] = useState<Screening[]>(MOCK_SCREENINGS);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingScr, setEditingScr] = useState<Screening | null>(null);
 
   const [movieId, setMovieId] = useState(MOCK_MOVIES[0]?.id || '');
-  const [hallId, setHallId] = useState(MOCK_HALLS[0]?.id || '');
+  const [hallId, setHallId] = useState(halls[0]?.id || '');
   const [startTime, setStartTime] = useState('19:30');
   const [date, setDate] = useState('2026-08-15');
 
   const openAddModal = () => {
     setEditingScr(null);
     setMovieId(MOCK_MOVIES[0]?.id || '');
-    setHallId(MOCK_HALLS[0]?.id || '');
+    setHallId(halls[0]?.id || '');
     setStartTime('19:30');
     setDate('2026-08-15');
     setIsModalOpen(true);
@@ -39,9 +41,11 @@ export default function AdminScreeningsPage() {
   const handleSaveScreening = (e: React.FormEvent) => {
     e.preventDefault();
     const movie = MOCK_MOVIES.find((m) => m.id === movieId);
-    const hall = MOCK_HALLS.find((h) => h.id === hallId);
+    const hall = halls.find((h) => h.id === hallId);
 
     if (!movie || !hall) return;
+
+    const totalSeats = hall.rows.reduce((sum, r) => sum + r.left + r.right, 0);
 
     if (editingScr) {
       const updated: Screening = {
@@ -52,6 +56,7 @@ export default function AdminScreeningsPage() {
         screenType: hall.screenType,
         date,
         startTime,
+        totalSeatsCount: totalSeats,
       };
       setScreenings(screenings.map((s) => (s.id === editingScr.id ? updated : s)));
       toast.success('Screening Updated', `Showtime for "${movie.title}" updated.`);
@@ -65,8 +70,8 @@ export default function AdminScreeningsPage() {
         date,
         startTime,
         endTime: '22:00',
-        availableSeatsCount: hall.totalSeats,
-        totalSeatsCount: hall.totalSeats,
+        availableSeatsCount: totalSeats,
+        totalSeatsCount: totalSeats,
         priceStandard: 16.0,
         priceVIP: 24.0,
       };
@@ -90,7 +95,7 @@ export default function AdminScreeningsPage() {
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <h1 className="text-2xl font-extrabold tracking-tight">Screening Schedule Manager</h1>
-          <p className="text-xs text-muted-foreground mt-1">Schedule movie showtimes across IMAX, Atmos, and VIP auditoriums.</p>
+          <p className="text-xs text-muted-foreground mt-1">Schedule Majnoon showtimes at the cinema.</p>
         </div>
 
         <button
@@ -175,13 +180,13 @@ export default function AdminScreeningsPage() {
             </div>
 
             <div>
-              <label className="block text-xs font-bold mb-1">Select Auditorium / Hall</label>
+              <label className="block text-xs font-bold mb-1">Select Cinema</label>
               <select
                 value={hallId}
                 onChange={(e) => setHallId(e.target.value)}
                 className="w-full py-2.5 px-3 bg-secondary text-foreground text-xs rounded-xl border border-border"
               >
-                {MOCK_HALLS.map((h) => (
+                {halls.map((h) => (
                   <option key={h.id} value={h.id}>
                     {h.name} ({h.screenType})
                   </option>

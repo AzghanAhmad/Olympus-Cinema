@@ -26,10 +26,10 @@ export default function AdminBookingsPage() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-extrabold tracking-tight">Booking Reservations & Ticket Check-In</h1>
-        <p className="text-xs text-muted-foreground mt-1">
-          Inspect customer reservations, scan/verify e-tickets, and process check-ins.
-        </p>
+<h1 className="text-2xl font-extrabold tracking-tight">Booking Reservations</h1>
+          <p className="text-xs text-muted-foreground mt-1">
+            Inspect customer reservations. Bookings stay unconfirmed until payment; tickets are issued after payment.
+          </p>
       </div>
 
       <div className="relative max-w-md">

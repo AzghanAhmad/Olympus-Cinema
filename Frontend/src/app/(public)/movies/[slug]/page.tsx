@@ -97,7 +97,7 @@ export default function MovieDetailsPage() {
                   className="flex items-center gap-2 px-6 py-3 bg-primary text-white font-bold rounded-xl shadow-lg shadow-primary/40 hover:bg-primary/90 transition-all"
                 >
                   <Ticket className="w-5 h-5" />
-                  Reserve Tickets
+                  Reserve Seats
                 </a>
               </div>
             </div>
@@ -210,7 +210,7 @@ export default function MovieDetailsPage() {
                 >
                   <div className="flex items-start justify-between">
                     <div>
-                      <h4 className="font-extrabold text-base">Olympus Cinema</h4>
+                      <h4 className="font-extrabold text-base">Crystal Entertainment</h4>
                       <p className="text-xs text-muted-foreground mt-0.5">
                         {formatDate(scr.date)}
                       </p>

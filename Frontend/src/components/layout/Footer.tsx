@@ -39,7 +39,7 @@ export function Footer() {
               </span>
             </Link>
             <p className="text-sm text-zinc-400 max-w-sm leading-relaxed">
-              Crystal Entertainment presents <strong className="text-zinc-200">Majunoon</strong> exclusively at Olympus Cinema. Reserve seats for any open show — tickets issued after payment.
+              Crystal Entertainment presents <strong className="text-zinc-200">Majnoon</strong>. Reserve seats for any open show — tickets issued after payment.
             </p>
             <div className="flex items-center space-x-3 pt-2">
               <a href="https://www.youtube.com/" target="_blank" rel="noopener noreferrer" className="w-9 h-9 rounded-full bg-zinc-900 flex items-center justify-center text-zinc-400 hover:text-white hover:bg-primary transition-colors" title="YouTube">
@@ -57,7 +57,7 @@ export function Footer() {
           <div>
             <h4 className="text-sm font-semibold uppercase tracking-wider text-white mb-4">Quick Links</h4>
             <ul className="space-y-2.5 text-sm">
-              <li><Link href="/movies/majunoon" className="hover:text-primary transition-colors">Majunoon</Link></li>
+              <li><Link href="/movies/majnoon" className="hover:text-primary transition-colors">Majnoon</Link></li>
               <li><Link href="/screenings" className="hover:text-primary transition-colors">Showtimes</Link></li>
               <li><Link href="/news" className="hover:text-primary transition-colors">News</Link></li>
               <li><Link href="/about" className="hover:text-primary transition-colors">About</Link></li>
@@ -76,11 +76,11 @@ export function Footer() {
           </div>
 
           <div>
-            <h4 className="text-sm font-semibold uppercase tracking-wider text-white mb-4">Olympus Cinema</h4>
+            <h4 className="text-sm font-semibold uppercase tracking-wider text-white mb-4">Crystal Entertainment</h4>
             <ul className="space-y-3 text-sm text-zinc-400">
               <li className="flex items-start gap-2.5">
                 <MapPin className="w-4 h-4 text-primary shrink-0 mt-0.5" />
-                <span>Olympus Cinema · Presented by Crystal Entertainment</span>
+                <span>Crystal Entertainment · Majnoon</span>
               </li>
               <li className="flex items-center gap-2.5">
                 <Phone className="w-4 h-4 text-primary shrink-0" />
@@ -95,7 +95,7 @@ export function Footer() {
         </div>
 
         <div className="mt-12 pt-8 border-t border-zinc-900 flex flex-col md:flex-row items-center justify-between text-xs text-zinc-500 gap-4">
-          <p>© {new Date().getFullYear()} Crystal Entertainment · Olympus Cinema. All rights reserved.</p>
+          <p>© {new Date().getFullYear()} Crystal Entertainment. All rights reserved.</p>
           <div className="flex space-x-6">
             <a href="#" className="hover:text-zinc-400 transition-colors">Privacy Policy</a>
             <a href="#" className="hover:text-zinc-400 transition-colors">Terms of Service</a>

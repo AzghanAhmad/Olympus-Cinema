@@ -15,7 +15,7 @@ export default function AdminEventsPage() {
   const [subtitle, setSubtitle] = useState('');
   const [date, setDate] = useState('2026-08-20');
   const [time, setTime] = useState('23:30');
-  const [location, setLocation] = useState('Olympus Grand Hall');
+  const [location, setLocation] = useState('Crystal Entertainment');
   const [description, setDescription] = useState('');
   const [ctaText, setCtaText] = useState('Reserve Premiere Pass');
 
@@ -25,7 +25,7 @@ export default function AdminEventsPage() {
     setSubtitle('');
     setDate('2026-08-20');
     setTime('23:30');
-    setLocation('Olympus Grand Hall');
+    setLocation('Crystal Entertainment');
     setDescription('');
     setCtaText('Reserve Premiere Pass');
     setIsModalOpen(true);
@@ -70,7 +70,7 @@ export default function AdminEventsPage() {
         time,
         location,
         description,
-        imageUrl: 'https://images.unsplash.com/photo-1518709268805-4e9042af9f23?q=80&w=1000&auto=format&fit=crop',
+        imageUrl: '/images/majnoon-backdrop.jpg',
         ctaText,
       };
       setEvents([newEvt, ...events]);
@@ -186,7 +186,7 @@ export default function AdminEventsPage() {
             </div>
 
             <div>
-              <label className="block text-xs font-bold mb-1">Auditorium / Location</label>
+              <label className="block text-xs font-bold mb-1">Cinema / Location</label>
               <input
                 type="text"
                 value={location}

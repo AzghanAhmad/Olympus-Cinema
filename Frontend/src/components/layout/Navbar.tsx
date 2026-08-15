@@ -16,7 +16,6 @@ export function Navbar() {
   const pathname = usePathname();
   const { user } = useAuthStore();
   const brandName = useSiteSettingsStore((s) => s.brandName);
-  const cinemaName = useSiteSettingsStore((s) => s.cinemaName);
 
   useEffect(() => {
     const handleScroll = () => setIsScrolled(window.scrollY > 20);
@@ -26,7 +25,7 @@ export function Navbar() {
 
   const navLinks = [
     { name: 'Home', href: '/' },
-    { name: 'Majunoon', href: '/movies/majunoon' },
+    { name: 'Majnoon', href: '/movies/majnoon' },
     { name: 'Showtimes', href: '/screenings' },
     { name: 'News', href: '/news' },
     { name: 'About', href: '/about' },
@@ -52,7 +51,7 @@ export function Navbar() {
                 CRYSTAL<span className="text-primary">ENT</span>
               </span>
               <span className="text-[10px] tracking-widest uppercase font-medium text-muted-foreground">
-                {brandName} · {cinemaName}
+                {brandName}
               </span>
             </div>
           </Link>
@@ -154,7 +153,7 @@ export function Navbar() {
             >
               <X className="w-5 h-5" />
             </button>
-            <h3 className="text-lg font-bold mb-4">Search Majunoon</h3>
+            <h3 className="text-lg font-bold mb-4">Search Majnoon</h3>
             <input
               type="text"
               placeholder="Showtimes, news..."

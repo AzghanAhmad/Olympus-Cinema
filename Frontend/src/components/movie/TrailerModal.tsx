@@ -4,6 +4,7 @@ import React from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, Share2 } from 'lucide-react';
 import { modalAnimation } from '@/lib/motion';
+import { toast } from '@/store/useToastStore';
 
 interface TrailerModalProps {
   videoUrl: string | null;
@@ -48,47 +49,65 @@ function IconTikTok({ className }: { className?: string }) {
   );
 }
 
-export function TrailerModal({ videoUrl, onClose, title = 'Majunoon' }: TrailerModalProps) {
+async function copyTrailerLink(url: string, platform: string) {
+  try {
+    await navigator.clipboard.writeText(url);
+    toast.success('Link copied', `Paste the Majnoon trailer link in ${platform}`);
+  } catch {
+    toast.info('Trailer link', url);
+  }
+}
+
+export function TrailerModal({ videoUrl, onClose, title = 'Majnoon' }: TrailerModalProps) {
   const watchUrl = videoUrl ? toWatchUrl(videoUrl) : '';
   const shareText = encodeURIComponent(`Watch the ${title} trailer`);
   const encodedUrl = encodeURIComponent(watchUrl);
 
+  const handleShare = async (platform: 'youtube' | 'tiktok' | 'facebook' | 'instagram') => {
+    if (!watchUrl) return;
+
+    if (platform === 'youtube') {
+      window.open(watchUrl, '_blank', 'noopener,noreferrer');
+      return;
+    }
+
+    if (platform === 'facebook') {
+      window.open(
+        `https://www.facebook.com/sharer/sharer.php?u=${encodedUrl}&quote=${shareText}`,
+        '_blank',
+        'noopener,noreferrer'
+      );
+      return;
+    }
+
+    if (platform === 'tiktok') {
+      await copyTrailerLink(watchUrl, 'TikTok');
+      window.open('https://www.tiktok.com/', '_blank', 'noopener,noreferrer');
+      return;
+    }
+
+    // Instagram has no web share URL for posts — copy then open
+    await copyTrailerLink(watchUrl, 'Instagram');
+    window.open('https://www.instagram.com/', '_blank', 'noopener,noreferrer');
+  };
+
   const shares = [
-    {
-      name: 'YouTube',
-      href: watchUrl,
-      icon: IconYoutube,
-      className: 'bg-red-600 hover:bg-red-500 text-white',
-    },
-    {
-      name: 'TikTok',
-      href: 'https://www.tiktok.com/upload?lang=en',
-      icon: IconTikTok,
-      className: 'bg-zinc-900 hover:bg-zinc-800 text-white border border-zinc-700',
-    },
-    {
-      name: 'Facebook',
-      href: `https://www.facebook.com/sharer/sharer.php?u=${encodedUrl}`,
-      icon: IconFacebook,
-      className: 'bg-[#1877F2] hover:bg-[#166fe5] text-white',
-    },
-    {
-      name: 'Instagram',
-      href: 'https://www.instagram.com/',
-      icon: IconInstagram,
-      className: 'bg-gradient-to-r from-[#f58529] via-[#dd2a7b] to-[#8134af] text-white',
-    },
+    { name: 'YouTube', platform: 'youtube' as const, icon: IconYoutube, className: 'bg-red-600 hover:bg-red-500 text-white' },
+    { name: 'TikTok', platform: 'tiktok' as const, icon: IconTikTok, className: 'bg-zinc-900 hover:bg-zinc-800 text-white border border-zinc-700' },
+    { name: 'Facebook', platform: 'facebook' as const, icon: IconFacebook, className: 'bg-[#1877F2] hover:bg-[#166fe5] text-white' },
+    { name: 'Instagram', platform: 'instagram' as const, icon: IconInstagram, className: 'bg-gradient-to-r from-[#f58529] via-[#dd2a7b] to-[#8134af] text-white' },
   ];
 
   const handleNativeShare = async () => {
+    if (!watchUrl) return;
     if (navigator.share) {
       try {
         await navigator.share({ title: `${title} Trailer`, text: `Watch the ${title} trailer`, url: watchUrl });
       } catch {
-        /* user cancelled */
+        /* cancelled */
       }
     } else {
-      await navigator.clipboard.writeText(watchUrl);
+      await copyTrailerLink(watchUrl, 'your app');
     }
   };
 
@@ -120,37 +139,30 @@ export function TrailerModal({ videoUrl, onClose, title = 'Majunoon' }: TrailerM
               />
             </div>
 
-            <div className="p-4 sm:p-5 border-t border-zinc-800 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-              <div className="flex items-center gap-2 text-white text-sm font-bold">
-                <Share2 className="w-4 h-4 text-primary" />
-                Share trailer
-              </div>
-              <div className="flex flex-wrap items-center gap-2">
-                {shares.map((s) => {
-                  const Icon = s.icon;
-                  return (
-                    <a
-                      key={s.name}
-                      href={s.href}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className={`inline-flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-bold transition-colors ${s.className}`}
-                      title={`Share on ${s.name}`}
-                    >
-                      <Icon className="w-3.5 h-3.5" />
-                      {s.name}
-                    </a>
-                  );
-                })}
-                <button
-                  type="button"
-                  onClick={handleNativeShare}
-                  className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-bold bg-white/10 text-white hover:bg-white/20 border border-white/20"
-                >
-                  <Share2 className="w-3.5 h-3.5" />
-                  More
-                </button>
-              </div>
+            <div className="p-4 sm:p-5 border-t border-zinc-800 flex flex-wrap items-center justify-end gap-2">
+              {shares.map((s) => {
+                const Icon = s.icon;
+                return (
+                  <button
+                    key={s.name}
+                    type="button"
+                    onClick={() => handleShare(s.platform)}
+                    className={`inline-flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-bold transition-colors ${s.className}`}
+                    title={`Share on ${s.name}`}
+                  >
+                    <Icon className="w-3.5 h-3.5" />
+                    {s.name}
+                  </button>
+                );
+              })}
+              <button
+                type="button"
+                onClick={handleNativeShare}
+                className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-bold bg-white/10 text-white hover:bg-white/20 border border-white/20"
+              >
+                <Share2 className="w-3.5 h-3.5" />
+                More
+              </button>
             </div>
           </motion.div>
         </div>

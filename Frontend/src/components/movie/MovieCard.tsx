@@ -53,7 +53,7 @@ export function MovieCard({ movie, onWatchTrailer }: MovieCardProps) {
               className="flex items-center gap-2 px-5 py-2.5 bg-primary text-white font-extrabold rounded-xl text-xs shadow-lg shadow-primary/40 hover:bg-primary/90 transition-colors"
             >
               <Ticket className="w-4 h-4" />
-              Book Tickets
+              Book Seats
             </motion.button>
           </Link>
         </div>

@@ -44,8 +44,8 @@ export default function AdminMoviesPage() {
       language: 'English',
       ageRating: 'PG-13',
       rating: 8.5,
-      posterUrl: 'https://images.unsplash.com/photo-1534447677768-be436bb09401?q=80&w=1000&auto=format&fit=crop',
-      backdropUrl: 'https://images.unsplash.com/photo-1518709268805-4e9042af9f23?q=80&w=1920&auto=format&fit=crop',
+      posterUrl: '/images/majnoon-poster.jpg',
+      backdropUrl: '/images/majnoon-backdrop.jpg',
       trailerUrl: 'https://www.youtube.com/embed/Way9Dexny3w',
       status: 'NOW_SHOWING',
     });
@@ -331,7 +331,7 @@ export default function AdminMoviesPage() {
                     type="url"
                     value={formData.posterUrl}
                     onChange={(e) => setFormData({ ...formData, posterUrl: e.target.value })}
-                    placeholder="https://images.unsplash.com/..."
+                    placeholder="/images/majnoon-poster.jpg"
                     className="w-full py-2.5 px-3 bg-secondary text-foreground text-xs rounded-xl border border-border"
                   />
                 </div>
@@ -342,7 +342,7 @@ export default function AdminMoviesPage() {
                     type="url"
                     value={formData.backdropUrl}
                     onChange={(e) => setFormData({ ...formData, backdropUrl: e.target.value })}
-                    placeholder="https://images.unsplash.com/..."
+                    placeholder="/images/majnoon-poster.jpg"
                     className="w-full py-2.5 px-3 bg-secondary text-foreground text-xs rounded-xl border border-border"
                   />
                 </div>

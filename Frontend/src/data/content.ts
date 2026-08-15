@@ -1,19 +1,19 @@
 import { NewsArticle, CinemaEvent, UserProfile } from '@/types/content';
 import { Booking } from '@/types/booking';
-import { MAJUNOON } from '@/data/movies';
+import { MAJNOON } from '@/data/movies';
 
 export const MOCK_NEWS: NewsArticle[] = [
   {
     id: 'n1',
-    title: 'Majunoon Opens Exclusively at Olympus Cinema',
-    slug: 'majunoon-opens-olympus',
+    title: 'Majnoon Opens with Crystal Entertainment',
+    slug: 'majnoon-opens-crystal',
     category: 'Premiere',
-    summary: 'Crystal Entertainment presents Majunoon with multiple daily shows at Olympus Cinema.',
+    summary: 'Crystal Entertainment presents Majnoon with multiple daily shows.',
     content:
-      'Book your seats for Majunoon at Olympus Cinema. Choose any of our open showtimes and reserve up to 15 seats per person. Reservations are confirmed after payment.',
+      'Book your seats for Majnoon with Crystal Entertainment. Choose any of our open showtimes and reserve up to 15 seats per person. Reservations are confirmed after payment.',
     author: 'Crystal Entertainment',
     publishedAt: '2026-08-12',
-    imageUrl: MAJUNOON.backdropUrl,
+    imageUrl: MAJNOON.backdropUrl,
     isFeatured: true,
   },
   {
@@ -24,9 +24,9 @@ export const MOCK_NEWS: NewsArticle[] = [
     summary: 'A reservation holds your seats until payment. Your ticket is issued only after payment is complete.',
     content:
       'After you reserve seats, you receive a booking reference (QR). This is not an entry ticket. Our team will contact you as soon as the reservation is confirmed. Tickets are provided once payment is done.',
-    author: 'Olympus Cinema',
+    author: 'Crystal Entertainment',
     publishedAt: '2026-08-13',
-    imageUrl: 'https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?q=80&w=1000&auto=format&fit=crop',
+    imageUrl: MAJNOON.posterUrl,
     isFeatured: false,
   },
 ];
@@ -34,15 +34,15 @@ export const MOCK_NEWS: NewsArticle[] = [
 export const MOCK_EVENTS: CinemaEvent[] = [
   {
     id: 'e1',
-    title: 'Majunoon Opening Weekend',
-    slug: 'majunoon-opening-weekend',
+    title: 'Majnoon Opening Weekend',
+    slug: 'majnoon-opening-weekend',
     subtitle: 'Multiple shows daily — reserve your seats now',
     date: '2026-08-15',
     time: '14:00',
-    location: 'Olympus Cinema',
+    location: 'Crystal Entertainment',
     description:
-      'Crystal Entertainment invites you to Majunoon at Olympus Cinema. Pick any open showtime and reserve seats online.',
-    imageUrl: MAJUNOON.backdropUrl,
+      'Crystal Entertainment invites you to Majnoon. Pick any open showtime and reserve seats online.',
+    imageUrl: MAJNOON.backdropUrl,
     ctaText: 'Reserve Seats',
   },
 ];
@@ -52,7 +52,7 @@ export const MOCK_USER: UserProfile = {
   name: 'Alexander Wright',
   email: 'alexander.wright@cinema.com',
   phone: '+1 (555) 234-5678',
-  avatarUrl: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?q=80&w=300&auto=format&fit=crop',
+  avatarUrl: '/images/avatar.svg',
   role: 'ADMIN',
   joinedDate: '2025-01-15',
   totalBookings: 14,
@@ -64,9 +64,9 @@ export const MOCK_BOOKINGS: Booking[] = [
     bookingCode: 'RES-774219',
     screeningId: 'scr-101',
     movieId: 'm1',
-    movieTitle: 'Majunoon',
-    moviePoster: MAJUNOON.posterUrl,
-    hallName: 'Olympus Cinema',
+    movieTitle: 'Majnoon',
+    moviePoster: MAJNOON.posterUrl,
+    hallName: 'Crystal Entertainment',
     screenType: 'STANDARD 4K',
     date: '2026-08-15',
     startTime: '14:00',
@@ -82,6 +82,6 @@ export const MOCK_BOOKINGS: Booking[] = [
     totalPrice: 24.0,
     status: 'PENDING',
     createdAt: '2026-08-14T10:15:00Z',
-    qrCodeValue: 'RESERVATION|RES-774219|Majunoon|2026-08-15|14:00|E-4,E-5',
+    qrCodeValue: 'RESERVATION|RES-774219|Majnoon|2026-08-15|14:00|E-4,E-5',
   },
 ];

@@ -1,12 +1,12 @@
 import { Screening, CinemaHall } from '@/types/screening';
 import { OLYMPUS_TOTAL_SEATS, OLYMPUS_ROWS } from '@/data/seats';
-import { MAJUNOON_ID } from '@/data/movies';
+import { MAJNOON_ID } from '@/data/movies';
 
-/** Single Olympus cinema — seat count editable via admin settings store */
+/** Venue hall — seat count editable via admin settings store */
 export const MOCK_HALLS: CinemaHall[] = [
   {
     id: 'hall-olympus',
-    name: 'Olympus Cinema',
+    name: 'Crystal Entertainment',
     screenType: 'STANDARD 4K',
     totalSeats: OLYMPUS_TOTAL_SEATS,
     rows: OLYMPUS_ROWS.length,
@@ -14,13 +14,13 @@ export const MOCK_HALLS: CinemaHall[] = [
   },
 ];
 
-/** 3–5 concurrent Majunoon shows open for booking */
+/** 3–5 concurrent Majnoon shows open for booking */
 export const MOCK_SCREENINGS: Screening[] = [
   {
     id: 'scr-101',
-    movieId: MAJUNOON_ID,
+    movieId: MAJNOON_ID,
     hallId: 'hall-olympus',
-    hallName: 'Olympus Cinema',
+    hallName: 'Crystal Entertainment',
     screenType: 'STANDARD 4K',
     date: '2026-08-15',
     startTime: '14:00',
@@ -32,9 +32,9 @@ export const MOCK_SCREENINGS: Screening[] = [
   },
   {
     id: 'scr-102',
-    movieId: MAJUNOON_ID,
+    movieId: MAJNOON_ID,
     hallId: 'hall-olympus',
-    hallName: 'Olympus Cinema',
+    hallName: 'Crystal Entertainment',
     screenType: 'STANDARD 4K',
     date: '2026-08-15',
     startTime: '17:00',
@@ -46,9 +46,9 @@ export const MOCK_SCREENINGS: Screening[] = [
   },
   {
     id: 'scr-103',
-    movieId: MAJUNOON_ID,
+    movieId: MAJNOON_ID,
     hallId: 'hall-olympus',
-    hallName: 'Olympus Cinema',
+    hallName: 'Crystal Entertainment',
     screenType: 'STANDARD 4K',
     date: '2026-08-15',
     startTime: '19:30',
@@ -60,9 +60,9 @@ export const MOCK_SCREENINGS: Screening[] = [
   },
   {
     id: 'scr-104',
-    movieId: MAJUNOON_ID,
+    movieId: MAJNOON_ID,
     hallId: 'hall-olympus',
-    hallName: 'Olympus Cinema',
+    hallName: 'Crystal Entertainment',
     screenType: 'STANDARD 4K',
     date: '2026-08-15',
     startTime: '21:45',
@@ -74,9 +74,9 @@ export const MOCK_SCREENINGS: Screening[] = [
   },
   {
     id: 'scr-105',
-    movieId: MAJUNOON_ID,
+    movieId: MAJNOON_ID,
     hallId: 'hall-olympus',
-    hallName: 'Olympus Cinema',
+    hallName: 'Crystal Entertainment',
     screenType: 'STANDARD 4K',
     date: '2026-08-16',
     startTime: '16:00',

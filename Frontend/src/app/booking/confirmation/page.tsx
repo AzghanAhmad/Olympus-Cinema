@@ -46,7 +46,10 @@ function ConfirmationContent() {
           Booking will be confirmed once the payment is done.
         </p>
         <p className="text-sm font-semibold text-foreground max-w-lg mx-auto bg-secondary/60 border border-border rounded-2xl px-4 py-3">
-          We will contact as soon as the reservation is confirmed.
+          we will contact as soon as the reservation is confirmed
+        </p>
+        <p className="text-xs text-muted-foreground max-w-lg mx-auto">
+          This is an unconfirmed booking — not a ticket. You will get your ticket once it is paid.
         </p>
       </div>
 
@@ -77,7 +80,7 @@ function ConfirmationContent() {
               </div>
               <div>
                 <span className="text-muted-foreground block">Status</span>
-                <strong className="text-amber-600 dark:text-amber-400 text-sm">Unconfirmed · Awaiting payment</strong>
+                <strong className="text-amber-600 dark:text-amber-400 text-sm">Unconfirmed booking</strong>
               </div>
               <div>
                 <span className="text-muted-foreground block">Date & Time</span>
@@ -102,7 +105,8 @@ function ConfirmationContent() {
               <strong className="text-foreground">{booking.customer.fullName}</strong> ({booking.customer.email})
             </div>
             <p className="text-[11px] text-muted-foreground leading-relaxed">
-              The QR code is a reservation reference only — it is not an entry ticket. Your ticket will be issued once payment is completed.
+              This QR code is only an unconfirmed booking reference. It is not a ticket.
+              The person will get a ticket once it is paid.
             </p>
           </div>
 

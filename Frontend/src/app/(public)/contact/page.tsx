@@ -40,7 +40,7 @@ export default function ContactPage() {
         <div>
           <h1 className="text-4xl font-extrabold tracking-tight">Contact Cinema Concierge</h1>
           <p className="text-muted-foreground text-sm mt-1">
-            Have a question about private bookings, VIP hospitality, or ticket inquiries? Get in touch.
+            Have a question about bookings or cinema reservations? Get in touch.
           </p>
         </div>
 
@@ -130,7 +130,7 @@ export default function ContactPage() {
                 <div className="flex items-start gap-3">
                   <MapPin className="w-5 h-5 text-primary shrink-0 mt-0.5" />
                   <div>
-                    <strong className="text-foreground block">Olympus Cinema</strong>
+                    <strong className="text-foreground block">Crystal Entertainment</strong>
                     <span>Presented by Crystal Entertainment</span>
                   </div>
                 </div>

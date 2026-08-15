@@ -12,7 +12,7 @@ export default function AdminUsersPage() {
       name: 'Sophia Martinez',
       email: 'sophia.m@example.com',
       phone: '+1 (555) 987-6543',
-      avatarUrl: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?q=80&w=300&auto=format&fit=crop',
+      avatarUrl: '/images/avatar.svg',
       role: 'USER',
       joinedDate: '2025-06-10',
       totalBookings: 6,

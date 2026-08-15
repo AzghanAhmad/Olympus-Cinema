@@ -18,7 +18,7 @@ export const useSiteSettingsStore = create<SiteSettingsState>()(
   persist(
     (set) => ({
       brandName: 'Crystal Entertainment',
-      cinemaName: 'Olympus',
+      cinemaName: 'Crystal Entertainment',
       maxTicketsPerPerson: 15,
       seatHoldMinutes: 10,
       totalSeats: 438,
@@ -27,6 +27,6 @@ export const useSiteSettingsStore = create<SiteSettingsState>()(
       setSeatHoldMinutes: (seatHoldMinutes) => set({ seatHoldMinutes }),
       setTotalSeats: (totalSeats) => set({ totalSeats }),
     }),
-    { name: 'crystal-site-settings' }
+    { name: 'crystal-site-settings-v2' }
   )
 );

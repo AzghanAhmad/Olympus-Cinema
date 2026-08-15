@@ -15,7 +15,7 @@ export default function UserBookingsPage() {
         <div>
           <h1 className="text-3xl font-extrabold tracking-tight">Booking History</h1>
           <p className="text-muted-foreground text-sm mt-1">
-            View all active and past Majunoon reservations.
+            View all active and past Majnoon reservations.
           </p>
         </div>
 

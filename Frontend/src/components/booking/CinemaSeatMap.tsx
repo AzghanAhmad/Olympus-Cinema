@@ -11,21 +11,23 @@ import { getAisleAfter } from '@/data/seats';
 
 interface CinemaSeatMapProps {
   seats: Seat[];
+  /** Seat number after which the center aisle appears, per row label */
+  aisleAfterByRow?: Record<string, number>;
 }
 
-export function CinemaSeatMap({ seats }: CinemaSeatMapProps) {
+export function CinemaSeatMap({ seats, aisleAfterByRow }: CinemaSeatMapProps) {
   const { selectedSeats, toggleSeat } = useBookingStore();
 
   const rows = Array.from(new Set(seats.map((s) => s.row))).sort();
 
   const handleSeatClick = (seat: Seat) => {
     if (seat.status !== 'AVAILABLE') return;
-    const isSelected = selectedSeats.some((s) => s.id === seat.id);
-    toggleSeat(seat);
+    const result = toggleSeat(seat);
 
-    if (isSelected) {
+    if (result === 'limit') return;
+    if (result === 'deselected') {
       toast.info(`Seat ${seat.id} Deselected`, 'Removed from booking cart');
-    } else {
+    } else if (result === 'selected') {
       toast.success(`Seat ${seat.id} Selected`, `$${seat.price} • ${seat.category}`);
     }
   };
@@ -62,11 +64,11 @@ export function CinemaSeatMap({ seats }: CinemaSeatMapProps) {
         </span>
       </div>
 
-      {/* Seat Map Matrix — Olympus layout with center aisle */}
+      {/* Seat Map Matrix — center aisle layout */}
       <div className="min-w-min space-y-1.5 p-4 bg-card/60 rounded-3xl border border-border backdrop-blur-xs">
         {rows.map((rowLetter) => {
           const rowSeats = seats.filter((s) => s.row === rowLetter).sort((a, b) => a.number - b.number);
-          const aisleAfter = getAisleAfter(rowLetter);
+          const aisleAfter = aisleAfterByRow?.[rowLetter] ?? getAisleAfter(rowLetter);
 
           return (
             <div key={rowLetter} className="flex items-center justify-center gap-1.5">

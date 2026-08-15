@@ -11,6 +11,7 @@ import { CinemaSeatMap } from '@/components/booking/CinemaSeatMap';
 import { SeatHoldTimer } from '@/components/booking/SeatHoldTimer';
 import { useBookingStore } from '@/store/useBookingStore';
 import { useSiteSettingsStore } from '@/store/useSiteSettingsStore';
+import { useCinemaLayoutStore } from '@/store/useCinemaLayoutStore';
 import { screeningService } from '@/services/screeningService';
 import { movieService } from '@/services/movieService';
 import { bookingService } from '@/services/bookingService';
@@ -18,6 +19,7 @@ import { Seat, Screening } from '@/types/screening';
 import { Movie } from '@/types/movie';
 import { formatCurrency, formatDate } from '@/lib/utils';
 import { toast } from '@/store/useToastStore';
+import { aisleAfterByRow } from '@/data/seats';
 import { ArrowRight, ArrowLeft, ShieldCheck } from 'lucide-react';
 
 const guestSchema = z.object({
@@ -42,6 +44,9 @@ export default function BookingPage() {
 
   const maxTickets = useSiteSettingsStore((s) => s.maxTicketsPerPerson);
   const cinemaName = useSiteSettingsStore((s) => s.cinemaName);
+  const layoutUpdatedAt = useCinemaLayoutStore((s) => s.updatedAt);
+  const screens = useCinemaLayoutStore((s) => s.screens);
+  const layoutScreen = screens.find((s) => s.id === screening?.hallId);
 
   const {
     selectedSeats,
@@ -88,6 +93,19 @@ export default function BookingPage() {
     loadData();
   }, [screeningId, setScreeningAndMovie]);
 
+  useEffect(() => {
+    if (!layoutUpdatedAt || !screeningId) return;
+    async function refreshLayout() {
+      const scr = await screeningService.getScreeningById(screeningId);
+      if (scr) {
+        setScreening(scr);
+        const seatList = await screeningService.getScreeningSeats(scr.id);
+        setSeats(seatList);
+      }
+    }
+    refreshLayout();
+  }, [layoutUpdatedAt, screeningId]);
+
   if (loading || !screening || !movie) {
     return (
       <PublicLayout>
@@ -120,7 +138,7 @@ export default function BookingPage() {
       movieId: movie.id,
       movieTitle: movie.title,
       moviePoster: movie.posterUrl,
-      hallName: cinemaName ? `${cinemaName} Cinema` : screening.hallName,
+      hallName: cinemaName || screening.hallName,
       screenType: screening.screenType,
       date: screening.date,
       startTime: screening.startTime,
@@ -165,7 +183,12 @@ export default function BookingPage() {
                   </div>
                 </div>
 
-                <CinemaSeatMap seats={seats} />
+                <CinemaSeatMap
+                  seats={seats}
+                  aisleAfterByRow={
+                    layoutScreen ? aisleAfterByRow(layoutScreen.rows) : undefined
+                  }
+                />
 
                 <div className="flex justify-end pt-4 border-t border-border">
                   <button
@@ -329,7 +352,7 @@ export default function BookingPage() {
                 <div className="border-b border-border pb-4">
                   <h2 className="text-xl font-extrabold">Confirm Reservation</h2>
                   <p className="text-xs text-muted-foreground">
-                    This creates an unconfirmed booking. Tickets are issued only after payment.
+                    This creates an unconfirmed booking — not a ticket. You will get a ticket once it is paid.
                   </p>
                 </div>
 
@@ -337,7 +360,7 @@ export default function BookingPage() {
                   <div className="p-4 bg-secondary/50 rounded-2xl space-y-2">
                     <h4 className="font-extrabold text-base text-primary">{movie.title}</h4>
                     <p className="text-xs text-muted-foreground">
-                      {cinemaName} Cinema • {formatDate(screening.date)} at {screening.startTime}
+                      {cinemaName} • {formatDate(screening.date)} at {screening.startTime}
                     </p>
                   </div>
 
@@ -392,7 +415,7 @@ export default function BookingPage() {
                 </div>
                 <div className="space-y-1">
                   <h4 className="font-extrabold text-sm line-clamp-1">{movie.title}</h4>
-                  <p className="text-xs text-muted-foreground">{cinemaName} Cinema</p>
+                  <p className="text-xs text-muted-foreground">{cinemaName}</p>
                   <span className="inline-block text-[10px] font-bold px-2 py-0.5 rounded bg-primary/10 text-primary">
                     {formatDate(screening.date)} • {screening.startTime}
                   </span>

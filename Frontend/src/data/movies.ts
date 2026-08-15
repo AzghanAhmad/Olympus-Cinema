@@ -1,53 +1,78 @@
 import { Movie } from '@/types/movie';
 
-/** Single-film site: Majunoon only */
-export const MAJUNOON_ID = 'm1';
+/** Single-film site: Majnoon only (2024) */
+export const MAJNOON_ID = 'm1';
+
+const POSTER = '/images/majnoon-poster.jpg';
+const BACKDROP = '/images/majnoon-backdrop.jpg';
+const CAST_GROUP = '/images/majnoon-cast.jpg';
 
 export const MOCK_MOVIES: Movie[] = [
   {
-    id: MAJUNOON_ID,
-    title: 'Majunoon',
-    slug: 'majunoon',
-    tagline: 'A story that sets the heart on fire.',
+    id: MAJNOON_ID,
+    title: 'Majnoon',
+    slug: 'majnoon',
+    tagline: 'Brotherhood, faith, and sacrifice on Majnoon Island.',
     synopsis:
-      'Majunoon is a passionate cinematic journey of love, destiny, and devotion. Experience the film exclusively at Olympus Cinema, presented by Crystal Entertainment.',
-    genre: ['Drama', 'Romance'],
-    durationMinutes: 155,
-    releaseDate: '2026-08-15',
-    language: 'Urdu / English Subtitles',
+      'Directed by Mehdi Shamohammadi, Majnoon centers on the courageous actions of Mehdi Zeinoddin during the Iran–Iraq war, particularly on Majnoon Island during the Khaybar operation. Presented by Crystal Entertainment.',
+    genre: ['War', 'Drama', 'Biography'],
+    durationMinutes: 101,
+    releaseDate: '2024-02-01',
+    language: 'Persian (English Subtitles)',
     ageRating: 'PG-13',
-    rating: 8.6,
-    posterUrl:
-      'https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?q=80&w=1000&auto=format&fit=crop',
-    backdropUrl:
-      'https://images.unsplash.com/photo-1517604931442-7e0c8ed2963c?q=80&w=1920&auto=format&fit=crop',
-    trailerUrl: 'https://www.youtube.com/embed/Way9Dexny3w',
+    rating: 8.2,
+    posterUrl: POSTER,
+    backdropUrl: BACKDROP,
+    trailerUrl: 'https://www.youtube.com/embed/sWE0jjKHQXo',
     status: 'NOW_SHOWING',
     isFeatured: true,
     cast: [
       {
         id: 'c1',
-        name: 'Lead Actor',
-        character: 'Protagonist',
-        image: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?q=80&w=300&auto=format&fit=crop',
+        name: 'Sajjad Babaei',
+        character: 'Mehdi Zeinoddin',
+        image: POSTER,
       },
       {
         id: 'c2',
-        name: 'Lead Actress',
-        character: 'Love Interest',
-        image: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?q=80&w=300&auto=format&fit=crop',
+        name: 'Shabnam Ghorbani',
+        character: 'Monireh Armaghan',
+        image: CAST_GROUP,
+      },
+      {
+        id: 'c3',
+        name: 'Behzad Khalaj',
+        character: 'Majid Zeinoddin',
+        image: CAST_GROUP,
+      },
+      {
+        id: 'c4',
+        name: 'Hesam Manzour',
+        character: 'Supporting Role',
+        image: CAST_GROUP,
+      },
+      {
+        id: 'c5',
+        name: 'Mohammad Rashno',
+        character: 'Supporting Role',
+        image: CAST_GROUP,
+      },
+      {
+        id: 'c6',
+        name: 'Seyyed Mehdi Hosseini',
+        character: 'Supporting Role',
+        image: CAST_GROUP,
       },
     ],
     crew: [
-      { id: 'cr1', name: 'Crystal Entertainment', role: 'Presented By' },
-      { id: 'cr2', name: 'Olympus Cinema', role: 'Exclusive Venue' },
+      { id: 'cr1', name: 'Mehdi Shamohammadi', role: 'Director' },
+      { id: 'cr2', name: 'Alireza Mohsooli', role: 'Writer' },
+      { id: 'cr3', name: 'Abbas Naderan', role: 'Producer' },
+      { id: 'cr4', name: 'Majid Entezami', role: 'Music' },
+      { id: 'cr5', name: 'Crystal Entertainment', role: 'Presented By' },
     ],
-    gallery: [
-      'https://images.unsplash.com/photo-1517604931442-7e0c8ed2963c?q=80&w=1000&auto=format&fit=crop',
-      'https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?q=80&w=1000&auto=format&fit=crop',
-      'https://images.unsplash.com/photo-1440404653325-ab127d49abc1?q=80&w=1000&auto=format&fit=crop',
-    ],
+    gallery: [BACKDROP, CAST_GROUP, POSTER],
   },
 ];
 
-export const MAJUNOON = MOCK_MOVIES[0];
+export const MAJNOON = MOCK_MOVIES[0];

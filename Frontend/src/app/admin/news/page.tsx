@@ -58,7 +58,7 @@ export default function AdminNewsPage() {
         content: summary,
         author,
         publishedAt: new Date().toISOString().split('T')[0],
-        imageUrl: 'https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?q=80&w=1000&auto=format&fit=crop',
+        imageUrl: '/images/majnoon-poster.jpg',
       };
       setNews([newArticle, ...news]);
       toast.success('Article Published', `"${title}" added to news.`);

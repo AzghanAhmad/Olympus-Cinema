@@ -33,7 +33,7 @@ export function HeroCarousel({ movies, onWatchTrailer }: HeroCarouselProps) {
   const handlePrev = () => setCurrentIndex((prev) => (prev - 1 + movies.length) % movies.length);
 
   return (
-    <div className="relative w-full h-[85vh] min-h-[550px] max-h-[820px] overflow-hidden bg-black text-white">
+    <div className="relative w-full h-[85vh] min-h-[750px] overflow-hidden bg-black text-white">
       {/* Background Image Zoom / Ken Burns Animation */}
       <AnimatePresence mode="wait">
         <motion.div
@@ -49,6 +49,8 @@ export function HeroCarousel({ movies, onWatchTrailer }: HeroCarouselProps) {
             alt={current.title}
             fill
             priority
+            sizes="100vw"
+            unoptimized
             className="object-cover object-center"
           />
           <div className="absolute inset-0 hero-overlay" />
@@ -130,7 +132,7 @@ export function HeroCarousel({ movies, onWatchTrailer }: HeroCarouselProps) {
               <Link href={`/movies/${current.slug}`}>
                 <AnimatedButton variant="primary" size="lg" className="gap-2">
                   <Ticket className="w-5 h-5" />
-                  Book Tickets Now
+                  Reserve Seats Now
                 </AnimatedButton>
               </Link>
 

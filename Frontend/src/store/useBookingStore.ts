@@ -21,7 +21,7 @@ interface BookingStoreState {
   pendingPhoneCode: string;
 
   setScreeningAndMovie: (screening: Screening, movie: Movie) => void;
-  toggleSeat: (seat: Seat) => void;
+  toggleSeat: (seat: Seat) => 'selected' | 'deselected' | 'limit';
   clearSeats: () => void;
   setCustomer: (customer: CustomerDetails) => void;
   setStep: (step: number) => void;
@@ -65,18 +65,22 @@ export const useBookingStore = create<BookingStoreState>((set, get) => ({
 
     if (exists) {
       set({ selectedSeats: selectedSeats.filter((s) => s.id !== seat.id) });
-    } else {
-      if (selectedSeats.length >= maxTickets) {
-        toast.warning('Seat limit reached', `Maximum ${maxTickets} tickets per person.`);
-        return;
-      }
-      set({ selectedSeats: [...selectedSeats, { ...seat, status: 'SELECTED' }] });
+      return 'deselected' as const;
     }
+
+    if (selectedSeats.length >= maxTickets) {
+      toast.warning('Seat limit reached', `Maximum ${maxTickets} tickets per person.`);
+      return 'limit' as const;
+    }
+
+    set({ selectedSeats: [...selectedSeats, { ...seat, status: 'SELECTED' }] });
 
     if (!get().holdExpiresAt && get().selectedSeats.length > 0) {
       const minutes = useSiteSettingsStore.getState().seatHoldMinutes;
       get().startHoldTimer(minutes);
     }
+
+    return 'selected' as const;
   },
 
   clearSeats: () => set({ selectedSeats: [] }),

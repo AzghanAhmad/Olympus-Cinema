@@ -8,7 +8,7 @@ import { HeroCarousel } from '@/components/movie/HeroCarousel';
 import { TrailerModal } from '@/components/movie/TrailerModal';
 import { PageTransition } from '@/components/motion/PageTransition';
 import { AnimatedButton } from '@/components/motion/AnimatedButton';
-import { MAJUNOON } from '@/data/movies';
+import { MAJNOON } from '@/data/movies';
 import { MOCK_NEWS } from '@/data/content';
 import { MOCK_SCREENINGS } from '@/data/screenings';
 import { Calendar, ChevronRight, Ticket } from 'lucide-react';
@@ -26,7 +26,7 @@ export default function HomePage() {
   return (
     <PublicLayout flushTop>
       <PageTransition>
-        <HeroCarousel movies={[MAJUNOON]} onWatchTrailer={(url) => setTrailerUrl(url)} />
+        <HeroCarousel movies={[MAJNOON]} onWatchTrailer={(url) => setTrailerUrl(url)} />
 
         <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 space-y-8">
           <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
@@ -35,9 +35,9 @@ export default function HomePage() {
                 <Calendar className="w-4 h-4" />
                 <span>Open Showtimes</span>
               </div>
-              <h2 className="text-3xl sm:text-4xl font-extrabold tracking-tight">Book Majunoon Now</h2>
+              <h2 className="text-3xl sm:text-4xl font-extrabold tracking-tight">Book Majnoon Now</h2>
               <p className="text-sm text-muted-foreground mt-2 max-w-xl">
-                {brandName} presents Majunoon at {cinemaName} Cinema. Choose any open show and reserve up to {maxTickets} seats.
+                {brandName} presents Majnoon. Choose any open show and reserve up to {maxTickets} seats.
                 Reservations are confirmed after payment.
               </p>
             </div>
@@ -57,12 +57,12 @@ export default function HomePage() {
               >
                 <div className="flex items-center gap-4 w-full sm:w-auto">
                   <div className="relative w-12 h-16 rounded-lg overflow-hidden bg-zinc-900 shrink-0">
-                    <Image src={MAJUNOON.posterUrl} alt={MAJUNOON.title} fill className="object-cover" />
+                    <Image src={MAJNOON.posterUrl} alt={MAJNOON.title} fill className="object-cover" />
                   </div>
                   <div>
-                    <h3 className="font-extrabold text-sm">{MAJUNOON.title}</h3>
+                    <h3 className="font-extrabold text-sm">{MAJNOON.title}</h3>
                     <p className="text-xs text-muted-foreground">
-                      {cinemaName} Cinema · {formatDate(scr.date)}
+                      {cinemaName} · {formatDate(scr.date)}
                     </p>
                     <span className="inline-block mt-1 text-[10px] font-bold px-2 py-0.5 rounded bg-primary/10 text-primary">
                       {scr.startTime} · {scr.availableSeatsCount} seats left
@@ -93,7 +93,7 @@ export default function HomePage() {
           </div>
         </section>
 
-        <TrailerModal videoUrl={trailerUrl} onClose={() => setTrailerUrl(null)} title="Majunoon" />
+        <TrailerModal videoUrl={trailerUrl} onClose={() => setTrailerUrl(null)} title="Majnoon" />
       </PageTransition>
     </PublicLayout>
   );
