@@ -106,7 +106,7 @@ export default function UserAccountPage() {
                       href={`/booking/confirmation?bookingId=${bk.id}`}
                       className="px-4 py-2 bg-primary text-white font-bold text-xs rounded-xl shrink-0 hover:bg-primary/90"
                     >
-                      View QR Ticket
+                      View Reservation
                     </Link>
                   </div>
                 ))}

@@ -6,6 +6,7 @@ import { usePathname } from 'next/navigation';
 import { ThemeToggle } from './ThemeToggle';
 import { Film, Search, Menu, X, User, Shield } from 'lucide-react';
 import { useAuthStore } from '@/store/useAuthStore';
+import { useSiteSettingsStore } from '@/store/useSiteSettingsStore';
 
 export function Navbar() {
   const [isScrolled, setIsScrolled] = useState(false);
@@ -14,21 +15,20 @@ export function Navbar() {
   const [searchQuery, setSearchQuery] = useState('');
   const pathname = usePathname();
   const { user } = useAuthStore();
+  const brandName = useSiteSettingsStore((s) => s.brandName);
+  const cinemaName = useSiteSettingsStore((s) => s.cinemaName);
 
   useEffect(() => {
-    const handleScroll = () => {
-      setIsScrolled(window.scrollY > 20);
-    };
+    const handleScroll = () => setIsScrolled(window.scrollY > 20);
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
   const navLinks = [
     { name: 'Home', href: '/' },
-    { name: 'Movies', href: '/movies' },
-    { name: 'Screenings', href: '/screenings' },
+    { name: 'Majunoon', href: '/movies/majunoon' },
+    { name: 'Showtimes', href: '/screenings' },
     { name: 'News', href: '/news' },
-    { name: 'Events', href: '/events' },
     { name: 'About', href: '/about' },
     { name: 'Contact', href: '/contact' },
   ];
@@ -43,22 +43,20 @@ export function Navbar() {
         }`}
       >
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between">
-          {/* Brand Logo */}
           <Link href="/" className="flex items-center gap-2.5 group">
             <div className="w-10 h-10 rounded-xl bg-primary flex items-center justify-center text-white shadow-lg shadow-primary/30 group-hover:scale-105 transition-transform">
               <Film className="w-5 h-5 fill-current" />
             </div>
             <div className="flex flex-col">
               <span className="font-extrabold text-xl tracking-wider leading-none text-foreground">
-                OLYMPUS<span className="text-primary">CINEMA</span>
+                CRYSTAL<span className="text-primary">ENT</span>
               </span>
               <span className="text-[10px] tracking-widest uppercase font-medium text-muted-foreground">
-                Olympus Seating
+                {brandName} · {cinemaName}
               </span>
             </div>
           </Link>
 
-          {/* Desktop Links */}
           <nav className="hidden md:flex items-center space-x-1 lg:space-x-2">
             {navLinks.map((link) => {
               const isActive = pathname === link.href;
@@ -78,18 +76,15 @@ export function Navbar() {
             })}
           </nav>
 
-          {/* Action Tools */}
           <div className="hidden md:flex items-center space-x-3">
             <button
               onClick={() => setSearchOpen(true)}
               className="p-2 rounded-full text-foreground/80 hover:text-primary hover:bg-black/5 dark:hover:bg-white/5 transition-colors"
-              title="Search movies"
+              title="Search"
             >
               <Search className="w-5 h-5" />
             </button>
-
             <ThemeToggle />
-
             {user ? (
               <div className="flex items-center gap-2">
                 <Link
@@ -112,14 +107,13 @@ export function Navbar() {
             ) : (
               <Link
                 href="/account"
-                className="px-4 py-2 text-sm font-semibold rounded-lg bg-primary text-primary-foreground hover:bg-primary/90 transition-all shadow-md shadow-primary/20 hover:scale-[1.02]"
+                className="px-4 py-2 text-sm font-semibold rounded-lg bg-primary text-primary-foreground hover:bg-primary/90 transition-all shadow-md shadow-primary/20"
               >
                 Sign In
               </Link>
             )}
           </div>
 
-          {/* Mobile Menu Button */}
           <div className="flex items-center space-x-2 md:hidden">
             <ThemeToggle />
             <button
@@ -131,7 +125,6 @@ export function Navbar() {
           </div>
         </div>
 
-        {/* Mobile Navigation Drawer */}
         {mobileMenuOpen && (
           <div className="md:hidden glass-panel border-t border-border mt-3 py-4 px-6 space-y-3">
             <nav className="flex flex-col space-y-1">
@@ -141,67 +134,42 @@ export function Navbar() {
                   href={link.href}
                   onClick={() => setMobileMenuOpen(false)}
                   className={`px-3 py-2 text-base font-medium rounded-lg ${
-                    pathname === link.href
-                      ? 'text-primary bg-primary/10 font-bold'
-                      : 'text-foreground/80 hover:text-primary'
+                    pathname === link.href ? 'text-primary bg-primary/10 font-bold' : 'text-foreground/80 hover:text-primary'
                   }`}
                 >
                   {link.name}
                 </Link>
               ))}
             </nav>
-            <div className="pt-3 border-t border-border flex flex-col space-y-2">
-              <Link
-                href="/account"
-                onClick={() => setMobileMenuOpen(false)}
-                className="w-full py-2.5 text-center font-medium rounded-lg bg-primary text-primary-foreground"
-              >
-                {user ? 'My Account' : 'Sign In / Register'}
-              </Link>
-              {user?.role === 'ADMIN' && (
-                <Link
-                  href="/admin"
-                  onClick={() => setMobileMenuOpen(false)}
-                  className="w-full py-2 text-center font-medium rounded-lg bg-secondary text-secondary-foreground border border-border"
-                >
-                  Admin Dashboard
-                </Link>
-              )}
-            </div>
           </div>
         )}
       </header>
 
-      {/* Global Quick Search Modal */}
       {searchOpen && (
         <div className="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm flex items-start justify-center pt-20 px-4">
-          <div className="bg-card text-card-foreground border border-border rounded-2xl w-full max-w-xl shadow-2xl p-6 relative animate-in fade-in zoom-in duration-200">
+          <div className="bg-card text-card-foreground border border-border rounded-2xl w-full max-w-xl shadow-2xl p-6 relative">
             <button
               onClick={() => setSearchOpen(false)}
               className="absolute top-4 right-4 p-1 rounded-full text-muted-foreground hover:text-foreground"
             >
               <X className="w-5 h-5" />
             </button>
-            <h3 className="text-lg font-bold mb-4">Search Movies & Events</h3>
-            <div className="relative">
-              <Search className="absolute left-3 top-3.5 w-5 h-5 text-muted-foreground" />
-              <input
-                type="text"
-                placeholder="Type movie title, actor, or genre..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full pl-10 pr-4 py-3 bg-secondary text-foreground rounded-xl border border-border focus:outline-none focus:ring-2 focus:ring-primary"
-                autoFocus
-              />
-            </div>
-            <div className="mt-4 flex justify-between items-center text-xs text-muted-foreground">
-              <span>Press ESC to close</span>
+            <h3 className="text-lg font-bold mb-4">Search Majunoon</h3>
+            <input
+              type="text"
+              placeholder="Showtimes, news..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="w-full px-4 py-3 bg-secondary text-foreground rounded-xl border border-border focus:outline-none focus:ring-2 focus:ring-primary"
+              autoFocus
+            />
+            <div className="mt-4 flex justify-end">
               <Link
-                href={`/movies${searchQuery ? `?search=${encodeURIComponent(searchQuery)}` : ''}`}
+                href="/screenings"
                 onClick={() => setSearchOpen(false)}
-                className="text-primary font-semibold hover:underline"
+                className="text-primary font-semibold hover:underline text-sm"
               >
-                View all search results →
+                View showtimes →
               </Link>
             </div>
           </div>

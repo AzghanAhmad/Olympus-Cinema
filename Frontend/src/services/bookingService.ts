@@ -10,7 +10,7 @@ export const bookingService = {
 
   async getBookingById(id: string): Promise<Booking | null> {
     await new Promise((res) => setTimeout(res, 150));
-    return MOCK_BOOKINGS.find((b) => b.id === id) || MOCK_BOOKINGS[0];
+    return MOCK_BOOKINGS.find((b) => b.id === id) || MOCK_BOOKINGS[0] || null;
   },
 
   async createBooking(data: {
@@ -27,14 +27,15 @@ export const bookingService = {
     totalPrice: number;
   }): Promise<Booking> {
     await new Promise((res) => setTimeout(res, 300));
-    const randomCode = `APX-${Math.floor(100000 + Math.random() * 900000)}`;
+    const randomCode = `RES-${Math.floor(100000 + Math.random() * 900000)}`;
     const newBooking: Booking = {
       id: `bk-${Date.now()}`,
       bookingCode: randomCode,
       ...data,
-      status: 'CONFIRMED',
+      // Unconfirmed until payment — QR is a reservation reference only
+      status: 'PENDING',
       createdAt: new Date().toISOString(),
-      qrCodeValue: `${randomCode}-${data.movieId}-${data.seats.map(s => s.id).join('-')}`,
+      qrCodeValue: `RESERVATION|${randomCode}|${data.movieTitle}|${data.date}|${data.startTime}|${data.seats.map((s) => s.id).join(',')}`,
     };
     MOCK_BOOKINGS.unshift(newBooking);
     return newBooking;

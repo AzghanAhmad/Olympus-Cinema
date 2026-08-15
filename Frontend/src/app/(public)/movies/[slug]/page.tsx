@@ -34,7 +34,6 @@ export default function MovieDetailsPage() {
   }
 
   const screenings = MOCK_SCREENINGS.filter((s) => s.movieId === movie.id);
-  const relatedMovies = MOCK_MOVIES.filter((m) => m.id !== movie.id).slice(0, 3);
 
   return (
     <PublicLayout flushTop>
@@ -197,9 +196,9 @@ export default function MovieDetailsPage() {
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
             <div>
               <span className="text-xs font-bold text-primary uppercase tracking-widest">Reserve Your Seat</span>
-              <h2 className="text-2xl font-extrabold mt-1">Screening Timetable & Halls</h2>
+              <h2 className="text-2xl font-extrabold mt-1">Open Showtimes</h2>
             </div>
-            <span className="text-xs text-muted-foreground">Select a showtime to enter seat selection map</span>
+            <span className="text-xs text-muted-foreground">Select a show to reserve seats</span>
           </div>
 
           {screenings.length > 0 ? (
@@ -211,10 +210,7 @@ export default function MovieDetailsPage() {
                 >
                   <div className="flex items-start justify-between">
                     <div>
-                      <span className="text-xs font-extrabold text-primary uppercase tracking-wider">
-                        {scr.screenType}
-                      </span>
-                      <h4 className="font-extrabold text-base">{scr.hallName}</h4>
+                      <h4 className="font-extrabold text-base">Olympus Cinema</h4>
                       <p className="text-xs text-muted-foreground mt-0.5">
                         {formatDate(scr.date)}
                       </p>
@@ -227,13 +223,13 @@ export default function MovieDetailsPage() {
 
                   <div className="flex items-center justify-between pt-3 border-t border-border/50 text-xs">
                     <span className="text-muted-foreground">
-                      <strong>{scr.availableSeatsCount}</strong> / {scr.totalSeatsCount} seats available
+                      <strong>{scr.availableSeatsCount}</strong> seats available
                     </span>
                     <Link
                       href={`/booking/${scr.id}`}
-                      className="px-4 py-2 bg-primary text-white font-bold rounded-xl hover:bg-primary/90 transition-colors shadow-md shadow-primary/20"
+                      className="px-4 py-2 bg-primary text-primary-foreground font-bold rounded-xl hover:bg-primary/90 transition-colors shadow-md shadow-primary/20"
                     >
-                      Book Ticket
+                      Reserve
                     </Link>
                   </div>
                 </div>
@@ -241,14 +237,13 @@ export default function MovieDetailsPage() {
             </div>
           ) : (
             <div className="text-center py-10 text-muted-foreground">
-              <p className="text-sm">No active showtimes currently scheduled for this movie.</p>
+              <p className="text-sm">No active showtimes currently scheduled.</p>
             </div>
           )}
         </section>
       </div>
 
-      {/* Trailer & Image Lightbox Modals */}
-      <TrailerModal videoUrl={trailerUrl} onClose={() => setTrailerUrl(null)} />
+      <TrailerModal videoUrl={trailerUrl} onClose={() => setTrailerUrl(null)} title={movie.title} />
       {selectedPhoto && (
         <div className="fixed inset-0 z-50 bg-black/90 backdrop-blur-md flex items-center justify-center p-4">
           <div className="relative max-w-4xl w-full aspect-video rounded-2xl overflow-hidden border border-white/20">

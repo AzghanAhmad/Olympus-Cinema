@@ -15,7 +15,7 @@ export default function UserBookingsPage() {
         <div>
           <h1 className="text-3xl font-extrabold tracking-tight">Booking History</h1>
           <p className="text-muted-foreground text-sm mt-1">
-            View all active, past, and completed cinema ticket reservations.
+            View all active and past Majunoon reservations.
           </p>
         </div>
 
@@ -45,7 +45,7 @@ export default function UserBookingsPage() {
                 href={`/booking/confirmation?bookingId=${bk.id}`}
                 className="px-5 py-2.5 bg-primary text-white font-bold text-xs rounded-xl hover:bg-primary/90 transition-colors shrink-0"
               >
-                View Digital Ticket
+                View Reservation
               </Link>
             </div>
           ))}

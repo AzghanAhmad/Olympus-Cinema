@@ -6,11 +6,11 @@ import { ReactQueryProvider } from "@/components/layout/Providers";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "OLYMPUS CINEMA | Ultra Cinematic Cinema & Movie Booking Platform",
-  description: "Experience modern cinema at Olympus. IMAX 3D Dual Laser, Dolby Atmos Spatial Audio, recliner lounge seating, and instant e-ticketing.",
+  title: "Majunoon | Crystal Entertainment · Olympus Cinema",
+  description: "Reserve seats for Majunoon at Olympus Cinema. Presented by Crystal Entertainment. Unconfirmed reservations until payment.",
   openGraph: {
-    title: "OLYMPUS CINEMA | Premium Cinema Experience",
-    description: "Book tickets for Dune Part Two, Oppenheimer, Interstellar in IMAX & Dolby Atmos.",
+    title: "Majunoon | Crystal Entertainment",
+    description: "Book Majunoon showtimes at Olympus Cinema — up to 15 seats per person.",
     type: "website",
   },
 };

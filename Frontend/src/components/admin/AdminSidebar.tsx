@@ -42,7 +42,7 @@ export function AdminSidebar() {
             <Film className="w-4 h-4" />
           </div>
           <span className="font-extrabold text-lg tracking-wider text-foreground">
-            OLYMPUS<span className="text-primary">ADMIN</span>
+            CRYSTAL<span className="text-primary">ADMIN</span>
           </span>
         </Link>
 
