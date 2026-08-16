@@ -1,17 +1,20 @@
 import { MOCK_SCREENINGS } from '@/data/screenings';
 import { generateMockSeats, generateSeatsFromScreen } from '@/data/seats';
 import { useCinemaLayoutStore } from '@/store/useCinemaLayoutStore';
+import { useSiteSettingsStore } from '@/store/useSiteSettingsStore';
 import { Screening, Seat } from '@/types/screening';
 
 function enrichScreening(screening: Screening): Screening {
   const screen = useCinemaLayoutStore.getState().getScreen(screening.hallId);
-  if (!screen) return screening;
+  const defaultPrice = useSiteSettingsStore.getState().ticketPrice || 15;
+  if (!screen) return { ...screening, price: screening.price || defaultPrice };
   const total = screen.rows.reduce((sum, r) => sum + r.left + r.right, 0);
   return {
     ...screening,
     hallName: screen.name,
     screenType: screen.screenType,
     totalSeatsCount: total,
+    price: screening.price || defaultPrice,
   };
 }
 
@@ -37,19 +40,12 @@ export const screeningService = {
     const screening = MOCK_SCREENINGS.find((s) => s.id === screeningId);
     const hallId = screening?.hallId || 'hall-olympus';
     const screen = useCinemaLayoutStore.getState().getScreen(hallId);
+    const price = screening?.price || useSiteSettingsStore.getState().ticketPrice || 15;
 
     if (screen) {
-      return generateSeatsFromScreen(
-        screen,
-        screening?.priceStandard || 15,
-        screening?.priceVIP || 25
-      );
+      return generateSeatsFromScreen(screen, price);
     }
 
-    return generateMockSeats(
-      hallId,
-      screening?.priceStandard || 15,
-      screening?.priceVIP || 25
-    );
+    return generateMockSeats(hallId, price);
   },
 };

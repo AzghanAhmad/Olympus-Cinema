@@ -60,6 +60,8 @@ export default function BookingPage() {
     phoneVerified,
     emailCodeSent,
     phoneCodeSent,
+    pendingEmailCode,
+    pendingPhoneCode,
     sendEmailCode,
     sendPhoneCode,
     verifyEmailCode,
@@ -256,24 +258,44 @@ export default function BookingPage() {
                     </div>
                     {errors.email && <p className="text-xs text-primary mt-1">{errors.email.message}</p>}
                     {emailCodeSent && !emailVerified && (
-                      <div className="flex gap-2">
-                        <input
-                          value={emailOtp}
-                          onChange={(e) => setEmailOtp(e.target.value)}
-                          placeholder="Email code"
-                          className="flex-1 py-2 px-3 bg-secondary text-foreground text-sm rounded-xl border border-border"
-                        />
-                        <button
-                          type="button"
-                          onClick={() => verifyEmailCode(emailOtp)}
-                          className="px-3 py-2 bg-primary text-primary-foreground rounded-xl text-xs font-bold"
-                        >
-                          Verify email
-                        </button>
+                      <div className="space-y-2 pt-1">
+                        <div className="flex gap-2">
+                          <input
+                            value={emailOtp}
+                            onChange={(e) => setEmailOtp(e.target.value)}
+                            placeholder="Enter email code"
+                            className="flex-1 py-2 px-3 bg-secondary text-foreground text-sm rounded-xl border border-border focus:outline-none focus:ring-2 focus:ring-primary"
+                          />
+                          <button
+                            type="button"
+                            onClick={() => verifyEmailCode(emailOtp || pendingEmailCode)}
+                            className="px-4 py-2 bg-primary text-primary-foreground rounded-xl text-xs font-bold shadow hover:bg-primary/90 transition-all shrink-0"
+                          >
+                            Verify email
+                          </button>
+                        </div>
+                        {pendingEmailCode && (
+                          <div className="flex items-center gap-2 text-xs text-muted-foreground bg-secondary/60 p-2 rounded-xl border border-border">
+                            <span>OTP Code:</span>
+                            <button
+                              type="button"
+                              onClick={() => {
+                                setEmailOtp(pendingEmailCode);
+                                verifyEmailCode(pendingEmailCode);
+                              }}
+                              className="font-mono font-bold text-primary bg-primary/10 hover:bg-primary/20 px-2 py-0.5 rounded border border-primary/20 transition-all"
+                              title="Click to auto-verify"
+                            >
+                              {pendingEmailCode} (Click to verify)
+                            </button>
+                          </div>
+                        )}
                       </div>
                     )}
                     {emailVerified && (
-                      <p className="text-xs font-bold text-emerald-600">Email verified</p>
+                      <p className="text-xs font-bold text-emerald-600 flex items-center gap-1 mt-1">
+                        ✓ Email verified successfully
+                      </p>
                     )}
                   </div>
 
@@ -295,31 +317,51 @@ export default function BookingPage() {
                           setCustomer({ ...getValues(), phone });
                           sendPhoneCode();
                         }}
-                        className="px-3 py-2 bg-secondary border border-border rounded-xl text-xs font-bold shrink-0"
+                        className="px-3 py-2 bg-secondary border border-border rounded-xl text-xs font-bold shrink-0 hover:bg-secondary/80 transition-colors"
                       >
                         Send code
                       </button>
                     </div>
                     {errors.phone && <p className="text-xs text-primary mt-1">{errors.phone.message}</p>}
                     {phoneCodeSent && !phoneVerified && (
-                      <div className="flex gap-2">
-                        <input
-                          value={phoneOtp}
-                          onChange={(e) => setPhoneOtp(e.target.value)}
-                          placeholder="SMS code"
-                          className="flex-1 py-2 px-3 bg-secondary text-foreground text-sm rounded-xl border border-border"
-                        />
-                        <button
-                          type="button"
-                          onClick={() => verifyPhoneCode(phoneOtp)}
-                          className="px-3 py-2 bg-primary text-primary-foreground rounded-xl text-xs font-bold"
-                        >
-                          Verify phone
-                        </button>
+                      <div className="space-y-2 pt-1">
+                        <div className="flex gap-2">
+                          <input
+                            value={phoneOtp}
+                            onChange={(e) => setPhoneOtp(e.target.value)}
+                            placeholder="Enter SMS code"
+                            className="flex-1 py-2 px-3 bg-secondary text-foreground text-sm rounded-xl border border-border focus:outline-none focus:ring-2 focus:ring-primary"
+                          />
+                          <button
+                            type="button"
+                            onClick={() => verifyPhoneCode(phoneOtp || pendingPhoneCode)}
+                            className="px-4 py-2 bg-primary text-primary-foreground rounded-xl text-xs font-bold shadow hover:bg-primary/90 transition-all shrink-0"
+                          >
+                            Verify phone
+                          </button>
+                        </div>
+                        {pendingPhoneCode && (
+                          <div className="flex items-center gap-2 text-xs text-muted-foreground bg-secondary/60 p-2 rounded-xl border border-border">
+                            <span>OTP Code:</span>
+                            <button
+                              type="button"
+                              onClick={() => {
+                                setPhoneOtp(pendingPhoneCode);
+                                verifyPhoneCode(pendingPhoneCode);
+                              }}
+                              className="font-mono font-bold text-primary bg-primary/10 hover:bg-primary/20 px-2 py-0.5 rounded border border-primary/20 transition-all"
+                              title="Click to auto-verify"
+                            >
+                              {pendingPhoneCode} (Click to verify)
+                            </button>
+                          </div>
+                        )}
                       </div>
                     )}
                     {phoneVerified && (
-                      <p className="text-xs font-bold text-emerald-600">Phone verified</p>
+                      <p className="text-xs font-bold text-emerald-600 flex items-center gap-1 mt-1">
+                        ✓ Phone verified successfully
+                      </p>
                     )}
                   </div>
 

@@ -30,6 +30,7 @@ export interface Screening {
   endTime: string; // "22:15"
   availableSeatsCount: number;
   totalSeatsCount: number;
-  priceStandard: number;
-  priceVIP: number;
+  price: number;
+  priceStandard?: number;
+  priceVIP?: number;
 }

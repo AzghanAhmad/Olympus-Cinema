@@ -76,7 +76,6 @@ export default function AdminScreensPage() {
   const [selectedId, setSelectedId] = useState(screens[0]?.id || '');
   const [draft, setDraft] = useState<CinemaScreen | null>(null);
   const [dirty, setDirty] = useState(false);
-  const [selectedSeatCategory, setSelectedSeatCategory] = useState<SeatCategory>('VIP');
   const [editMode, setEditMode] = useState<'toggle' | 'delete'>('toggle');
   const [showAddModal, setShowAddModal] = useState(false);
   const [newName, setNewName] = useState('');
@@ -100,7 +99,7 @@ export default function AdminScreensPage() {
 
   const seats: Seat[] = useMemo(() => {
     if (!draft) return [];
-    return generateSeatsFromScreen(draft, 15, 25, true);
+    return generateSeatsFromScreen(draft, 15, true);
   }, [draft]);
 
   const updateDraft = (updater: (prev: CinemaScreen) => CinemaScreen) => {
@@ -178,28 +177,11 @@ export default function AdminScreensPage() {
         seatMeta: {
           ...prev.seatMeta,
           [seat.id]: {
-            category: current?.category ?? seat.category,
+            category: 'STANDARD',
             disabled,
           },
         },
       };
-    });
-  };
-
-  const handleApplyCategoryToRow = (rowLetter: string) => {
-    updateDraft((prev) => {
-      const meta = { ...prev.seatMeta };
-      const row = prev.rows.find((r) => r.label === rowLetter);
-      if (!row) return prev;
-      const total = row.left + row.right;
-      for (let n = 1; n <= total; n++) {
-        const id = `${rowLetter}-${n}`;
-        meta[id] = {
-          category: selectedSeatCategory,
-          disabled: meta[id]?.disabled ?? false,
-        };
-      }
-      return { ...prev, seatMeta: meta };
     });
   };
 
@@ -373,53 +355,34 @@ export default function AdminScreensPage() {
 
         <div className="p-6 sm:p-8 bg-card border border-border rounded-3xl space-y-6 shadow-sm">
           <div className="flex flex-wrap items-center justify-between gap-4 p-4 bg-secondary/40 rounded-2xl border border-border text-xs">
-            <div className="flex flex-wrap items-center gap-2">
-              <span className="font-bold text-foreground">Category tool:</span>
-              {(['STANDARD', 'PREMIUM', 'VIP'] as SeatCategory[]).map((cat) => (
-                <button
-                  key={cat}
-                  type="button"
-                  onClick={() => setSelectedSeatCategory(cat)}
-                  className={`px-3 py-1.5 rounded-lg font-bold ${
-                    selectedSeatCategory === cat
-                      ? cat === 'VIP'
-                        ? 'bg-amber-500/20 text-amber-400 border border-amber-500/40'
-                        : cat === 'PREMIUM'
-                          ? 'bg-indigo-500/20 text-indigo-400 border border-indigo-500/40'
-                          : 'bg-secondary text-foreground border border-border'
-                      : 'text-muted-foreground'
-                  }`}
-                >
-                  {cat === 'VIP' ? 'VIP' : cat === 'PREMIUM' ? 'Premium' : 'Standard'}
-                </button>
-              ))}
-            </div>
-
             <div className="flex items-center gap-2">
-              <span className="font-bold text-foreground">Seat click:</span>
+              <span className="font-bold text-foreground">Seat Action:</span>
               <button
                 type="button"
                 onClick={() => setEditMode('toggle')}
-                className={`px-3 py-1.5 rounded-lg font-bold ${
+                className={`px-3 py-1.5 rounded-lg font-bold transition-all ${
                   editMode === 'toggle'
                     ? 'bg-primary text-primary-foreground'
-                    : 'text-muted-foreground border border-border'
+                    : 'text-muted-foreground border border-border hover:text-foreground'
                 }`}
               >
-                Enable / Disable
+                Enable / Disable Seat
               </button>
               <button
                 type="button"
                 onClick={() => setEditMode('delete')}
-                className={`px-3 py-1.5 rounded-lg font-bold ${
+                className={`px-3 py-1.5 rounded-lg font-bold transition-all ${
                   editMode === 'delete'
                     ? 'bg-red-500 text-white'
-                    : 'text-muted-foreground border border-border'
+                    : 'text-muted-foreground border border-border hover:text-foreground'
                 }`}
               >
-                Delete seat
+                Delete Seat
               </button>
             </div>
+            <span className="text-[11px] text-muted-foreground">
+              All seats belong to standard uniform category.
+            </span>
           </div>
 
           <div className="w-full max-w-xl mx-auto flex flex-col items-center space-y-2">
@@ -448,16 +411,8 @@ export default function AdminScreensPage() {
                     />
                     <button
                       type="button"
-                      onClick={() => handleApplyCategoryToRow(row.label)}
-                      className="w-full py-0.5 text-[9px] font-bold text-muted-foreground hover:text-primary"
-                      title={`Apply ${selectedSeatCategory} to row`}
-                    >
-                      Set cat
-                    </button>
-                    <button
-                      type="button"
                       onClick={() => removeRow(row.label)}
-                      className="text-[9px] font-bold text-red-500/80 hover:text-red-500"
+                      className="text-[9px] font-bold text-red-500/80 hover:text-red-500 mt-1"
                     >
                       Remove row
                     </button>
@@ -492,11 +447,7 @@ export default function AdminScreensPage() {
                             className={`w-6 h-6 sm:w-7 sm:h-7 rounded-md text-[9px] font-bold border transition-all ${
                               seat.status === 'DISABLED'
                                 ? 'bg-zinc-900 text-zinc-600 border-zinc-800 line-through opacity-40'
-                                : seat.category === 'VIP'
-                                  ? 'bg-amber-500/20 text-amber-700 dark:text-amber-400 border-amber-500/40'
-                                  : seat.category === 'PREMIUM'
-                                    ? 'bg-indigo-500/20 text-indigo-700 dark:text-indigo-400 border-indigo-500/40'
-                                    : 'bg-secondary text-foreground border-border'
+                                : 'bg-secondary text-foreground border-border'
                             }`}
                           >
                             {seat.number}

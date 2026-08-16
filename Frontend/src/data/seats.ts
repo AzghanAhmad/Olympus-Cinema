@@ -45,33 +45,10 @@ export function aisleAfterByRow(rows: SeatRowLayout[]): Record<string, number> {
   return Object.fromEntries(rows.map((r) => [r.label, r.left]));
 }
 
-function defaultCategory(
-  rowIndex: number,
-  rowLabel: string,
-  col: number,
-  seatsInRow: number
-): SeatCategory {
-  if (rowIndex === 0 && (col === 1 || col === seatsInRow)) return 'WHEELCHAIR';
-  if (rowIndex >= 5 && rowIndex <= 11) return 'PREMIUM';
-  if (rowIndex >= 12) return 'VIP';
-  return 'STANDARD';
-}
-
-function priceForCategory(
-  category: SeatCategory,
-  priceStandard: number,
-  priceVIP: number
-): number {
-  if (category === 'VIP') return priceVIP;
-  if (category === 'PREMIUM') return Number((priceStandard * 1.25).toFixed(2));
-  return priceStandard;
-}
-
 /** Build bookable seats from a saved cinema screen layout */
 export function generateSeatsFromScreen(
   screen: CinemaScreen,
-  priceStandard = 15,
-  priceVIP = 25,
+  price = 15,
   /** When true, skip demo occupied/reserved so admin map stays editable */
   adminMode = false
 ): Seat[] {
@@ -83,9 +60,7 @@ export function generateSeatsFromScreen(
     for (let col = 1; col <= seatsInRow; col++) {
       const id = `${row.label}-${col}`;
       const meta = screen.seatMeta[id];
-      const category =
-        meta?.category ?? defaultCategory(rowIndex, row.label, col, seatsInRow);
-      const price = priceForCategory(category, priceStandard, priceVIP);
+      const category: SeatCategory = 'STANDARD';
 
       let status: SeatStatus = meta?.disabled ? 'DISABLED' : 'AVAILABLE';
 
@@ -109,7 +84,7 @@ export function generateSeatsFromScreen(
   return seats;
 }
 
-export function generateMockSeats(hallId: string, priceStandard = 15, priceVIP = 25): Seat[] {
+export function generateMockSeats(hallId: string, price = 15): Seat[] {
   const fallback: CinemaScreen = {
     id: hallId,
     name: 'Crystal Entertainment',
@@ -121,5 +96,5 @@ export function generateMockSeats(hallId: string, priceStandard = 15, priceVIP =
     })),
     seatMeta: {},
   };
-  return generateSeatsFromScreen(fallback, priceStandard, priceVIP);
+  return generateSeatsFromScreen(fallback, price);
 }

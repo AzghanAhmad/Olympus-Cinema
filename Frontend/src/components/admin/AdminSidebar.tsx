@@ -2,6 +2,7 @@
 
 import React from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { usePathname } from 'next/navigation';
 import { ThemeToggle } from '@/components/layout/ThemeToggle';
 import {
@@ -37,9 +38,15 @@ export function AdminSidebar() {
     <aside className="w-64 bg-card border-r border-border h-screen sticky top-0 flex flex-col justify-between p-4 shrink-0">
       <div className="space-y-6">
         
-        <Link href="/" className="flex items-center gap-2 px-2 pt-2">
-          <div className="w-8 h-8 rounded-lg bg-primary flex items-center justify-center text-white font-bold shrink-0">
-            <Film className="w-4 h-4" />
+        <Link href="/" className="flex items-center gap-2 px-2 pt-2 group">
+          <div className="relative w-8 h-8 flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
+            <Image
+              src="/images/Crystal Entertainment Logo-1.png"
+              alt="Crystal Entertainment Logo"
+              width={32}
+              height={32}
+              className="w-full h-full object-contain filter drop-shadow"
+            />
           </div>
           <span className="font-extrabold text-lg tracking-wider text-foreground">
             CRYSTAL<span className="text-primary">ADMIN</span>

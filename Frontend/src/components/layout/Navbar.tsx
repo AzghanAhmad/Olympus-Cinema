@@ -2,9 +2,10 @@
 
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { usePathname } from 'next/navigation';
 import { ThemeToggle } from './ThemeToggle';
-import { Film, Search, Menu, X, User, Shield } from 'lucide-react';
+import { Search, Menu, X, User, Shield } from 'lucide-react';
 import { useAuthStore } from '@/store/useAuthStore';
 import { useSiteSettingsStore } from '@/store/useSiteSettingsStore';
 
@@ -43,8 +44,15 @@ export function Navbar() {
       >
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between">
           <Link href="/" className="flex items-center gap-2.5 group">
-            <div className="w-10 h-10 rounded-xl bg-primary flex items-center justify-center text-white shadow-lg shadow-primary/30 group-hover:scale-105 transition-transform">
-              <Film className="w-5 h-5 fill-current" />
+            <div className="relative w-10 h-10 flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
+              <Image
+                src="/images/Crystal Entertainment Logo-1.png"
+                alt="Crystal Entertainment Logo"
+                width={40}
+                height={40}
+                className="w-full h-full object-contain filter drop-shadow"
+                priority
+              />
             </div>
             <div className="flex flex-col">
               <span className="font-extrabold text-xl tracking-wider leading-none text-foreground">

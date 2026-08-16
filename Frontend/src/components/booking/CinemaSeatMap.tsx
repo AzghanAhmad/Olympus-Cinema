@@ -28,7 +28,7 @@ export function CinemaSeatMap({ seats, aisleAfterByRow }: CinemaSeatMapProps) {
     if (result === 'deselected') {
       toast.info(`Seat ${seat.id} Deselected`, 'Removed from booking cart');
     } else if (result === 'selected') {
-      toast.success(`Seat ${seat.id} Selected`, `$${seat.price} • ${seat.category}`);
+      toast.success(`Seat ${seat.id} Selected`, `$${seat.price}`);
     }
   };
 
@@ -45,14 +45,10 @@ export function CinemaSeatMap({ seats, aisleAfterByRow }: CinemaSeatMapProps) {
     if (isSelected) {
       return 'bg-primary text-primary-foreground border-primary shadow-lg shadow-primary/50 ring-2 ring-primary/40';
     }
-    if (seat.category === 'VIP') {
-      return 'bg-amber-500/20 text-amber-700 dark:text-amber-400 border-amber-500/40 hover:bg-amber-500/40';
-    }
-    if (seat.category === 'PREMIUM') {
-      return 'bg-indigo-500/20 text-indigo-700 dark:text-indigo-400 border-indigo-500/40 hover:bg-indigo-500/40';
-    }
     return 'bg-secondary text-foreground hover:bg-primary/20 border-border';
   };
+
+  const currentPrice = seats[0]?.price ?? 15;
 
   return (
     <div className="w-full flex flex-col items-center space-y-6 py-4 overflow-x-auto">
@@ -90,17 +86,13 @@ export function CinemaSeatMap({ seats, aisleAfterByRow }: CinemaSeatMapProps) {
                         transition={{ duration: 0.2 }}
                         onClick={() => handleSeatClick(seat)}
                         disabled={seat.status !== 'AVAILABLE'}
-                        title={`${seat.id} (${seat.category}) - $${seat.price}`}
+                        title={`${seat.id} - $${seat.price}`}
                         className={cn(
                           'w-6 h-6 sm:w-7 sm:h-7 rounded-md text-[9px] sm:text-[10px] font-extrabold border transition-all flex items-center justify-center shrink-0',
                           getSeatColorClass(seat, isSelected)
                         )}
                       >
-                        {seat.category === 'WHEELCHAIR' ? (
-                          <Accessibility className="w-3 h-3" />
-                        ) : (
-                          seat.number
-                        )}
+                        {seat.number}
                       </motion.button>
 
                       {showAisle && (
@@ -128,18 +120,10 @@ export function CinemaSeatMap({ seats, aisleAfterByRow }: CinemaSeatMapProps) {
       </span>
 
       {/* Seat Legend */}
-      <div className="flex flex-wrap items-center justify-center gap-5 text-xs pt-1">
+      <div className="flex flex-wrap items-center justify-center gap-6 text-xs pt-1">
         <div className="flex items-center gap-2">
           <div className="w-4 h-4 rounded bg-secondary border border-border" />
-          <span>Standard ($15)</span>
-        </div>
-        <div className="flex items-center gap-2">
-          <div className="w-4 h-4 rounded bg-indigo-500/20 border border-indigo-500/40" />
-          <span>Premium ($18.75)</span>
-        </div>
-        <div className="flex items-center gap-2">
-          <div className="w-4 h-4 rounded bg-amber-500/20 border border-amber-500/40" />
-          <span>VIP ($25)</span>
+          <span>Available Seat (${currentPrice.toFixed(2)})</span>
         </div>
         <div className="flex items-center gap-2">
           <div className="w-4 h-4 rounded bg-primary border border-primary shadow-sm" />
@@ -147,7 +131,7 @@ export function CinemaSeatMap({ seats, aisleAfterByRow }: CinemaSeatMapProps) {
         </div>
         <div className="flex items-center gap-2">
           <div className="w-4 h-4 rounded bg-zinc-700 dark:bg-zinc-800 border border-zinc-600" />
-          <span className="text-muted-foreground">Occupied</span>
+          <span className="text-muted-foreground">Occupied / Reserved</span>
         </div>
       </div>
     </div>

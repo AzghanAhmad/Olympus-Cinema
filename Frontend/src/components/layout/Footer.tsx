@@ -1,6 +1,7 @@
 import React from 'react';
 import Link from 'next/link';
-import { Film, Mail, Phone, MapPin } from 'lucide-react';
+import Image from 'next/image';
+import { Mail, Phone, MapPin } from 'lucide-react';
 
 function IconYoutube({ className }: { className?: string }) {
   return (
@@ -30,9 +31,15 @@ export function Footer() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-10">
           <div className="lg:col-span-1 space-y-4">
-            <Link href="/" className="flex items-center gap-2.5">
-              <div className="w-10 h-10 rounded-xl bg-primary flex items-center justify-center text-white shadow-lg shadow-primary/30">
-                <Film className="w-5 h-5 fill-current" />
+            <Link href="/" className="flex items-center gap-2.5 group">
+              <div className="relative w-10 h-10 flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
+                <Image
+                  src="/images/Crystal Entertainment Logo-1.png"
+                  alt="Crystal Entertainment Logo"
+                  width={40}
+                  height={40}
+                  className="w-full h-full object-contain filter drop-shadow"
+                />
               </div>
               <span className="font-extrabold text-xl tracking-wider text-white">
                 CRYSTAL<span className="text-primary">ENT</span>

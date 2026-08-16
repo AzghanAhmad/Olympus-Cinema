@@ -27,8 +27,7 @@ export const MOCK_SCREENINGS: Screening[] = [
     endTime: '16:35',
     availableSeatsCount: 320,
     totalSeatsCount: OLYMPUS_TOTAL_SEATS,
-    priceStandard: 12.0,
-    priceVIP: 20.0,
+    price: 15.0,
   },
   {
     id: 'scr-102',
@@ -41,8 +40,7 @@ export const MOCK_SCREENINGS: Screening[] = [
     endTime: '19:35',
     availableSeatsCount: 280,
     totalSeatsCount: OLYMPUS_TOTAL_SEATS,
-    priceStandard: 12.0,
-    priceVIP: 20.0,
+    price: 15.0,
   },
   {
     id: 'scr-103',
@@ -55,8 +53,7 @@ export const MOCK_SCREENINGS: Screening[] = [
     endTime: '22:05',
     availableSeatsCount: 350,
     totalSeatsCount: OLYMPUS_TOTAL_SEATS,
-    priceStandard: 15.0,
-    priceVIP: 22.0,
+    price: 15.0,
   },
   {
     id: 'scr-104',
@@ -69,8 +66,7 @@ export const MOCK_SCREENINGS: Screening[] = [
     endTime: '00:20',
     availableSeatsCount: 400,
     totalSeatsCount: OLYMPUS_TOTAL_SEATS,
-    priceStandard: 15.0,
-    priceVIP: 22.0,
+    price: 15.0,
   },
   {
     id: 'scr-105',
@@ -83,7 +79,6 @@ export const MOCK_SCREENINGS: Screening[] = [
     endTime: '18:35',
     availableSeatsCount: 410,
     totalSeatsCount: OLYMPUS_TOTAL_SEATS,
-    priceStandard: 12.0,
-    priceVIP: 20.0,
+    price: 15.0,
   },
 ];

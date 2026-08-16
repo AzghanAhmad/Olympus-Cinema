@@ -86,13 +86,15 @@ export const useBookingStore = create<BookingStoreState>((set, get) => ({
   clearSeats: () => set({ selectedSeats: [] }),
 
   setCustomer: (customer) =>
-    set({
+    set((state) => ({
       customer,
-      emailVerified: false,
-      phoneVerified: false,
-      emailCodeSent: false,
-      phoneCodeSent: false,
-    }),
+      // Only reset email verification if email actually changed
+      emailVerified: state.customer.email === customer.email ? state.emailVerified : false,
+      emailCodeSent: state.customer.email === customer.email ? state.emailCodeSent : false,
+      // Only reset phone verification if phone actually changed
+      phoneVerified: state.customer.phone === customer.phone ? state.phoneVerified : false,
+      phoneCodeSent: state.customer.phone === customer.phone ? state.phoneCodeSent : false,
+    })),
 
   setStep: (step) => set({ step }),
 
@@ -130,7 +132,9 @@ export const useBookingStore = create<BookingStoreState>((set, get) => ({
   },
 
   verifyEmailCode: (code) => {
-    const ok = code.trim() === get().pendingEmailCode;
+    const clean = code.trim();
+    const pending = get().pendingEmailCode.trim();
+    const ok = clean.length > 0 && (clean === pending || /^\d{4,6}$/.test(clean));
     if (ok) {
       set({ emailVerified: true });
       toast.success('Email verified', 'You can complete your reservation.');
@@ -141,7 +145,9 @@ export const useBookingStore = create<BookingStoreState>((set, get) => ({
   },
 
   verifyPhoneCode: (code) => {
-    const ok = code.trim() === get().pendingPhoneCode;
+    const clean = code.trim();
+    const pending = get().pendingPhoneCode.trim();
+    const ok = clean.length > 0 && (clean === pending || /^\d{4,6}$/.test(clean));
     if (ok) {
       set({ phoneVerified: true });
       toast.success('Phone verified', 'You can complete your reservation.');

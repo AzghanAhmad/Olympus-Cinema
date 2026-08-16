@@ -10,16 +10,19 @@ export default function AdminSettingsPage() {
     cinemaName,
     maxTicketsPerPerson,
     seatHoldMinutes,
+    ticketPrice,
     totalSeats,
     setCinemaName,
     setMaxTicketsPerPerson,
     setSeatHoldMinutes,
+    setTicketPrice,
     setTotalSeats,
   } = useSiteSettingsStore();
 
   const [localCinema, setLocalCinema] = useState(cinemaName);
   const [localMax, setLocalMax] = useState(String(maxTicketsPerPerson));
   const [localHold, setLocalHold] = useState(String(seatHoldMinutes));
+  const [localPrice, setLocalPrice] = useState(String(ticketPrice));
   const [localSeats, setLocalSeats] = useState(String(totalSeats));
   const [saved, setSaved] = useState(false);
 
@@ -27,14 +30,16 @@ export default function AdminSettingsPage() {
     setLocalCinema(cinemaName);
     setLocalMax(String(maxTicketsPerPerson));
     setLocalHold(String(seatHoldMinutes));
+    setLocalPrice(String(ticketPrice));
     setLocalSeats(String(totalSeats));
-  }, [cinemaName, maxTicketsPerPerson, seatHoldMinutes, totalSeats]);
+  }, [cinemaName, maxTicketsPerPerson, seatHoldMinutes, ticketPrice, totalSeats]);
 
   const handleSave = (e: React.FormEvent) => {
     e.preventDefault();
     setCinemaName(localCinema.trim() || 'Crystal Entertainment');
     setMaxTicketsPerPerson(Math.min(50, Math.max(1, Number(localMax) || 15)));
     setSeatHoldMinutes(Math.min(60, Math.max(1, Number(localHold) || 10)));
+    setTicketPrice(Math.max(0, Number(localPrice) || 15.0));
     setTotalSeats(Math.max(1, Number(localSeats) || 438));
     setSaved(true);
     setTimeout(() => setSaved(false), 3000);
@@ -45,13 +50,13 @@ export default function AdminSettingsPage() {
       <div>
         <h1 className="text-2xl font-extrabold tracking-tight">Cinema System Settings</h1>
         <p className="text-xs text-muted-foreground mt-1">
-          Brand: {brandName}. Change cinema name, seat capacity info, and booking limits.
+          Brand: {brandName}. Change cinema name, uniform seat pricing, capacity info, and booking limits.
         </p>
       </div>
 
       {saved && (
         <div className="p-4 bg-emerald-500/10 border border-emerald-500/30 rounded-2xl text-emerald-500 text-xs font-bold">
-          Settings saved. Cinema name and ticket limits apply immediately.
+          Settings saved. Uniform seat price and ticket limits apply immediately.
         </div>
       )}
 
@@ -68,6 +73,21 @@ export default function AdminSettingsPage() {
             />
             <span className="text-[11px] text-muted-foreground mt-1 block">
               Shown on bookings and public pages.
+            </span>
+          </div>
+
+          <div>
+            <label className="block text-xs font-semibold mb-1">Uniform Seat Price ($)</label>
+            <input
+              type="number"
+              step="0.5"
+              min={0}
+              value={localPrice}
+              onChange={(e) => setLocalPrice(e.target.value)}
+              className="w-full py-2.5 px-3 bg-secondary text-foreground text-sm rounded-xl border border-border font-mono font-bold"
+            />
+            <span className="text-[11px] text-muted-foreground mt-1 block">
+              All seats across every showtime share this uniform ticket price.
             </span>
           </div>
 

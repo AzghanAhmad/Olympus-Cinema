@@ -19,6 +19,7 @@ export default function AdminScreeningsPage() {
   const [hallId, setHallId] = useState(halls[0]?.id || '');
   const [startTime, setStartTime] = useState('19:30');
   const [date, setDate] = useState('2026-08-15');
+  const [price, setPrice] = useState('15.00');
 
   const openAddModal = () => {
     setEditingScr(null);
@@ -26,6 +27,7 @@ export default function AdminScreeningsPage() {
     setHallId(halls[0]?.id || '');
     setStartTime('19:30');
     setDate('2026-08-15');
+    setPrice('15.00');
     setIsModalOpen(true);
   };
 
@@ -35,6 +37,7 @@ export default function AdminScreeningsPage() {
     setHallId(scr.hallId);
     setStartTime(scr.startTime);
     setDate(scr.date);
+    setPrice(String(scr.price || 15.0));
     setIsModalOpen(true);
   };
 
@@ -46,6 +49,7 @@ export default function AdminScreeningsPage() {
     if (!movie || !hall) return;
 
     const totalSeats = hall.rows.reduce((sum, r) => sum + r.left + r.right, 0);
+    const numericPrice = Number(price) || 15.0;
 
     if (editingScr) {
       const updated: Screening = {
@@ -57,6 +61,7 @@ export default function AdminScreeningsPage() {
         date,
         startTime,
         totalSeatsCount: totalSeats,
+        price: numericPrice,
       };
       setScreenings(screenings.map((s) => (s.id === editingScr.id ? updated : s)));
       toast.success('Screening Updated', `Showtime for "${movie.title}" updated.`);
@@ -72,8 +77,7 @@ export default function AdminScreeningsPage() {
         endTime: '22:00',
         availableSeatsCount: totalSeats,
         totalSeatsCount: totalSeats,
-        priceStandard: 16.0,
-        priceVIP: 24.0,
+        price: numericPrice,
       };
       setScreenings([newScr, ...screenings]);
       toast.success('Screening Scheduled', `Showtime for "${movie.title}" created.`);
@@ -95,12 +99,12 @@ export default function AdminScreeningsPage() {
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <h1 className="text-2xl font-extrabold tracking-tight">Screening Schedule Manager</h1>
-          <p className="text-xs text-muted-foreground mt-1">Schedule Majnoon showtimes at the cinema.</p>
+          <p className="text-xs text-muted-foreground mt-1">Schedule Majnoon showtimes and seat ticket prices.</p>
         </div>
 
         <button
           onClick={openAddModal}
-          className="flex items-center gap-2 px-4 py-2.5 bg-primary text-white font-bold text-xs rounded-xl shadow-lg shadow-primary/30 hover:bg-primary/90 transition-all self-start sm:self-auto"
+          className="flex items-center gap-2 px-4 py-2.5 bg-primary text-primary-foreground font-bold text-xs rounded-xl shadow-lg shadow-primary/20 hover:bg-primary/90 transition-all self-start sm:self-auto"
         >
           <Plus className="w-4 h-4" />
           Schedule Showtimes
@@ -115,6 +119,7 @@ export default function AdminScreeningsPage() {
               <th className="p-4">Movie</th>
               <th className="p-4">Hall & Format</th>
               <th className="p-4">Date & Time</th>
+              <th className="p-4">Seat Price</th>
               <th className="p-4">Occupancy</th>
               <th className="p-4 text-right">Actions</th>
             </tr>
@@ -131,6 +136,9 @@ export default function AdminScreeningsPage() {
                   </td>
                   <td className="p-4 text-muted-foreground">
                     {formatDate(scr.date)} at <strong className="text-foreground">{scr.startTime}</strong>
+                  </td>
+                  <td className="p-4 font-bold text-emerald-600 dark:text-emerald-400">
+                    ${(scr.price || 15.0).toFixed(2)}
                   </td>
                   <td className="p-4 font-bold text-foreground">
                     {scr.availableSeatsCount} / {scr.totalSeatsCount} Available
@@ -192,6 +200,18 @@ export default function AdminScreeningsPage() {
                   </option>
                 ))}
               </select>
+            </div>
+
+            <div>
+              <label className="block text-xs font-bold mb-1">Uniform Seat Price ($)</label>
+              <input
+                type="number"
+                step="0.5"
+                min={0}
+                value={price}
+                onChange={(e) => setPrice(e.target.value)}
+                className="w-full py-2.5 px-3 bg-secondary text-foreground text-xs rounded-xl border border-border font-mono font-bold"
+              />
             </div>
 
             <div>
