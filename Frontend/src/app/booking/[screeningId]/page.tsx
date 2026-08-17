@@ -135,21 +135,27 @@ export default function BookingPage() {
       return;
     }
 
-    const newBooking = await bookingService.createBooking({
-      screeningId: screening.id,
-      movieId: movie.id,
-      movieTitle: movie.title,
-      moviePoster: movie.posterUrl,
-      hallName: cinemaName || screening.hallName,
-      screenType: screening.screenType,
-      date: screening.date,
-      startTime: screening.startTime,
-      seats: selectedSeats,
-      customer,
-      totalPrice: getTotalPrice(),
-    });
-
-    router.push(`/booking/confirmation?bookingId=${newBooking.id}`);
+    try {
+      const newBooking = await bookingService.createBooking({
+        screeningId: screening.id,
+        movieId: movie.id,
+        movieTitle: movie.title,
+        moviePoster: movie.posterUrl,
+        hallName: cinemaName || screening.hallName,
+        screenType: screening.screenType,
+        date: screening.date,
+        startTime: screening.startTime,
+        seats: selectedSeats,
+        customer,
+        totalPrice: getTotalPrice(),
+      });
+      router.push(`/booking/confirmation?bookingId=${newBooking.id}`);
+    } catch (err) {
+      toast.error(
+        'Reservation failed',
+        err instanceof Error ? err.message : 'Could not submit booking. Please try again.',
+      );
+    }
   };
 
   return (

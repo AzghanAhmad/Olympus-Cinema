@@ -5,7 +5,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { usePathname } from 'next/navigation';
 import { ThemeToggle } from './ThemeToggle';
-import { Search, Menu, X, User, Shield } from 'lucide-react';
+import { Search, Menu, X, User, Shield, Ticket } from 'lucide-react';
 import { useAuthStore } from '@/store/useAuthStore';
 import { useSiteSettingsStore } from '@/store/useSiteSettingsStore';
 
@@ -36,7 +36,7 @@ export function Navbar() {
   return (
     <>
       <header
-        className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
+        className={`print:hidden fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
           isScrolled
             ? 'glass-panel py-3 shadow-lg'
             : 'bg-gradient-to-b from-black/80 via-black/40 to-transparent py-5 text-white'
@@ -95,6 +95,17 @@ export function Navbar() {
             {user ? (
               <div className="flex items-center gap-2">
                 <Link
+                  href="/account/bookings"
+                  className={`flex items-center gap-2 px-3 py-1.5 text-xs font-semibold rounded-lg transition-colors border ${
+                    pathname.startsWith('/account/bookings')
+                      ? 'bg-primary text-primary-foreground border-primary'
+                      : 'bg-secondary text-secondary-foreground hover:bg-secondary/80 border-border'
+                  }`}
+                >
+                  <Ticket className="w-3.5 h-3.5" />
+                  My Reservation
+                </Link>
+                <Link
                   href="/account"
                   className="flex items-center gap-2 px-3 py-1.5 text-xs font-semibold rounded-lg bg-secondary text-secondary-foreground hover:bg-secondary/80 transition-colors border border-border"
                 >
@@ -112,12 +123,20 @@ export function Navbar() {
                 )}
               </div>
             ) : (
-              <Link
-                href="/account"
-                className="px-4 py-2 text-sm font-semibold rounded-lg bg-primary text-primary-foreground hover:bg-primary/90 transition-all shadow-md shadow-primary/20"
-              >
-                Sign In
-              </Link>
+              <div className="flex items-center gap-2">
+                <Link
+                  href="/login"
+                  className="px-3 py-2 text-sm font-semibold rounded-lg text-foreground/90 hover:text-primary transition-colors"
+                >
+                  Sign In
+                </Link>
+                <Link
+                  href="/signup"
+                  className="px-4 py-2 text-sm font-semibold rounded-lg bg-primary text-primary-foreground hover:bg-primary/90 transition-all shadow-md shadow-primary/20"
+                >
+                  Sign Up
+                </Link>
+              </div>
             )}
           </div>
 
@@ -147,6 +166,54 @@ export function Navbar() {
                   {link.name}
                 </Link>
               ))}
+              {user ? (
+                <>
+                  <Link
+                    href="/account/bookings"
+                    onClick={() => setMobileMenuOpen(false)}
+                    className={`px-3 py-2 text-base font-medium rounded-lg ${
+                      pathname.startsWith('/account/bookings')
+                        ? 'text-primary bg-primary/10 font-bold'
+                        : 'text-foreground/80 hover:text-primary'
+                    }`}
+                  >
+                    My Reservation
+                  </Link>
+                  <Link
+                    href="/account"
+                    onClick={() => setMobileMenuOpen(false)}
+                    className="px-3 py-2 text-base font-medium rounded-lg text-foreground/80 hover:text-primary"
+                  >
+                    Account
+                  </Link>
+                  {user.role === 'ADMIN' && (
+                    <Link
+                      href="/admin"
+                      onClick={() => setMobileMenuOpen(false)}
+                      className="px-3 py-2 text-base font-medium rounded-lg text-primary font-bold"
+                    >
+                      Admin
+                    </Link>
+                  )}
+                </>
+              ) : (
+                <>
+                  <Link
+                    href="/login"
+                    onClick={() => setMobileMenuOpen(false)}
+                    className="px-3 py-2 text-base font-medium rounded-lg text-foreground/80 hover:text-primary"
+                  >
+                    Sign In
+                  </Link>
+                  <Link
+                    href="/signup"
+                    onClick={() => setMobileMenuOpen(false)}
+                    className="px-3 py-2 text-base font-medium rounded-lg text-primary font-bold"
+                  >
+                    Sign Up
+                  </Link>
+                </>
+              )}
             </nav>
           </div>
         )}

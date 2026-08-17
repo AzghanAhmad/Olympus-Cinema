@@ -2,9 +2,10 @@ export type SeatCategory = 'STANDARD' | 'PREMIUM' | 'VIP' | 'WHEELCHAIR';
 export type SeatStatus = 'AVAILABLE' | 'SELECTED' | 'RESERVED' | 'OCCUPIED' | 'DISABLED' | 'USED';
 
 export interface Seat {
-  id: string; // e.g. "A-1"
-  row: string; // "A"
-  number: number; // 1
+  id: string;
+  row: string;
+  number: number;
+  label?: string;
   category: SeatCategory;
   price: number;
   status: SeatStatus;

@@ -6,11 +6,21 @@ import Image from 'next/image';
 import { PublicLayout } from '@/components/layout/PublicLayout';
 import { useAuthStore } from '@/store/useAuthStore';
 import { MOCK_BOOKINGS } from '@/data/content';
-import { User, Ticket, Settings, History, Shield, Calendar, Clock } from 'lucide-react';
+import { Ticket, Settings, History, Shield } from 'lucide-react';
 import { formatDate } from '@/lib/utils';
 
 export default function UserAccountPage() {
-  const { user } = useAuthStore();
+  const { user, logout, hasHydrated } = useAuthStore();
+
+  if (!hasHydrated) {
+    return (
+      <PublicLayout>
+        <div className="max-w-md mx-auto py-24 text-center text-sm text-muted-foreground">
+          Loading account…
+        </div>
+      </PublicLayout>
+    );
+  }
 
   if (!user) {
     return (
@@ -18,8 +28,8 @@ export default function UserAccountPage() {
         <div className="max-w-md mx-auto py-24 text-center space-y-4">
           <h1 className="text-2xl font-extrabold">Please Sign In</h1>
           <p className="text-sm text-muted-foreground">Access your cinema bookings and profile preferences.</p>
-          <Link href="/" className="inline-block px-6 py-2.5 bg-primary text-white font-bold rounded-xl text-xs">
-            Return Home
+          <Link href="/login" className="inline-block px-6 py-2.5 bg-primary text-white font-bold rounded-xl text-xs">
+            Sign in
           </Link>
         </div>
       </PublicLayout>
@@ -65,6 +75,13 @@ export default function UserAccountPage() {
             >
               Edit Profile
             </Link>
+            <button
+              type="button"
+              onClick={logout}
+              className="px-4 py-2.5 bg-secondary text-secondary-foreground font-bold text-xs rounded-xl border border-border"
+            >
+              Sign out
+            </button>
           </div>
         </div>
 

@@ -1,103 +1,91 @@
 'use client';
 
 import React, { useState } from 'react';
-import { MOCK_BOOKINGS } from '@/data/content';
-import { Booking } from '@/types/booking';
-import { formatDate, formatCurrency } from '@/lib/utils';
-import { Search, CheckCircle2, XCircle, Ticket } from 'lucide-react';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { Search } from 'lucide-react';
+import { toast } from '@/store/useToastStore';
+import { adminApi } from '@/services/adminApi';
+import { formatDate } from '@/lib/utils';
 
 export default function AdminBookingsPage() {
-  const [bookings, setBookings] = useState<Booking[]>(MOCK_BOOKINGS);
+  const qc = useQueryClient();
   const [search, setSearch] = useState('');
+  const { data, isLoading, error } = useQuery({
+    queryKey: ['admin', 'bookings', search],
+    queryFn: () => adminApi.bookings.list(search || undefined),
+  });
+  const bookings = data?.data ?? [];
 
-  const filtered = bookings.filter(
-    (b) =>
-      b.bookingCode.toLowerCase().includes(search.toLowerCase()) ||
-      b.customer.fullName.toLowerCase().includes(search.toLowerCase()) ||
-      b.movieTitle.toLowerCase().includes(search.toLowerCase())
-  );
-
-  const handleStatusChange = (id: string, newStatus: any) => {
-    setBookings(
-      bookings.map((b) => (b.id === id ? { ...b, status: newStatus } : b))
-    );
-  };
+  const cancelMutation = useMutation({
+    mutationFn: (id: string) => adminApi.bookings.cancel(id),
+    onSuccess: () => {
+      toast.info('Booking cancelled');
+      qc.invalidateQueries({ queryKey: ['admin', 'bookings'] });
+    },
+    onError: (e: Error) => toast.error('Cancel failed', e.message),
+  });
 
   return (
     <div className="space-y-6">
       <div>
-<h1 className="text-2xl font-extrabold tracking-tight">Booking Reservations</h1>
-          <p className="text-xs text-muted-foreground mt-1">
-            Inspect customer reservations. Bookings stay unconfirmed until payment; tickets are issued after payment.
-          </p>
+        <h1 className="text-2xl font-extrabold tracking-tight">Bookings</h1>
+        <p className="text-xs text-muted-foreground mt-1">Live reservations from the API.</p>
       </div>
-
       <div className="relative max-w-md">
         <Search className="absolute left-3 top-3 w-4 h-4 text-muted-foreground" />
         <input
-          type="text"
-          placeholder="Search by code (e.g. APX-774219), customer, or movie..."
           value={search}
           onChange={(e) => setSearch(e.target.value)}
-          className="w-full pl-9 pr-4 py-2 bg-card text-foreground text-xs rounded-xl border border-border focus:outline-none focus:ring-2 focus:ring-primary"
+          placeholder="Search code or email..."
+          className="w-full pl-9 pr-4 py-2 bg-card text-xs rounded-xl border border-border"
         />
       </div>
+      {isLoading && <p className="text-sm text-muted-foreground">Loading…</p>}
+      {error && <p className="text-sm text-rose-500">{(error as Error).message}</p>}
 
-      <div className="bg-card border border-border rounded-2xl overflow-hidden shadow-sm">
-        <table className="w-full text-left border-collapse">
+      <div className="bg-card border border-border rounded-2xl overflow-hidden">
+        <table className="w-full text-left text-xs">
           <thead>
             <tr className="border-b border-border bg-secondary/40 text-[11px] uppercase font-bold text-muted-foreground">
-              <th className="p-4">Booking Code</th>
+              <th className="p-4">Code</th>
               <th className="p-4">Customer</th>
-              <th className="p-4">Movie & Hall</th>
+              <th className="p-4">Email</th>
+              <th className="p-4">Phone</th>
+              <th className="p-4">Movie</th>
               <th className="p-4">Seats</th>
-              <th className="p-4">Total</th>
               <th className="p-4">Status</th>
-              <th className="p-4 text-right">Check-In Actions</th>
+              <th className="p-4 text-right">Actions</th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-border text-xs font-medium">
-            {filtered.map((bk) => (
-              <tr key={bk.id} className="hover:bg-secondary/20 transition-colors">
+          <tbody className="divide-y divide-border">
+            {bookings.length === 0 && !isLoading && (
+              <tr>
+                <td colSpan={8} className="p-8 text-center text-muted-foreground">
+                  No bookings yet. User reservations appear here as soon as they are submitted.
+                </td>
+              </tr>
+            )}
+            {bookings.map((bk) => (
+              <tr key={bk.id}>
                 <td className="p-4 font-mono font-bold text-primary">{bk.bookingCode}</td>
+                <td className="p-4 font-semibold">{bk.customerName}</td>
+                <td className="p-4">{bk.customerEmail || '—'}</td>
+                <td className="p-4">{bk.customerPhone || '—'}</td>
                 <td className="p-4">
-                  <strong className="text-foreground block">{bk.customer.fullName}</strong>
-                  <span className="text-[10px] text-muted-foreground">{bk.customer.email}</span>
-                </td>
-                <td className="p-4">
-                  <strong className="text-foreground block">{bk.movieTitle}</strong>
-                  <span className="text-[10px] text-muted-foreground">{bk.hallName} • {bk.startTime}</span>
-                </td>
-                <td className="p-4 font-extrabold text-foreground">
-                  {bk.seats.map((s) => s.id).join(', ')}
-                </td>
-                <td className="p-4 font-bold text-foreground">{formatCurrency(bk.totalPrice)}</td>
-                <td className="p-4">
-                  <span
-                    className={`px-2.5 py-1 rounded-full text-[10px] font-extrabold ${
-                      bk.status === 'CONFIRMED'
-                        ? 'bg-emerald-500/10 text-emerald-500'
-                        : bk.status === 'USED'
-                        ? 'bg-blue-500/10 text-blue-500'
-                        : 'bg-rose-500/10 text-rose-500'
-                    }`}
-                  >
-                    {bk.status}
+                  {bk.screening?.movie?.title}
+                  <span className="block text-[10px] text-muted-foreground">
+                    {bk.screening?.startTime ? formatDate(bk.screening.startTime) : ''}
                   </span>
                 </td>
-                <td className="p-4 text-right space-x-2">
-                  {bk.status === 'CONFIRMED' && (
+                <td className="p-4">{bk.seats?.map((s) => s.seat?.label).filter(Boolean).join(', ') || '—'}</td>
+                <td className="p-4 font-bold">{bk.status}</td>
+                <td className="p-4 text-right">
+                  {bk.status !== 'CANCELLED' && bk.status !== 'EXPIRED' && (
                     <button
-                      onClick={() => handleStatusChange(bk.id, 'USED')}
-                      className="px-3 py-1.5 bg-emerald-600 text-white font-bold text-[11px] rounded-lg shadow"
-                    >
-                      Check-In
-                    </button>
-                  )}
-                  {bk.status !== 'CANCELLED' && (
-                    <button
-                      onClick={() => handleStatusChange(bk.id, 'CANCELLED')}
-                      className="px-3 py-1.5 bg-secondary text-secondary-foreground font-bold text-[11px] rounded-lg hover:bg-rose-500 hover:text-white transition-colors"
+                      onClick={() => {
+                        if (confirm('Cancel this booking?')) cancelMutation.mutate(bk.id);
+                      }}
+                      className="px-3 py-1.5 bg-secondary text-[11px] font-bold rounded-lg"
                     >
                       Cancel
                     </button>

@@ -37,7 +37,7 @@ function ConfirmationContent() {
 
   return (
     <div className="max-w-3xl mx-auto px-4 sm:px-6 py-12 space-y-8">
-      <div className="text-center space-y-3">
+      <div className="no-print text-center space-y-3">
         <div className="w-16 h-16 rounded-full bg-primary/10 text-primary flex items-center justify-center mx-auto shadow-lg shadow-primary/20">
           <CheckCircle2 className="w-10 h-10" />
         </div>
@@ -120,7 +120,7 @@ function ConfirmationContent() {
         </div>
       </div>
 
-      <div className="flex flex-wrap items-center justify-center gap-4 pt-4">
+      <div className="no-print flex flex-wrap items-center justify-center gap-4 pt-4">
         <button
           onClick={() => window.print()}
           className="flex items-center gap-2 px-6 py-3 bg-secondary text-secondary-foreground font-bold rounded-xl text-xs hover:bg-secondary/80 transition-colors border border-border"

@@ -1,8 +1,8 @@
 'use client';
 
-import React, { useState } from 'react';
-import Link from 'next/link';
+import React, { useEffect, useState } from 'react';
 import Image from 'next/image';
+import Link from 'next/link';
 import { PublicLayout } from '@/components/layout/PublicLayout';
 import { HeroCarousel } from '@/components/movie/HeroCarousel';
 import { TrailerModal } from '@/components/movie/TrailerModal';
@@ -10,18 +10,22 @@ import { PageTransition } from '@/components/motion/PageTransition';
 import { AnimatedButton } from '@/components/motion/AnimatedButton';
 import { MAJNOON } from '@/data/movies';
 import { MOCK_NEWS } from '@/data/content';
-import { MOCK_SCREENINGS } from '@/data/screenings';
+import { screeningService } from '@/services/screeningService';
+import { Screening } from '@/types/screening';
 import { Calendar, ChevronRight, Ticket } from 'lucide-react';
 import { formatDate } from '@/lib/utils';
 import { useSiteSettingsStore } from '@/store/useSiteSettingsStore';
 
 export default function HomePage() {
   const [trailerUrl, setTrailerUrl] = useState<string | null>(null);
+  const [openShows, setOpenShows] = useState<Screening[]>([]);
   const cinemaName = useSiteSettingsStore((s) => s.cinemaName);
   const brandName = useSiteSettingsStore((s) => s.brandName);
   const maxTickets = useSiteSettingsStore((s) => s.maxTicketsPerPerson);
 
-  const openShows = MOCK_SCREENINGS.slice(0, 5);
+  useEffect(() => {
+    screeningService.getScreenings().then((list) => setOpenShows(list.slice(0, 5)));
+  }, []);
 
   return (
     <PublicLayout flushTop>

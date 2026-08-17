@@ -1,0 +1,385 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum UserRole {
+  USER
+  STAFF
+  ADMIN
+}
+
+enum UserStatus {
+  ACTIVE
+  INACTIVE
+  SUSPENDED
+}
+
+enum MovieStatus {
+  DRAFT
+  PUBLISHED
+  ARCHIVED
+}
+
+enum ScreenStatus {
+  ACTIVE
+  INACTIVE
+  MAINTENANCE
+}
+
+enum SeatType {
+  STANDARD
+  PREMIUM
+  VIP
+  COUPLE
+}
+
+enum SeatStatus {
+  ACTIVE
+  DISABLED
+}
+
+enum ScreeningStatus {
+  SCHEDULED
+  CANCELLED
+  COMPLETED
+}
+
+enum BookingStatus {
+  PENDING
+  CONFIRMED
+  CANCELLED
+  EXPIRED
+  CHECKED_IN
+}
+
+enum TicketStatus {
+  ACTIVE
+  USED
+  VOID
+}
+
+enum NewsStatus {
+  DRAFT
+  PUBLISHED
+  ARCHIVED
+}
+
+enum EventStatus {
+  DRAFT
+  PUBLISHED
+  CANCELLED
+  COMPLETED
+}
+
+model User {
+  id            String     @id @default(uuid())
+  firstName     String
+  lastName      String
+  email         String     @unique
+  phone         String?
+  passwordHash  String
+  role          UserRole   @default(USER)
+  status        UserStatus @default(ACTIVE)
+  avatarUrl     String?
+  emailVerified Boolean    @default(false)
+  createdAt     DateTime   @default(now())
+  updatedAt     DateTime   @updatedAt
+
+  refreshTokens RefreshToken[]
+  bookings      Booking[]
+  newsArticles  News[]         @relation("NewsAuthor")
+
+  @@index([role])
+  @@index([status])
+}
+
+model RefreshToken {
+  id        String    @id @default(uuid())
+  userId    String
+  tokenHash String
+  expiresAt DateTime
+  createdAt DateTime  @default(now())
+  revokedAt DateTime?
+  userAgent String?
+  ipAddress String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([tokenHash])
+}
+
+model Genre {
+  id    String @id @default(uuid())
+  name  String @unique
+  slug  String @unique
+  movies MovieGenre[]
+}
+
+model Movie {
+  id              String      @id @default(uuid())
+  title           String
+  slug            String      @unique
+  tagline         String?
+  synopsis        String      @db.Text
+  durationMinutes Int
+  language        String
+  releaseDate     DateTime
+  ageRating       String
+  rating          Float       @default(0)
+  posterUrl       String?
+  backdropUrl     String?
+  trailerUrl      String?
+  status          MovieStatus @default(DRAFT)
+  isFeatured      Boolean     @default(false)
+  createdAt       DateTime    @default(now())
+  updatedAt       DateTime    @updatedAt
+
+  genres     MovieGenre[]
+  cast       CastMember[]
+  crew       CrewMember[]
+  gallery    MovieGallery[]
+  screenings Screening[]
+
+  @@index([status])
+  @@index([isFeatured])
+  @@index([releaseDate])
+}
+
+model MovieGenre {
+  movieId String
+  genreId String
+  movie   Movie  @relation(fields: [movieId], references: [id], onDelete: Cascade)
+  genre   Genre  @relation(fields: [genreId], references: [id], onDelete: Cascade)
+
+  @@id([movieId, genreId])
+}
+
+model CastMember {
+  id            String @id @default(uuid())
+  movieId       String
+  name          String
+  characterName String
+  imageUrl      String?
+  displayOrder  Int    @default(0)
+  movie         Movie  @relation(fields: [movieId], references: [id], onDelete: Cascade)
+
+  @@index([movieId])
+}
+
+model CrewMember {
+  id           String @id @default(uuid())
+  movieId      String
+  name         String
+  role         String
+  imageUrl     String?
+  displayOrder Int    @default(0)
+  movie        Movie  @relation(fields: [movieId], references: [id], onDelete: Cascade)
+
+  @@index([movieId])
+}
+
+model MovieGallery {
+  id           String @id @default(uuid())
+  movieId      String
+  imageUrl     String
+  altText      String?
+  displayOrder Int    @default(0)
+  movie        Movie  @relation(fields: [movieId], references: [id], onDelete: Cascade)
+
+  @@index([movieId])
+}
+
+model Screen {
+  id          String       @id @default(uuid())
+  name        String
+  slug        String       @unique
+  description String?
+  capacity    Int          @default(0)
+  status      ScreenStatus @default(ACTIVE)
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+
+  seats      Seat[]
+  screenings Screening[]
+
+  @@index([status])
+}
+
+model Seat {
+  id        String     @id @default(uuid())
+  screenId  String
+  row       String
+  number    Int
+  label     String
+  seatType  SeatType   @default(STANDARD)
+  status    SeatStatus @default(ACTIVE)
+  positionX Int?
+  positionY Int?
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+
+  screen       Screen                    @relation(fields: [screenId], references: [id], onDelete: Cascade)
+  bookingSeats BookingSeat[]
+  reservations ScreeningSeatReservation[]
+
+  @@unique([screenId, label])
+  @@index([screenId])
+}
+
+model Screening {
+  id        String          @id @default(uuid())
+  movieId   String
+  screenId  String
+  startTime DateTime
+  endTime   DateTime
+  status    ScreeningStatus @default(SCHEDULED)
+  createdAt DateTime        @default(now())
+  updatedAt DateTime        @updatedAt
+
+  movie        Movie                      @relation(fields: [movieId], references: [id], onDelete: Restrict)
+  screen       Screen                     @relation(fields: [screenId], references: [id], onDelete: Restrict)
+  bookings     Booking[]
+  reservations ScreeningSeatReservation[]
+
+  @@index([movieId])
+  @@index([screenId])
+  @@index([startTime])
+  @@index([status])
+  @@index([screenId, startTime, endTime])
+}
+
+model Booking {
+  id            String        @id @default(uuid())
+  bookingCode   String        @unique
+  userId        String?
+  screeningId   String
+  status        BookingStatus @default(PENDING)
+  customerName  String
+  customerEmail String
+  customerPhone String
+  idempotencyKey String?      @unique
+  expiresAt     DateTime?
+  confirmedAt   DateTime?
+  cancelledAt   DateTime?
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+
+  user         User?                      @relation(fields: [userId], references: [id], onDelete: SetNull)
+  screening    Screening                  @relation(fields: [screeningId], references: [id], onDelete: Restrict)
+  seats        BookingSeat[]
+  tickets      Ticket[]
+  reservations ScreeningSeatReservation[]
+
+  @@index([userId])
+  @@index([screeningId])
+  @@index([status])
+  @@index([customerEmail])
+  @@index([createdAt])
+}
+
+model BookingSeat {
+  id          String   @id @default(uuid())
+  bookingId   String
+  screeningId String
+  seatId      String
+  createdAt   DateTime @default(now())
+
+  booking Booking @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+  seat    Seat    @relation(fields: [seatId], references: [id], onDelete: Restrict)
+
+  @@index([bookingId])
+  @@index([screeningId, seatId])
+}
+
+/// Active seat reservations — one row per seat per screening while booking is active.
+/// Deleted on cancel/expiry; unique constraint prevents double booking at DB level.
+model ScreeningSeatReservation {
+  id          String @id @default(uuid())
+  screeningId String
+  seatId      String
+  bookingId   String
+
+  screening Screening @relation(fields: [screeningId], references: [id], onDelete: Cascade)
+  seat      Seat      @relation(fields: [seatId], references: [id], onDelete: Restrict)
+  booking   Booking   @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+
+  @@index([bookingId])
+
+  @@unique([screeningId, seatId])
+  @@index([screeningId])
+}
+
+model Ticket {
+  id           String       @id @default(uuid())
+  bookingId    String
+  ticketCode   String       @unique
+  secureToken  String       @unique
+  qrPayload    String
+  status       TicketStatus @default(ACTIVE)
+  seatLabel    String
+  issuedAt     DateTime     @default(now())
+  checkedInAt  DateTime?
+
+  booking Booking @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+
+  @@index([bookingId])
+  @@index([secureToken])
+}
+
+model News {
+  id               String     @id @default(uuid())
+  title            String
+  slug             String     @unique
+  excerpt          String?
+  content          String     @db.Text
+  featuredImageUrl String?
+  authorId         String?
+  status           NewsStatus @default(DRAFT)
+  publishedAt      DateTime?
+  createdAt        DateTime   @default(now())
+  updatedAt        DateTime   @updatedAt
+
+  author User? @relation("NewsAuthor", fields: [authorId], references: [id], onDelete: SetNull)
+
+  @@index([status])
+  @@index([publishedAt])
+}
+
+model Event {
+  id            String      @id @default(uuid())
+  title         String
+  slug          String      @unique
+  description   String      @db.Text
+  coverImageUrl String?
+  location      String?
+  startTime     DateTime
+  endTime       DateTime
+  status        EventStatus @default(DRAFT)
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+
+  @@index([status])
+  @@index([startTime])
+}
+
+model SiteSetting {
+  key       String   @id
+  value     Json
+  updatedAt DateTime @updatedAt
+}
+
+model PasswordResetToken {
+  id        String   @id @default(uuid())
+  userId    String
+  tokenHash String   @unique
+  expiresAt DateTime
+  usedAt    DateTime?
+  createdAt DateTime @default(now())
+
+  @@index([userId])
+}

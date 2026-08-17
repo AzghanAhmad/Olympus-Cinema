@@ -14,8 +14,8 @@ export const movieService = {
   },
 
   async getMovieById(id: string): Promise<Movie | null> {
-    await new Promise((res) => setTimeout(res, 150));
-    return MOCK_MOVIES.find((m) => m.id === id) || null;
+    await new Promise((res) => setTimeout(res, 50));
+    return MOCK_MOVIES.find((m) => m.id === id) || MOCK_MOVIES[0] || null;
   },
 
   async getNowShowing(): Promise<Movie[]> {

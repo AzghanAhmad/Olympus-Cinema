@@ -9,7 +9,7 @@ export function ToastContainer() {
   const { toasts, removeToast } = useToastStore();
 
   return (
-    <div className="fixed bottom-6 right-6 z-50 flex flex-col space-y-3 max-w-sm w-full pointer-events-none">
+    <div className="print:hidden fixed bottom-6 right-6 z-50 flex flex-col space-y-3 max-w-sm w-full pointer-events-none">
       <AnimatePresence>
         {toasts.map((t) => {
           const isSuccess = t.type === 'success';

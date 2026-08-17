@@ -26,9 +26,9 @@ export function CinemaSeatMap({ seats, aisleAfterByRow }: CinemaSeatMapProps) {
 
     if (result === 'limit') return;
     if (result === 'deselected') {
-      toast.info(`Seat ${seat.id} Deselected`, 'Removed from booking cart');
+      toast.info(`Seat ${seat.label || seat.id} Deselected`, 'Removed from booking cart');
     } else if (result === 'selected') {
-      toast.success(`Seat ${seat.id} Selected`, `$${seat.price}`);
+      toast.success(`Seat ${seat.label || seat.id} Selected`, `$${seat.price}`);
     }
   };
 

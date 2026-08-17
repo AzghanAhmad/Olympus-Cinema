@@ -1,13 +1,14 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useParams, notFound } from 'next/navigation';
 import { PublicLayout } from '@/components/layout/PublicLayout';
 import { TrailerModal } from '@/components/movie/TrailerModal';
 import { MOCK_MOVIES } from '@/data/movies';
-import { MOCK_SCREENINGS } from '@/data/screenings';
+import { screeningService } from '@/services/screeningService';
+import { Screening } from '@/types/screening';
 import { Play, Ticket, Star, Clock, Calendar, Globe, Award, Sparkles, User, Image as ImageIcon } from 'lucide-react';
 import { formatDate } from '@/lib/utils';
 
@@ -18,6 +19,11 @@ export default function MovieDetailsPage() {
   const movie = MOCK_MOVIES.find((m) => m.slug === slug);
   const [trailerUrl, setTrailerUrl] = useState<string | null>(null);
   const [selectedPhoto, setSelectedPhoto] = useState<string | null>(null);
+  const [screenings, setScreenings] = useState<Screening[]>([]);
+
+  useEffect(() => {
+    screeningService.getScreenings().then(setScreenings);
+  }, []);
 
   if (!movie) {
     return (
@@ -33,28 +39,29 @@ export default function MovieDetailsPage() {
     );
   }
 
-  const screenings = MOCK_SCREENINGS.filter((s) => s.movieId === movie.id);
-
   return (
     <PublicLayout flushTop>
       {/* 1. Large Hero Backdrop */}
       <div className="relative w-full h-[65vh] min-h-[450px] bg-black text-white">
-        <Image
-          src={movie.backdropUrl}
+        <img
+          src="/images/majnoon-backdrop.jpeg"
           alt={movie.title}
-          fill
-          priority
-          className="object-cover object-center opacity-60"
+          className="absolute inset-0 h-full w-full object-cover object-top"
+          suppressHydrationWarning
         />
-        <div className="absolute inset-0 hero-overlay" />
+        <div className="absolute inset-0 bg-gradient-to-t from-black via-black/55 to-black/25" />
 
         {/* Floating Poster & Info Header */}
         <div className="relative z-10 max-w-7xl mx-auto h-full px-4 sm:px-6 lg:px-8 flex items-end pb-12">
           <div className="flex flex-col md:flex-row items-center md:items-end gap-8 w-full">
             
-            {/* Poster Card */}
+            {/* Poster Card — Majnoon key art */}
             <div className="relative w-48 sm:w-56 aspect-[2/3] rounded-2xl overflow-hidden shadow-2xl border-2 border-white/10 shrink-0 hidden md:block bg-zinc-900">
-              <Image src={movie.posterUrl} alt={movie.title} fill className="object-cover" />
+              <img
+                src="/images/majnoon-backdrop.jpeg"
+                alt={movie.title}
+                className="absolute inset-0 h-full w-full object-cover object-center"
+              />
             </div>
 
             {/* Movie Meta Information */}

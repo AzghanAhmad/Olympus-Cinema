@@ -1,18 +1,24 @@
 'use client';
 
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { PublicLayout } from '@/components/layout/PublicLayout';
-import { MOCK_SCREENINGS } from '@/data/screenings';
 import { MAJNOON } from '@/data/movies';
 import { formatDate } from '@/lib/utils';
 import { useSiteSettingsStore } from '@/store/useSiteSettingsStore';
+import { screeningService } from '@/services/screeningService';
+import { Screening } from '@/types/screening';
 import { Ticket } from 'lucide-react';
 
 export default function ScreeningsPage() {
   const cinemaName = useSiteSettingsStore((s) => s.cinemaName);
   const maxTickets = useSiteSettingsStore((s) => s.maxTicketsPerPerson);
+  const [screenings, setScreenings] = useState<Screening[]>([]);
+
+  useEffect(() => {
+    screeningService.getScreenings().then(setScreenings);
+  }, []);
 
   return (
     <PublicLayout>
@@ -25,7 +31,7 @@ export default function ScreeningsPage() {
         </div>
 
         <div className="space-y-4">
-          {MOCK_SCREENINGS.map((scr) => (
+          {screenings.map((scr) => (
             <div
               key={scr.id}
               className="p-6 bg-card border border-border rounded-2xl flex flex-col md:flex-row items-center justify-between gap-6 shadow-sm"

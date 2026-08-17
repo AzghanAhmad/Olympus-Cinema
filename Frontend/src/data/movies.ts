@@ -4,7 +4,7 @@ import { Movie } from '@/types/movie';
 export const MAJNOON_ID = 'm1';
 
 const POSTER = '/images/majnoon-poster.jpg';
-const BACKDROP = '/images/majnoon-backdrop.jpg';
+const BACKDROP = '/images/majnoon-backdrop.jpeg';
 const CAST_GROUP = '/images/majnoon-cast.jpg';
 
 export const MOCK_MOVIES: Movie[] = [

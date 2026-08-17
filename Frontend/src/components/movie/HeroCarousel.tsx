@@ -1,7 +1,6 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import Image from 'next/image';
 import Link from 'next/link';
 import { Movie } from '@/types/movie';
 import { Play, Ticket, ChevronLeft, ChevronRight, Star, Clock } from 'lucide-react';
@@ -44,14 +43,11 @@ export function HeroCarousel({ movies, onWatchTrailer }: HeroCarouselProps) {
           transition={{ duration: 1.2, ease: [0.25, 0.1, 0.25, 1.0] }}
           className="absolute inset-0"
         >
-          <Image
-            src={current.backdropUrl}
+          <img
+            src="/images/majnoon-backdrop.jpeg"
             alt={current.title}
-            fill
-            priority
-            sizes="100vw"
-            unoptimized
-            className="object-cover object-center"
+            className="absolute inset-0 h-full w-full object-cover object-top"
+            suppressHydrationWarning
           />
           <div className="absolute inset-0 hero-overlay" />
         </motion.div>

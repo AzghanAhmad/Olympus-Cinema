@@ -17,10 +17,13 @@ import {
   Sparkles,
   Settings,
   ArrowLeft,
+  LogOut,
 } from 'lucide-react';
+import { useAuthStore } from '@/store/useAuthStore';
 
 export function AdminSidebar() {
   const pathname = usePathname();
+  const logout = useAuthStore((s) => s.logout);
 
   const links = [
     { name: 'Dashboard', href: '/admin', icon: LayoutDashboard },
@@ -90,6 +93,14 @@ export function AdminSidebar() {
           <ArrowLeft className="w-4 h-4" />
           Back to Public Site
         </Link>
+        <button
+          type="button"
+          onClick={logout}
+          className="flex w-full items-center gap-2 px-3 py-2 text-xs font-bold text-muted-foreground hover:text-foreground hover:bg-secondary rounded-xl transition-colors"
+        >
+          <LogOut className="w-4 h-4" />
+          Sign out
+        </button>
       </div>
     </aside>
   );
