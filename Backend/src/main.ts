@@ -22,22 +22,50 @@ async function bootstrap() {
     .filter(Boolean);
 
   app.set('trust proxy', 1);
-  app.use(helmet());
+  app.use(
+    helmet({
+      crossOriginResourcePolicy: { policy: 'cross-origin' },
+    }),
+  );
   app.use(cookieParser());
+
   const corsOrigins = Array.from(
     new Set([
-      frontendUrl,
-      ...extraOrigins,
+      frontendUrl.replace(/\/$/, ''),
+      ...extraOrigins.map((origin) => origin.replace(/\/$/, '')),
       'http://localhost:3000',
       'http://127.0.0.1:3000',
+      'https://olympus-cinema-production.up.railway.app',
     ]),
   );
+
+  const isAllowedOrigin = (origin?: string) => {
+    if (!origin) return true;
+    const normalized = origin.replace(/\/$/, '');
+    if (corsOrigins.includes(normalized)) return true;
+    try {
+      const host = new URL(normalized).hostname;
+      return host.endsWith('.up.railway.app');
+    } catch {
+      return false;
+    }
+  };
+
   app.enableCors({
-    origin: corsOrigins,
+    origin: (origin, callback) => {
+      if (isAllowedOrigin(origin)) {
+        callback(null, true);
+        return;
+      }
+      logger.warn(`Blocked CORS origin: ${origin}`);
+      callback(null, false);
+    },
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'Authorization'],
+    allowedHeaders: ['Content-Type', 'Authorization', 'Accept', 'Origin'],
+    optionsSuccessStatus: 204,
   });
+  logger.log(`CORS origins: ${corsOrigins.join(', ')} (+ *.up.railway.app)`);
 
   app.useGlobalPipes(
     new ValidationPipe({

@@ -65,6 +65,10 @@ export class EnvironmentVariables {
 
   @IsOptional()
   @IsString()
+  CORS_ORIGINS?: string;
+
+  @IsOptional()
+  @IsString()
   RESEND_API_KEY?: string;
 
   @IsOptional()

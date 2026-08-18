@@ -46,7 +46,7 @@ Wait until both are running.
 | `JWT_ACCESS_EXPIRES_IN` | `15m` |
 | `JWT_REFRESH_EXPIRES_IN` | `7d` |
 | `SEAT_HOLD_MINUTES` | `10` |
-| `FRONTEND_URL` | `https://${{frontend.RAILWAY_PUBLIC_DOMAIN}}` |
+| `FRONTEND_URL` | `https://olympus-cinema-production.up.railway.app` |
 | `EMAIL_FROM` | `Cinema <noreply@cinema.local>` |
 | `THROTTLE_TTL` | `60` |
 | `THROTTLE_LIMIT` | `100` |
