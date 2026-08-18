@@ -35,30 +35,48 @@ function ConfirmationContent() {
     );
   }
 
+  const isConfirmed = booking.status === 'CONFIRMED';
+
   return (
     <div className="max-w-3xl mx-auto px-4 sm:px-6 py-12 space-y-8">
       <div className="no-print text-center space-y-3">
-        <div className="w-16 h-16 rounded-full bg-primary/10 text-primary flex items-center justify-center mx-auto shadow-lg shadow-primary/20">
+        <div className={`w-16 h-16 rounded-full flex items-center justify-center mx-auto shadow-lg ${
+          isConfirmed ? 'bg-emerald-500/10 text-emerald-500 shadow-emerald-500/20' : 'bg-primary/10 text-primary shadow-primary/20'
+        }`}>
           <CheckCircle2 className="w-10 h-10" />
         </div>
-        <h1 className="text-3xl font-black tracking-tight">Reservation Submitted</h1>
+        <h1 className="text-3xl font-black tracking-tight">
+          {isConfirmed ? 'Booking Confirmed' : 'Reservation Submitted'}
+        </h1>
         <p className="text-sm text-muted-foreground max-w-lg mx-auto">
-          Booking will be confirmed once the payment is done.
+          {isConfirmed
+            ? 'Your booking has been confirmed. Your tickets are ready.'
+            : 'Booking will be confirmed once the payment is done.'}
         </p>
-        <p className="text-sm font-semibold text-foreground max-w-lg mx-auto bg-secondary/60 border border-border rounded-2xl px-4 py-3">
-          we will contact as soon as the reservation is confirmed
-        </p>
-        <p className="text-xs text-muted-foreground max-w-lg mx-auto">
-          This is an unconfirmed booking — not a ticket. You will get your ticket once it is paid.
-        </p>
+        {isConfirmed ? (
+          <p className="text-sm font-semibold text-emerald-600 dark:text-emerald-400 max-w-lg mx-auto bg-emerald-500/10 border border-emerald-500/20 rounded-2xl px-4 py-3">
+            Payment received — present your ticket QR code at the cinema entrance.
+          </p>
+        ) : (
+          <>
+            <p className="text-sm font-semibold text-foreground max-w-lg mx-auto bg-secondary/60 border border-border rounded-2xl px-4 py-3">
+              we will contact as soon as the reservation is confirmed
+            </p>
+            <p className="text-xs text-muted-foreground max-w-lg mx-auto">
+              This is an unconfirmed booking — not a ticket. You will get your ticket once it is paid.
+            </p>
+          </>
+        )}
       </div>
 
       <div id="printable-reservation" className="bg-card border-2 border-border rounded-3xl overflow-hidden shadow-2xl divide-y divide-border">
-        <div className="p-6 bg-gradient-to-r from-primary to-rose-700 text-white flex items-center justify-between gap-3">
+        <div className={`p-6 text-white flex items-center justify-between gap-3 ${
+          isConfirmed ? 'bg-gradient-to-r from-emerald-600 to-emerald-800' : 'bg-gradient-to-r from-primary to-rose-700'
+        }`}>
           <div className="flex items-center gap-2 min-w-0">
             <ClipboardList className="w-6 h-6 shrink-0" />
             <span className="font-extrabold text-lg tracking-wider truncate">
-              {booking.movieTitle.toUpperCase()} RESERVATION
+              {booking.movieTitle.toUpperCase()} {isConfirmed ? 'TICKET' : 'RESERVATION'}
             </span>
           </div>
           <span className="text-xs font-mono font-bold px-3 py-1 bg-black/30 rounded-full shrink-0">
@@ -80,7 +98,11 @@ function ConfirmationContent() {
               </div>
               <div>
                 <span className="text-muted-foreground block">Status</span>
-                <strong className="text-amber-600 dark:text-amber-400 text-sm">Unconfirmed booking</strong>
+                {isConfirmed ? (
+                  <strong className="text-emerald-600 dark:text-emerald-400 text-sm">Confirmed</strong>
+                ) : (
+                  <strong className="text-amber-600 dark:text-amber-400 text-sm">Unconfirmed booking</strong>
+                )}
               </div>
               <div>
                 <span className="text-muted-foreground block">Date & Time</span>
@@ -91,7 +113,7 @@ function ConfirmationContent() {
               <div>
                 <span className="text-muted-foreground block">Selected Seats</span>
                 <strong className="text-primary text-sm font-black">
-                  {booking.seats.map((s) => s.id).join(', ')}
+                  {booking.seats.map((s) => s.label || s.id).join(', ')}
                 </strong>
               </div>
               <div>
@@ -105,15 +127,16 @@ function ConfirmationContent() {
               <strong className="text-foreground">{booking.customer.fullName}</strong> ({booking.customer.email})
             </div>
             <p className="text-[11px] text-muted-foreground leading-relaxed">
-              This QR code is only an unconfirmed booking reference. It is not a ticket.
-              The person will get a ticket once it is paid.
+              {isConfirmed
+                ? 'Present this ticket at the cinema entrance. Each seat has its own ticket.'
+                : 'This QR code is only an unconfirmed booking reference. It is not a ticket. The person will get a ticket once it is paid.'}
             </p>
           </div>
 
           <div className="flex flex-col items-center justify-center p-4 bg-white rounded-2xl border border-zinc-200 space-y-2">
             <QRCodeSVG value={booking.qrCodeValue} size={140} />
             <span className="text-[10px] font-mono text-zinc-600 font-bold tracking-widest uppercase">
-              Reservation Ref
+              {isConfirmed ? 'Ticket' : 'Reservation Ref'}
             </span>
             <span className="text-[10px] font-mono text-zinc-500">{booking.bookingCode}</span>
           </div>
@@ -126,7 +149,7 @@ function ConfirmationContent() {
           className="flex items-center gap-2 px-6 py-3 bg-secondary text-secondary-foreground font-bold rounded-xl text-xs hover:bg-secondary/80 transition-colors border border-border"
         >
           <Printer className="w-4 h-4" />
-          Reservation
+          {isConfirmed ? 'Print Ticket' : 'Reservation'}
         </button>
         <Link
           href="/"

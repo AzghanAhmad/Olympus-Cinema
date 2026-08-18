@@ -97,6 +97,12 @@ export class BookingsAdminController {
     return successResponse(data);
   }
 
+  @Post(':id/confirm')
+  async confirm(@Param('id', ParseUUIDPipe) id: string) {
+    const data = await this.bookings.confirm(id);
+    return successResponse(data, 'Booking confirmed');
+  }
+
   @Post(':id/cancel')
   async cancel(@Param('id', ParseUUIDPipe) id: string) {
     const data = await this.bookings.cancel(id, undefined, true);

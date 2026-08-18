@@ -47,9 +47,11 @@ until npx prisma db push; do
   sleep 2
 done
 
-echo "Seeding database (safe to re-run)..."
-export TS_NODE_COMPILER_OPTIONS='{"module":"commonjs","moduleResolution":"node"}'
-npx ts-node --transpile-only prisma/seed.ts || echo "Seed skipped"
+echo "Seeding cinema catalog (users, Majnoon, hall, seats, showtimes)..."
+export TS_NODE_COMPILER_OPTIONS='{"module":"commonjs","moduleResolution":"node","esModuleInterop":true}'
+if ! npx ts-node --transpile-only prisma/seed.ts; then
+  echo "CLI seed failed; Nest bootstrap will seed cinema data on API start."
+fi
 
 echo "Starting API..."
 if [ -f dist/main.js ]; then

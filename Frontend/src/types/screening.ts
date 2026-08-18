@@ -34,4 +34,6 @@ export interface Screening {
   price: number;
   priceStandard?: number;
   priceVIP?: number;
+  movieTitle?: string;
+  moviePoster?: string;
 }

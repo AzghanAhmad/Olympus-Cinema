@@ -5,6 +5,7 @@ import { UpdateSettingsDto } from './dto/settings.dto';
 
 const PUBLIC_SETTING_KEYS = [
   'siteName',
+  'cinemaName',
   'tagline',
   'contactEmail',
   'contactPhone',
@@ -12,6 +13,9 @@ const PUBLIC_SETTING_KEYS = [
   'socialLinks',
   'heroContent',
   'footerText',
+  'maxTicketsPerPerson',
+  'seatHoldDuration',
+  'ticketPrice',
 ];
 
 @Injectable()

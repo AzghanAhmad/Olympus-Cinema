@@ -56,7 +56,7 @@ If Railway named the database services differently, pick them from the variable 
 **Do not paste `DATABASE_URL` from your local `.env`.** That value is `localhost:5433` and only works on your PC. Railway must use a **reference** to the Postgres plugin.
 
 5. **Settings → Networking → Generate Domain** for the backend. Copy that URL (example: `https://backend-production-xxxx.up.railway.app`).
-6. Deploy. The container runs `prisma db push`, seeds admin/user accounts, then starts the API. Health check: `/health`.
+6. Deploy. The container runs `prisma db push`, then starts the API. On boot the API seeds **the same cinema data as `Backend/prisma/seed.ts`**: admin accounts, Majnoon, hall/seats, upcoming showtimes, news, and settings. Health check: `/health`.
 
 Seed logins after a successful deploy:
 

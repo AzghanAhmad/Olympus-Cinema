@@ -1,5 +1,4 @@
 import { apiFetch, ApiPaginated, ApiSuccess } from '@/lib/api';
-import { MOCK_SCREENINGS } from '@/data/screenings';
 import { useSiteSettingsStore } from '@/store/useSiteSettingsStore';
 import { Screening, Seat, SeatCategory, SeatStatus } from '@/types/screening';
 
@@ -35,9 +34,10 @@ function padDate(iso: string) {
   return `${y}-${m}-${day}`;
 }
 
-function mapScreening(s: ApiScreening): Screening {
+function mapScreening(s: ApiScreening, availableSeats?: number): Screening {
   const price = useSiteSettingsStore.getState().ticketPrice || 15;
   const capacity = s.screen?.capacity || 0;
+  const available = availableSeats ?? capacity;
   return {
     id: s.id,
     movieId: s.movieId,
@@ -47,9 +47,11 @@ function mapScreening(s: ApiScreening): Screening {
     date: padDate(s.startTime),
     startTime: padTime(s.startTime),
     endTime: padTime(s.endTime),
-    availableSeatsCount: capacity,
+    availableSeatsCount: available,
     totalSeatsCount: capacity,
     price,
+    movieTitle: s.movie?.title,
+    moviePoster: s.movie?.posterUrl || undefined,
   };
 }
 
@@ -66,24 +68,23 @@ function mapSeatType(seatType?: string): SeatCategory {
   return 'STANDARD';
 }
 
+async function fetchScreeningsList(path: string): Promise<Screening[]> {
+  try {
+    const res = await apiFetch<ApiPaginated<ApiScreening>>(path);
+    return (res.data ?? []).map((s) => mapScreening(s));
+  } catch {
+    return [];
+  }
+}
+
 export const screeningService = {
   async getScreenings(): Promise<Screening[]> {
-    try {
-      const from = encodeURIComponent(new Date().toISOString());
-      let res = await apiFetch<ApiPaginated<ApiScreening>>(`/screenings?limit=50&from=${from}`);
-      if (!res.data?.length) {
-        res = await apiFetch<ApiPaginated<ApiScreening>>(`/screenings?limit=50`);
-      }
-      if (res.data?.length) return res.data.map(mapScreening);
-    } catch {
-      try {
-        const res = await apiFetch<ApiPaginated<ApiScreening>>(`/screenings?limit=50`);
-        if (res.data?.length) return res.data.map(mapScreening);
-      } catch {
-        /* fall back to mock showtimes if API is down */
-      }
+    const from = encodeURIComponent(new Date().toISOString());
+    let list = await fetchScreeningsList(`/screenings?limit=50&from=${from}`);
+    if (!list.length) {
+      list = await fetchScreeningsList('/screenings?limit=50');
     }
-    return MOCK_SCREENINGS;
+    return list;
   },
 
   async getScreeningById(id: string): Promise<Screening | null> {
@@ -93,18 +94,40 @@ export const screeningService = {
     } catch {
       /* ignore */
     }
-    return MOCK_SCREENINGS.find((s) => s.id === id) || null;
+    return null;
   },
 
-  async getScreeningsByMovieId(_movieId: string): Promise<Screening[]> {
-    return this.getScreenings();
+  async getScreeningsByMovieId(movieId: string): Promise<Screening[]> {
+    const from = encodeURIComponent(new Date().toISOString());
+    let list = await fetchScreeningsList(
+      `/screenings/movie/${movieId}?limit=50&from=${from}`,
+    );
+    if (!list.length) {
+      list = await fetchScreeningsList(`/screenings/movie/${movieId}?limit=50`);
+    }
+    return list;
+  },
+
+  async getScreeningsByMovieSlug(slug: string): Promise<Screening[]> {
+    const from = encodeURIComponent(new Date().toISOString());
+    let list = await fetchScreeningsList(
+      `/screenings?limit=50&from=${from}&movieSlug=${encodeURIComponent(slug)}`,
+    );
+    if (!list.length) {
+      list = await fetchScreeningsList(
+        `/screenings?limit=50&movieSlug=${encodeURIComponent(slug)}`,
+      );
+    }
+    return list;
   },
 
   async getScreeningSeats(screeningId: string): Promise<Seat[]> {
     const price = useSiteSettingsStore.getState().ticketPrice || 15;
     try {
-      const res = await apiFetch<ApiSuccess<{ seats: ApiSeat[] }>>(`/screenings/${screeningId}/seats`);
-      return (res.data?.seats || []).map((seat) => ({
+      const res = await apiFetch<ApiSuccess<{ seats: ApiSeat[] }>>(
+        `/screenings/${screeningId}/seats`,
+      );
+      return (res.data?.seats ?? []).map((seat) => ({
         id: seat.id,
         row: seat.row,
         number: seat.number,
@@ -116,5 +139,10 @@ export const screeningService = {
     } catch {
       return [];
     }
+  },
+
+  async countAvailableSeats(screeningId: string): Promise<number> {
+    const seats = await this.getScreeningSeats(screeningId);
+    return seats.filter((s) => s.status === 'AVAILABLE').length;
   },
 };

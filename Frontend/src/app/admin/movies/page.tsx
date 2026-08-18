@@ -1,7 +1,8 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import Image from 'next/image';
+import { useSearchParams } from 'next/navigation';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { Plus, Search, Edit2, Trash2, X } from 'lucide-react';
 import { toast } from '@/store/useToastStore';
@@ -10,6 +11,7 @@ import { ApiError } from '@/lib/api';
 
 export default function AdminMoviesPage() {
   const qc = useQueryClient();
+  const searchParams = useSearchParams();
   const [search, setSearch] = useState('');
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editing, setEditing] = useState<AdminMovie | null>(null);
@@ -32,6 +34,11 @@ export default function AdminMoviesPage() {
     queryKey: ['admin', 'movies', search],
     queryFn: () => adminApi.movies.list(search || undefined),
   });
+
+  useEffect(() => {
+    const q = searchParams.get('q') || '';
+    setSearch(q);
+  }, [searchParams]);
 
   const movies = data?.data ?? [];
 

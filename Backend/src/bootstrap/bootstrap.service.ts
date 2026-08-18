@@ -2,6 +2,7 @@ import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
 import { UserRole, UserStatus } from '@prisma/client';
 import * as argon2 from 'argon2';
 import { PrismaService } from '../prisma/prisma.service';
+import { seedCinemaCatalog } from './cinema-seed';
 
 const SEED_PASSWORD = 'Password123!';
 
@@ -63,10 +64,13 @@ export class BootstrapService implements OnModuleInit {
         },
       });
 
-      this.logger.log(`Admin account ready: ${admin.email}`);
+      await seedCinemaCatalog(this.prisma);
+      this.logger.log(
+        `Cinema catalog ready (Majnoon, hall, seats, showtimes). Admin: ${admin.email}`,
+      );
     } catch (err) {
       this.logger.error(
-        `Could not ensure seed accounts exist: ${err instanceof Error ? err.message : String(err)}`,
+        `Could not seed cinema catalog: ${err instanceof Error ? err.message : String(err)}`,
       );
     }
   }

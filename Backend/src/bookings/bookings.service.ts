@@ -14,13 +14,15 @@ import { CreateBookingDto, QueryBookingsDto } from './dto/booking.dto';
 import {
   buildMeta,
   generateBookingCode,
+  generateSecureToken,
+  generateTicketCode,
   getPagination,
 } from '../common/utils';
 
 const bookingInclude = {
   screening: {
     include: {
-      movie: { select: { id: true, title: true, slug: true } },
+      movie: { select: { id: true, title: true, slug: true, posterUrl: true } },
       screen: { select: { id: true, name: true, slug: true } },
     },
   },
@@ -214,6 +216,59 @@ export class BookingsService {
     ]);
 
     return { data: bookings, meta: buildMeta(total, page, limit) };
+  }
+
+  async confirm(id: string) {
+    const booking = await this.findOne(id, undefined, true);
+    if (booking.status !== BookingStatus.PENDING) {
+      throw new BadRequestException('Only pending bookings can be confirmed');
+    }
+
+    const updated = await this.prisma.$transaction(async (tx) => {
+      await tx.booking.update({
+        where: { id },
+        data: {
+          status: BookingStatus.CONFIRMED,
+          confirmedAt: new Date(),
+        },
+      });
+
+      if (booking.tickets.length === 0) {
+        for (const bookingSeat of booking.seats) {
+          const secureToken = generateSecureToken();
+          await tx.ticket.create({
+            data: {
+              bookingId: id,
+              ticketCode: generateTicketCode(),
+              secureToken,
+              qrPayload: secureToken,
+              seatLabel: bookingSeat.seat.label,
+            },
+          });
+        }
+      }
+
+      return tx.booking.findUniqueOrThrow({
+        where: { id },
+        include: bookingInclude,
+      });
+    });
+
+    const screening = updated.screening;
+    await this.email
+      .sendBookingConfirmation({
+        email: updated.customerEmail,
+        customerName: updated.customerName,
+        movieTitle: screening.movie.title,
+        date: screening.startTime.toLocaleDateString(),
+        time: screening.startTime.toLocaleTimeString(),
+        hall: screening.screen.name,
+        seats: updated.seats.map((s) => s.seat.label),
+        bookingCode: updated.bookingCode,
+      })
+      .catch((err) => this.logger.warn('Confirmation email failed', err));
+
+    return updated;
   }
 
   async cancel(id: string, userId?: string, isAdmin = false) {

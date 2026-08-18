@@ -1,10 +1,11 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { PublicLayout } from '@/components/layout/PublicLayout';
+import { getPublicSiteSettings, PublicSiteSettings } from '@/services/settingsService';
 import { Mail, Phone, MapPin, Send, CheckCircle2 } from 'lucide-react';
 
 const contactSchema = z.object({
@@ -18,6 +19,11 @@ type ContactFormData = z.infer<typeof contactSchema>;
 
 export default function ContactPage() {
   const [submitted, setSubmitted] = useState(false);
+  const [site, setSite] = useState<PublicSiteSettings | null>(null);
+
+  useEffect(() => {
+    getPublicSiteSettings().then(setSite);
+  }, []);
 
   const {
     register,
@@ -34,6 +40,11 @@ export default function ContactPage() {
     reset();
   };
 
+  const cinemaName = site?.cinemaName || 'Crystal Entertainment';
+  const contactEmail = site?.contactEmail || 'hello@crystalentertainment.com';
+  const contactPhone = site?.contactPhone || '+1 (800) 555-OLYM';
+  const address = site?.address || cinemaName;
+
   return (
     <PublicLayout>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 space-y-12">
@@ -45,8 +56,6 @@ export default function ContactPage() {
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
-          
-          {/* Contact Form */}
           <div className="p-8 bg-card border border-border rounded-3xl space-y-6 shadow-sm">
             <h2 className="text-xl font-extrabold">Send Us a Message</h2>
 
@@ -122,7 +131,6 @@ export default function ContactPage() {
             )}
           </div>
 
-          {/* Location Map Placeholder & Contact Details */}
           <div className="space-y-6">
             <div className="p-8 bg-card border border-border rounded-3xl space-y-6">
               <h2 className="text-xl font-extrabold">Cinema Headquarters</h2>
@@ -130,16 +138,16 @@ export default function ContactPage() {
                 <div className="flex items-start gap-3">
                   <MapPin className="w-5 h-5 text-primary shrink-0 mt-0.5" />
                   <div>
-                    <strong className="text-foreground block">Crystal Entertainment</strong>
-                    <span>Presented by Crystal Entertainment</span>
+                    <strong className="text-foreground block">{cinemaName}</strong>
+                    <span>{address}</span>
                   </div>
                 </div>
 
                 <div className="flex items-center gap-3">
                   <Phone className="w-5 h-5 text-primary shrink-0" />
                   <div>
-                    <strong className="text-foreground block">Toll-Free Phone</strong>
-                    <span>+1 (800) 555-OLYM</span>
+                    <strong className="text-foreground block">Phone</strong>
+                    <span>{contactPhone}</span>
                   </div>
                 </div>
 
@@ -147,18 +155,17 @@ export default function ContactPage() {
                   <Mail className="w-5 h-5 text-primary shrink-0" />
                   <div>
                     <strong className="text-foreground block">Support Email</strong>
-                    <span>hello@crystalentertainment.com</span>
+                    <span>{contactEmail}</span>
                   </div>
                 </div>
               </div>
             </div>
 
-            {/* Map Canvas Visual Placeholder */}
             <div className="relative aspect-video rounded-3xl overflow-hidden border border-border bg-zinc-900 flex items-center justify-center text-center p-6">
               <div className="space-y-2">
                 <MapPin className="w-10 h-10 text-primary mx-auto animate-bounce" />
-                <h4 className="font-extrabold text-white text-base">Interactive Theater Map</h4>
-                <p className="text-xs text-zinc-400">Grand District • Valet Parking Available</p>
+                <h4 className="font-extrabold text-white text-base">{cinemaName}</h4>
+                <p className="text-xs text-zinc-400">Details synced from admin settings</p>
               </div>
             </div>
           </div>

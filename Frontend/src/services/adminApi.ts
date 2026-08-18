@@ -76,6 +76,8 @@ export const adminApi = {
   bookings: {
     list: (search?: string) =>
       apiFetch<ApiPaginated<AdminBooking>>(`/admin/bookings${qs({ search, limit: 50 })}`),
+    confirm: (id: string) =>
+      apiFetch<ApiSuccess<AdminBooking>>(`/admin/bookings/${id}/confirm`, { method: 'POST' }),
     cancel: (id: string) =>
       apiFetch<ApiSuccess<AdminBooking>>(`/admin/bookings/${id}/cancel`, { method: 'POST' }),
   },

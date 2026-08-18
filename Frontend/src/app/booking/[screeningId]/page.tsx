@@ -11,15 +11,14 @@ import { CinemaSeatMap } from '@/components/booking/CinemaSeatMap';
 import { SeatHoldTimer } from '@/components/booking/SeatHoldTimer';
 import { useBookingStore } from '@/store/useBookingStore';
 import { useSiteSettingsStore } from '@/store/useSiteSettingsStore';
-import { useCinemaLayoutStore } from '@/store/useCinemaLayoutStore';
 import { screeningService } from '@/services/screeningService';
 import { movieService } from '@/services/movieService';
 import { bookingService } from '@/services/bookingService';
+import { computeAisleAfterByRow } from '@/lib/seatLayout';
 import { Seat, Screening } from '@/types/screening';
 import { Movie } from '@/types/movie';
 import { formatCurrency, formatDate } from '@/lib/utils';
 import { toast } from '@/store/useToastStore';
-import { aisleAfterByRow } from '@/data/seats';
 import { ArrowRight, ArrowLeft, ShieldCheck } from 'lucide-react';
 
 const guestSchema = z.object({
@@ -44,9 +43,6 @@ export default function BookingPage() {
 
   const maxTickets = useSiteSettingsStore((s) => s.maxTicketsPerPerson);
   const cinemaName = useSiteSettingsStore((s) => s.cinemaName);
-  const layoutUpdatedAt = useCinemaLayoutStore((s) => s.updatedAt);
-  const screens = useCinemaLayoutStore((s) => s.screens);
-  const layoutScreen = screens.find((s) => s.id === screening?.hallId);
 
   const {
     selectedSeats,
@@ -95,18 +91,7 @@ export default function BookingPage() {
     loadData();
   }, [screeningId, setScreeningAndMovie]);
 
-  useEffect(() => {
-    if (!layoutUpdatedAt || !screeningId) return;
-    async function refreshLayout() {
-      const scr = await screeningService.getScreeningById(screeningId);
-      if (scr) {
-        setScreening(scr);
-        const seatList = await screeningService.getScreeningSeats(scr.id);
-        setSeats(seatList);
-      }
-    }
-    refreshLayout();
-  }, [layoutUpdatedAt, screeningId]);
+  const aisleMap = computeAisleAfterByRow(seats);
 
   if (loading || !screening || !movie) {
     return (
@@ -191,12 +176,7 @@ export default function BookingPage() {
                   </div>
                 </div>
 
-                <CinemaSeatMap
-                  seats={seats}
-                  aisleAfterByRow={
-                    layoutScreen ? aisleAfterByRow(layoutScreen.rows) : undefined
-                  }
-                />
+                <CinemaSeatMap seats={seats} aisleAfterByRow={aisleMap} />
 
                 <div className="flex justify-end pt-4 border-t border-border">
                   <button
@@ -417,7 +397,7 @@ export default function BookingPage() {
                     <div className="flex flex-wrap gap-2">
                       {selectedSeats.map((seat) => (
                         <span key={seat.id} className="px-3 py-1 bg-primary text-primary-foreground text-xs font-bold rounded-lg">
-                          Seat {seat.id} (${seat.price})
+                          {seat.label || `${seat.row}-${seat.number}`} (${seat.price})
                         </span>
                       ))}
                     </div>
@@ -473,7 +453,7 @@ export default function BookingPage() {
               <div className="space-y-2 pt-2 border-t border-border text-xs">
                 <div className="flex justify-between font-semibold gap-2">
                   <span className="text-muted-foreground shrink-0">Seats ({selectedSeats.length}/{maxTickets})</span>
-                  <span className="text-right">{selectedSeats.length > 0 ? selectedSeats.map((s) => s.id).join(', ') : 'None'}</span>
+                  <span className="text-right">{selectedSeats.length > 0 ? selectedSeats.map((s) => s.label || `${s.row}-${s.number}`).join(', ') : 'None'}</span>
                 </div>
               </div>
 

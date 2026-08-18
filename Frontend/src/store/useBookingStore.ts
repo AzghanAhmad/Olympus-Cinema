@@ -56,7 +56,14 @@ export const useBookingStore = create<BookingStoreState>((set, get) => ({
   pendingEmailCode: '',
   pendingPhoneCode: '',
 
-  setScreeningAndMovie: (screening, movie) => set({ screening, movie }),
+  setScreeningAndMovie: (screening, movie) => {
+    const prev = get().screening;
+    if (prev && prev.id !== screening.id) {
+      set({ screening, movie, selectedSeats: [], step: 1, holdExpiresAt: null });
+    } else {
+      set({ screening, movie });
+    }
+  },
 
   toggleSeat: (seat) => {
     const { selectedSeats } = get();

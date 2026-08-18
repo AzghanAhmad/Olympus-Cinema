@@ -53,10 +53,10 @@ export class EmailService {
       data.email,
       `Booking Confirmation — ${data.bookingCode}`,
       `<p>Hi ${data.customerName},</p>
-       <p>Your reservation for <strong>${data.movieTitle}</strong> is confirmed.</p>
+       <p>Your booking for <strong>${data.movieTitle}</strong> has been confirmed.</p>
        <p>Date: ${data.date} at ${data.time}<br/>Hall: ${data.hall}<br/>Seats: ${data.seats.join(', ')}</p>
        <p>Booking code: <strong>${data.bookingCode}</strong></p>
-       <p>We will contact you as soon as the reservation is confirmed. Ticket issued after payment.</p>`,
+       <p>Your tickets are ready. Present your ticket QR code at the cinema entrance.</p>`,
     );
   }
 

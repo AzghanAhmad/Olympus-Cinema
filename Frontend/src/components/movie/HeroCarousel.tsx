@@ -44,7 +44,7 @@ export function HeroCarousel({ movies, onWatchTrailer }: HeroCarouselProps) {
           className="absolute inset-0"
         >
           <img
-            src="/images/majnoon-backdrop.jpeg"
+            src={current.backdropUrl || '/images/majnoon-backdrop.jpeg'}
             alt={current.title}
             className="absolute inset-0 h-full w-full object-cover object-top"
             suppressHydrationWarning

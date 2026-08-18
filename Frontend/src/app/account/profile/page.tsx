@@ -12,7 +12,7 @@ const passwordFieldClass =
   'w-full py-2.5 px-3 pr-11 bg-secondary text-foreground text-sm rounded-xl border border-border focus:outline-none focus:ring-2 focus:ring-primary';
 
 export default function UserProfilePage() {
-  const { user } = useAuthStore();
+  const { user, refreshProfile, updateUser } = useAuthStore();
   const [name, setName] = useState(user?.name || '');
   const [email, setEmail] = useState(user?.email || '');
   const [phone, setPhone] = useState(user?.phone || '');
@@ -33,6 +33,8 @@ export default function UserProfilePage() {
         method: 'PATCH',
         body: JSON.stringify({ firstName, lastName, phone }),
       });
+      updateUser({ name, phone });
+      await refreshProfile();
       toast.success('Profile updated', 'Your contact details were saved.');
     } catch (err) {
       toast.error('Could not save profile', err instanceof Error ? err.message : 'Try again');

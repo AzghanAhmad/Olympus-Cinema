@@ -1,6 +1,7 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
+import { useSearchParams } from 'next/navigation';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { Search } from 'lucide-react';
 import { toast } from '@/store/useToastStore';
@@ -9,12 +10,18 @@ import { formatDate } from '@/lib/utils';
 
 export default function AdminUsersPage() {
   const qc = useQueryClient();
+  const searchParams = useSearchParams();
   const [search, setSearch] = useState('');
   const { data, isLoading, error } = useQuery({
     queryKey: ['admin', 'users', search],
     queryFn: () => adminApi.users.list(search || undefined),
   });
   const users = data?.data ?? [];
+
+  useEffect(() => {
+    const q = searchParams.get('q') || '';
+    setSearch(q);
+  }, [searchParams]);
 
   const statusMutation = useMutation({
     mutationFn: ({ id, status }: { id: string; status: string }) =>

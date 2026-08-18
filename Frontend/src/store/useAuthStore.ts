@@ -39,6 +39,8 @@ interface AuthStoreState {
   }) => Promise<{ ok: true } | { ok: false; error: string }>;
   logout: () => void;
   isAdmin: () => boolean;
+  refreshProfile: (totalBookings?: number) => Promise<void>;
+  updateUser: (partial: Partial<UserProfile>) => void;
 }
 
 function mapUser(u: AuthUser): UserProfile {
@@ -124,6 +126,27 @@ export const useAuthStore = create<AuthStoreState>()(
           refreshToken: null,
           isAuthenticated: false,
         }),
+
+      refreshProfile: async (totalBookings) => {
+        try {
+          const res = await apiFetch<ApiSuccess<AuthUser>>('/users/me');
+          const user = mapUser(res.data);
+          if (totalBookings !== undefined) {
+            user.totalBookings = totalBookings;
+          } else {
+            user.totalBookings = get().user?.totalBookings ?? 0;
+          }
+          set({ user });
+        } catch {
+          /* keep cached profile */
+        }
+      },
+
+      updateUser: (partial) => {
+        const current = get().user;
+        if (!current) return;
+        set({ user: { ...current, ...partial } });
+      },
 
       isAdmin: () => get().user?.role === 'ADMIN' && Boolean(get().accessToken),
     }),

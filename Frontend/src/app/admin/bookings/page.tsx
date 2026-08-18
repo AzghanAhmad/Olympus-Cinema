@@ -1,6 +1,7 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
+import { useSearchParams } from 'next/navigation';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { Search } from 'lucide-react';
 import { toast } from '@/store/useToastStore';
@@ -9,12 +10,27 @@ import { formatDate } from '@/lib/utils';
 
 export default function AdminBookingsPage() {
   const qc = useQueryClient();
+  const searchParams = useSearchParams();
   const [search, setSearch] = useState('');
   const { data, isLoading, error } = useQuery({
     queryKey: ['admin', 'bookings', search],
     queryFn: () => adminApi.bookings.list(search || undefined),
   });
   const bookings = data?.data ?? [];
+
+  useEffect(() => {
+    const q = searchParams.get('q') || '';
+    setSearch(q);
+  }, [searchParams]);
+
+  const confirmMutation = useMutation({
+    mutationFn: (id: string) => adminApi.bookings.confirm(id),
+    onSuccess: () => {
+      toast.success('Booking confirmed');
+      qc.invalidateQueries({ queryKey: ['admin', 'bookings'] });
+    },
+    onError: (e: Error) => toast.error('Confirm failed', e.message),
+  });
 
   const cancelMutation = useMutation({
     mutationFn: (id: string) => adminApi.bookings.cancel(id),
@@ -80,16 +96,32 @@ export default function AdminBookingsPage() {
                 <td className="p-4">{bk.seats?.map((s) => s.seat?.label).filter(Boolean).join(', ') || '—'}</td>
                 <td className="p-4 font-bold">{bk.status}</td>
                 <td className="p-4 text-right">
-                  {bk.status !== 'CANCELLED' && bk.status !== 'EXPIRED' && (
-                    <button
-                      onClick={() => {
-                        if (confirm('Cancel this booking?')) cancelMutation.mutate(bk.id);
-                      }}
-                      className="px-3 py-1.5 bg-secondary text-[11px] font-bold rounded-lg"
-                    >
-                      Cancel
-                    </button>
-                  )}
+                  <div className="flex items-center justify-end gap-2">
+                    {bk.status === 'PENDING' && (
+                      <button
+                        onClick={() => {
+                          if (confirm('Confirm this booking and issue tickets?')) {
+                            confirmMutation.mutate(bk.id);
+                          }
+                        }}
+                        disabled={confirmMutation.isPending}
+                        className="px-3 py-1.5 bg-primary text-primary-foreground text-[11px] font-bold rounded-lg disabled:opacity-50"
+                      >
+                        Confirm
+                      </button>
+                    )}
+                    {bk.status !== 'CANCELLED' && bk.status !== 'EXPIRED' && (
+                      <button
+                        onClick={() => {
+                          if (confirm('Cancel this booking?')) cancelMutation.mutate(bk.id);
+                        }}
+                        disabled={cancelMutation.isPending}
+                        className="px-3 py-1.5 bg-secondary text-[11px] font-bold rounded-lg disabled:opacity-50"
+                      >
+                        Cancel
+                      </button>
+                    )}
+                  </div>
                 </td>
               </tr>
             ))}
