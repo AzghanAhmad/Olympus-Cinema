@@ -5,6 +5,8 @@ coverage
 .gitignore
 .env
 .env.*
+**/.env
+**/.env.*
 *.md
 test
 **/*.spec.ts

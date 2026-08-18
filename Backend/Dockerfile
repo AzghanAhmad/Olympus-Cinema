@@ -11,7 +11,7 @@ WORKDIR /app
 COPY . .
 # prisma.config.ts requires DATABASE_URL even for generate
 ENV DATABASE_URL="postgresql://postgres:postgres@localhost:5432/cinema_booking?schema=public"
-RUN npx prisma generate && npm run build
+RUN npx prisma generate && npm run build && ls -la dist && test -f dist/main.js
 
 FROM node:20-bookworm-slim AS runner
 WORKDIR /app
@@ -26,6 +26,6 @@ COPY --from=build /app/prisma.config.ts ./prisma.config.ts
 COPY --from=build /app/package.json ./package.json
 COPY --from=build /app/tsconfig.json ./tsconfig.json
 COPY docker-entrypoint.sh ./docker-entrypoint.sh
-RUN chmod +x docker-entrypoint.sh
+RUN chmod +x docker-entrypoint.sh && rm -f .env .env.* .env.local .env.production
 EXPOSE 4000
 CMD ["./docker-entrypoint.sh"]

@@ -53,6 +53,8 @@ Wait until both are running.
 
 If Railway named the database services differently, pick them from the variable reference menu instead of typing `Postgres` / `Redis`.
 
+**Do not paste `DATABASE_URL` from your local `.env`.** That value is `localhost:5433` and only works on your PC. Railway must use a **reference** to the Postgres plugin.
+
 5. **Settings → Networking → Generate Domain** for the backend. Copy that URL (example: `https://backend-production-xxxx.up.railway.app`).
 6. Deploy. The container runs `prisma db push`, seeds admin/user accounts, then starts the API. Health check: `/health`.
 
@@ -109,6 +111,9 @@ docker compose up --build
 - Postgres: localhost:5433 (password `postgres`)
 
 ## Common issues
+
+- **`P1001: Can't reach database server at localhost:5433`**  
+  The backend is still using the local `.env` URL. In Railway → **backend** → **Variables**, delete that `DATABASE_URL` if you typed it by hand. Click **New Variable** → **Add Reference** → select the **Postgres** service → **DATABASE_URL**. Redeploy. The URL should look like `postgres.railway.internal`, not `localhost`.
 
 - **Frontend calls localhost:4000 in production**  
   `NEXT_PUBLIC_API_URL` was missing at image build. Set it and **Redeploy** frontend.
