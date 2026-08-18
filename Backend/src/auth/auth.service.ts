@@ -31,6 +31,10 @@ export class AuthService {
   ) {}
 
   async register(dto: RegisterDto, userAgent?: string, ip?: string) {
+    if (dto.password !== dto.confirmPassword) {
+      throw new BadRequestException('Passwords do not match');
+    }
+
     const existing = await this.prisma.user.findUnique({ where: { email: dto.email } });
     if (existing) throw new ConflictException('Email already registered');
 

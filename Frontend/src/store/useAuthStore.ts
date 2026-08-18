@@ -35,6 +35,7 @@ interface AuthStoreState {
     email: string;
     phone: string;
     password: string;
+    confirmPassword: string;
   }) => Promise<{ ok: true } | { ok: false; error: string }>;
   logout: () => void;
   isAdmin: () => boolean;
@@ -93,7 +94,7 @@ export const useAuthStore = create<AuthStoreState>()(
         }
       },
 
-      signup: async ({ name, email, phone, password }) => {
+      signup: async ({ name, email, phone, password, confirmPassword }) => {
         const parts = name.trim().split(/\s+/);
         const firstName = parts[0] || 'Guest';
         const lastName = parts.slice(1).join(' ') || 'User';
@@ -106,6 +107,7 @@ export const useAuthStore = create<AuthStoreState>()(
               email: email.trim().toLowerCase(),
               phone,
               password,
+              confirmPassword,
             }),
           });
           applySession(set, res.data);

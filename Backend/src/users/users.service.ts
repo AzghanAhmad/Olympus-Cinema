@@ -34,6 +34,10 @@ export class UsersService {
   }
 
   async updatePassword(userId: string, dto: UpdatePasswordDto) {
+    if (dto.newPassword !== dto.confirmNewPassword) {
+      throw new BadRequestException('Passwords do not match');
+    }
+
     const user = await this.prisma.user.findUnique({ where: { id: userId } });
     if (!user) throw new NotFoundException('User not found');
 

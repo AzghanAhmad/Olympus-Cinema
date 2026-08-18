@@ -40,6 +40,11 @@ export class UpdatePasswordDto {
   @IsString()
   @MinLength(8)
   newPassword!: string;
+
+  @ApiProperty({ minLength: 8 })
+  @IsString()
+  @MinLength(8)
+  confirmNewPassword!: string;
 }
 
 export class AdminUpdateUserDto extends UpdateUserDto {

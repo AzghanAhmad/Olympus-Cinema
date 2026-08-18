@@ -31,6 +31,11 @@ export class RegisterDto {
   @IsString()
   @MinLength(8)
   password!: string;
+
+  @ApiProperty({ minLength: 8 })
+  @IsString()
+  @MinLength(8)
+  confirmPassword!: string;
 }
 
 export class LoginDto {

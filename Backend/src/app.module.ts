@@ -21,6 +21,7 @@ import { DashboardModule } from './dashboard/dashboard.module';
 import { NewsModule } from './news/news.module';
 import { EventsModule } from './events/events.module';
 import { UploadsModule } from './uploads/uploads.module';
+import { BootstrapModule } from './bootstrap/bootstrap.module';
 import { JwtAuthGuard } from './common/guards/jwt-auth.guard';
 import { RolesGuard } from './common/guards/roles.guard';
 
@@ -38,6 +39,7 @@ import { RolesGuard } from './common/guards/roles.guard';
       }),
     }),
     PrismaModule,
+    BootstrapModule,
     RedisModule,
     EmailModule,
     AuthModule,
