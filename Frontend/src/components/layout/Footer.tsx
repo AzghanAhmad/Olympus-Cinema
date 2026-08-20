@@ -42,7 +42,7 @@ export function Footer() {
                 />
               </div>
               <span className="font-extrabold text-xl tracking-wider text-white">
-                CRYSTAL<span className="text-primary">ENT</span>
+                THE<span className="text-primary">CRYSTALS</span>
               </span>
             </Link>
             <p className="text-sm text-zinc-400 max-w-sm leading-relaxed">

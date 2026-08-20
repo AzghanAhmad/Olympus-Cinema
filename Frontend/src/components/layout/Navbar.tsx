@@ -56,7 +56,7 @@ export function Navbar() {
             </div>
             <div className="flex flex-col">
               <span className="font-extrabold text-xl tracking-wider leading-none text-foreground">
-                CRYSTAL<span className="text-primary">ENT</span>
+                THE<span className="text-primary">CRYSTALS</span>
               </span>
               <span className="text-[10px] tracking-widest uppercase font-medium text-muted-foreground">
                 {brandName}
