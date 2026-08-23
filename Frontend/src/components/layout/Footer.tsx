@@ -17,10 +17,10 @@ function IconFacebook({ className }: { className?: string }) {
     </svg>
   );
 }
-function IconInstagram({ className }: { className?: string }) {
+function IconTikTok({ className }: { className?: string }) {
   return (
     <svg viewBox="0 0 24 24" className={className} fill="currentColor" aria-hidden>
-      <path d="M7 2h10a5 5 0 0 1 5 5v10a5 5 0 0 1-5 5H7a5 5 0 0 1-5-5V7a5 5 0 0 1 5-5zm10 2H7a3 3 0 0 0-3 3v10a3 3 0 0 0 3 3h10a3 3 0 0 0 3-3V7a3 3 0 0 0-3-3zm-5 3.5A5.5 5.5 0 1 1 6.5 13 5.5 5.5 0 0 1 12 7.5zm0 2A3.5 3.5 0 1 0 15.5 13 3.5 3.5 0 0 0 12 9.5zM17.5 6.8a1.2 1.2 0 1 1-1.2 1.2 1.2 1.2 0 0 1 1.2-1.2z" />
+      <path d="M19.6 8.2a6.4 6.4 0 0 1-3.7-1.2v7.1a5.7 5.7 0 1 1-4.9-5.6v2.9a2.9 2.9 0 1 0 2 2.7V2.5h2.8a3.7 3.7 0 0 0 3.8 3.6v2.1z" />
     </svg>
   );
 }
@@ -45,18 +45,33 @@ export function Footer() {
                 THE<span className="text-primary">CRYSTALS</span>
               </span>
             </Link>
-            <p className="text-sm text-zinc-400 max-w-sm leading-relaxed">
-              Crystal Entertainment presents <strong className="text-zinc-200">Majnoon</strong>. Reserve seats for any open show — tickets issued after payment.
-            </p>
             <div className="flex items-center space-x-3 pt-2">
-              <a href="https://www.youtube.com/" target="_blank" rel="noopener noreferrer" className="w-9 h-9 rounded-full bg-zinc-900 flex items-center justify-center text-zinc-400 hover:text-white hover:bg-primary transition-colors" title="YouTube">
+              <a
+                href="https://www.youtube.com/@Crystalentertainmentmv"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="w-9 h-9 rounded-full bg-zinc-900 flex items-center justify-center text-zinc-400 hover:text-white hover:bg-primary transition-colors"
+                title="YouTube"
+              >
                 <IconYoutube className="w-4 h-4" />
               </a>
-              <a href="https://www.facebook.com/" target="_blank" rel="noopener noreferrer" className="w-9 h-9 rounded-full bg-zinc-900 flex items-center justify-center text-zinc-400 hover:text-white hover:bg-primary transition-colors" title="Facebook">
+              <a
+                href="https://www.facebook.com/Majunoonthemovie"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="w-9 h-9 rounded-full bg-zinc-900 flex items-center justify-center text-zinc-400 hover:text-white hover:bg-primary transition-colors"
+                title="Facebook"
+              >
                 <IconFacebook className="w-4 h-4" />
               </a>
-              <a href="https://www.instagram.com/" target="_blank" rel="noopener noreferrer" className="w-9 h-9 rounded-full bg-zinc-900 flex items-center justify-center text-zinc-400 hover:text-white hover:bg-primary transition-colors" title="Instagram">
-                <IconInstagram className="w-4 h-4" />
+              <a
+                href="https://www.tiktok.com/@crystalentertainmentmv"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="w-9 h-9 rounded-full bg-zinc-900 flex items-center justify-center text-zinc-400 hover:text-white hover:bg-primary transition-colors"
+                title="TikTok"
+              >
+                <IconTikTok className="w-4 h-4" />
               </a>
             </div>
           </div>
@@ -76,8 +91,6 @@ export function Footer() {
             <h4 className="text-sm font-semibold uppercase tracking-wider text-white mb-4">Booking</h4>
             <ul className="space-y-2.5 text-sm">
               <li><Link href="/screenings" className="hover:text-primary transition-colors">Reserve Seats</Link></li>
-              <li><span className="text-zinc-500">Max 15 tickets / person</span></li>
-              <li><span className="text-zinc-500">Ticket after payment</span></li>
               <li><Link href="/account/bookings" className="hover:text-primary transition-colors">My Reservations</Link></li>
             </ul>
           </div>

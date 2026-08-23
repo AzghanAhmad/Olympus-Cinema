@@ -110,6 +110,33 @@ export default function HomePage() {
           </div>
         </section>
 
+        <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-16">
+          <div className="rounded-3xl border border-border bg-card p-6 sm:p-8 space-y-5">
+            <div>
+              <div className="flex items-center gap-2 text-primary font-bold text-xs uppercase tracking-widest mb-1">
+                <Ticket className="w-4 h-4" />
+                <span>Reservations</span>
+              </div>
+              <h2 className="text-2xl sm:text-3xl font-extrabold tracking-tight">How booking works</h2>
+            </div>
+            <ol className="space-y-3 text-sm text-muted-foreground list-decimal pl-5">
+              <li>Pick one of the open Majnoon shows</li>
+              <li>Select seats (maximum 15 per person)</li>
+              <li>Verify email or phone with a code</li>
+              <li>
+                Submit reservation — we will contact as soon as the reservation is confirmed
+              </li>
+              <li>This is not a ticket; you get a ticket once it is paid</li>
+            </ol>
+            <Link href="/screenings">
+              <AnimatedButton variant="primary" size="sm" className="gap-1.5 mt-2">
+                <Ticket className="w-3.5 h-3.5" />
+                Browse showtimes
+              </AnimatedButton>
+            </Link>
+          </div>
+        </section>
+
         {news.length > 0 && (
           <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-16 space-y-6">
             <h2 className="text-2xl font-extrabold">Latest Updates</h2>
