@@ -11,8 +11,11 @@ export class RedisService implements OnModuleDestroy {
   constructor(private config: ConfigService) {
     const redisUrl = this.config.get<string>('REDIS_URL');
     const common = {
-      maxRetriesPerRequest: null as null,
+      maxRetriesPerRequest: 1,
       enableReadyCheck: true,
+      enableOfflineQueue: false,
+      connectTimeout: 5000,
+      commandTimeout: 3000,
       retryStrategy: (times: number) => Math.min(times * 200, 5000),
     };
 

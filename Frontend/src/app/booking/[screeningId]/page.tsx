@@ -29,6 +29,20 @@ const guestSchema = z.object({
 
 type GuestFormData = z.infer<typeof guestSchema>;
 
+async function withTimeout<T>(promise: Promise<T>, ms: number, fallback: T): Promise<T> {
+  let timer: ReturnType<typeof setTimeout> | undefined;
+  try {
+    return await Promise.race([
+      promise,
+      new Promise<T>((resolve) => {
+        timer = setTimeout(() => resolve(fallback), ms);
+      }),
+    ]);
+  } finally {
+    if (timer) clearTimeout(timer);
+  }
+}
+
 export default function BookingPage() {
   const router = useRouter();
   const params = useParams();
@@ -38,6 +52,7 @@ export default function BookingPage() {
   const [movie, setMovie] = useState<Movie | null>(null);
   const [seats, setSeats] = useState<Seat[]>([]);
   const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState<string | null>(null);
   const [emailOtp, setEmailOtp] = useState('');
   const [phoneOtp, setPhoneOtp] = useState('');
 
@@ -77,28 +92,90 @@ export default function BookingPage() {
   useEffect(() => {
     async function loadData() {
       setLoading(true);
-      const scr = await screeningService.getScreeningById(screeningId);
-      if (scr) {
+      setLoadError(null);
+      try {
+        const scr = await screeningService.getScreeningById(screeningId);
+        if (!scr) {
+          setLoadError('This showtime could not be found. It may have been removed.');
+          return;
+        }
         setScreening(scr);
-        const mov = await movieService.getMovieById(scr.movieId);
-        setMovie(mov);
-        if (mov) setScreeningAndMovie(scr, mov);
-        const seatList = await screeningService.getScreeningSeats(scr.id);
+
+        // Load seats and movie in parallel (guest-friendly; no auth required)
+        const [seatList, mov] = await Promise.all([
+          withTimeout(screeningService.getScreeningSeats(scr.id), 12000, []),
+          withTimeout(movieService.getMovieById(scr.movieId), 12000, null),
+        ]);
         setSeats(seatList);
+
+        const resolvedMovie =
+          mov ??
+          ({
+            id: scr.movieId,
+            title: scr.movieTitle || 'Majnoon',
+            slug: 'majnoon',
+            tagline: '',
+            synopsis: '',
+            genre: [],
+            durationMinutes: 120,
+            releaseDate: scr.date,
+            language: 'Dhivehi',
+            ageRating: 'PG-13',
+            rating: 0,
+            posterUrl: scr.moviePoster || '/images/majnoon-poster.jpg',
+            backdropUrl: '/images/majnoon-backdrop.jpg',
+            trailerUrl: '',
+            status: 'NOW_SHOWING',
+            cast: [],
+            crew: [],
+            gallery: [],
+          } satisfies Movie);
+
+        setMovie(resolvedMovie);
+        setScreeningAndMovie(scr, resolvedMovie);
+
+        if (!seatList.length) {
+          console.warn('Seat map returned 0 seats for screening', scr.id);
+        }
+      } catch (err) {
+        setLoadError(
+          err instanceof Error
+            ? err.message
+            : 'Could not load the seat map. Check your connection and try again.',
+        );
+      } finally {
+        setLoading(false);
       }
-      setLoading(false);
     }
     loadData();
   }, [screeningId, setScreeningAndMovie]);
 
   const aisleMap = computeAisleAfterByRow(seats);
 
-  if (loading || !screening || !movie) {
+  if (loading) {
     return (
       <PublicLayout>
         <div className="max-w-7xl mx-auto px-4 py-24 text-center space-y-4">
           <div className="w-10 h-10 border-4 border-primary border-t-transparent rounded-full animate-spin mx-auto" />
           <p className="text-muted-foreground text-sm font-semibold">Loading seat map...</p>
+        </div>
+      </PublicLayout>
+    );
+  }
+
+  if (loadError || !screening || !movie) {
+    return (
+      <PublicLayout>
+        <div className="max-w-lg mx-auto px-4 py-24 text-center space-y-4">
+          <p className="text-sm text-muted-foreground font-semibold">
+            {loadError || 'Unable to open this reservation.'}
+          </p>
+          <a
+            href="/screenings"
+            className="inline-flex px-5 py-2.5 bg-primary text-primary-foreground text-xs font-bold rounded-xl"
+          >
+            Back to showtimes
+          </a>
         </div>
       </PublicLayout>
     );
@@ -176,6 +253,11 @@ export default function BookingPage() {
                   </div>
                 </div>
 
+                {seats.length === 0 && (
+                  <p className="text-sm text-amber-600 dark:text-amber-400 font-semibold text-center py-4">
+                    No seats were returned for this showtime. Please refresh or choose another show.
+                  </p>
+                )}
                 <CinemaSeatMap seats={seats} aisleAfterByRow={aisleMap} />
 
                 <div className="flex justify-end pt-4 border-t border-border">

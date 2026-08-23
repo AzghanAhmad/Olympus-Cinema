@@ -151,18 +151,34 @@ export class SeatHoldsService {
   }
 
   async getHeldSeatIds(screeningId: string): Promise<string[]> {
-    const screening = await this.prisma.screening.findUnique({
-      where: { id: screeningId },
-      include: { screen: { include: { seats: { select: { id: true } } } } },
-    });
-    if (!screening) return [];
-
-    const held: string[] = [];
-    for (const seat of screening.screen.seats) {
-      const key = REDIS_KEYS.seatHold(screeningId, seat.id);
-      const value = await this.redis.client.get(key);
-      if (value) held.push(seat.id);
+    // If Redis is down, still allow the public seat map to load.
+    if (this.redis.client.status !== 'ready') {
+      return [];
     }
-    return held;
+
+    try {
+      const pattern = `seat-hold:${screeningId}:*`;
+      const held: string[] = [];
+      let cursor = '0';
+
+      do {
+        const [nextCursor, keys] = await this.redis.client.scan(
+          cursor,
+          'MATCH',
+          pattern,
+          'COUNT',
+          200,
+        );
+        cursor = nextCursor;
+        for (const key of keys) {
+          const seatId = key.split(':').pop();
+          if (seatId) held.push(seatId);
+        }
+      } while (cursor !== '0');
+
+      return held;
+    } catch {
+      return [];
+    }
   }
 }
