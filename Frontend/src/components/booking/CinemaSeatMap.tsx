@@ -6,7 +6,7 @@ import { useBookingStore } from '@/store/useBookingStore';
 import { toast } from '@/store/useToastStore';
 import { Accessibility } from 'lucide-react';
 import { motion } from 'framer-motion';
-import { cn } from '@/lib/utils';
+import { cn, formatCurrency } from '@/lib/utils';
 import { getAisleAfter } from '@/data/seats';
 
 interface CinemaSeatMapProps {
@@ -28,16 +28,16 @@ export function CinemaSeatMap({ seats, aisleAfterByRow }: CinemaSeatMapProps) {
     if (result === 'deselected') {
       toast.info(`Seat ${seat.label || seat.id} Deselected`, 'Removed from booking cart');
     } else if (result === 'selected') {
-      toast.success(`Seat ${seat.label || seat.id} Selected`, `$${seat.price}`);
+      toast.success(`Seat ${seat.label || seat.id} Selected`, formatCurrency(seat.price));
     }
   };
 
   const getSeatColorClass = (seat: Seat, isSelected: boolean) => {
     if (seat.status === 'OCCUPIED') {
-      return 'bg-zinc-700 dark:bg-zinc-800 text-zinc-500 cursor-not-allowed border-zinc-700';
+      return 'bg-rose-950/80 dark:bg-rose-950/90 text-rose-300/60 cursor-not-allowed border-rose-900/50 shadow-inner';
     }
     if (seat.status === 'RESERVED') {
-      return 'bg-amber-900/40 text-amber-700 dark:text-amber-500 border-amber-600/40 cursor-not-allowed';
+      return 'bg-amber-950/80 dark:bg-amber-950/90 text-amber-300/60 border-amber-900/50 cursor-not-allowed shadow-inner';
     }
     if (seat.status === 'DISABLED') {
       return 'bg-zinc-900 text-zinc-600 opacity-40 cursor-not-allowed border-transparent';
@@ -46,6 +46,23 @@ export function CinemaSeatMap({ seats, aisleAfterByRow }: CinemaSeatMapProps) {
       return 'bg-primary text-primary-foreground border-primary shadow-lg shadow-primary/50 ring-2 ring-primary/40';
     }
     return 'bg-secondary text-foreground hover:bg-primary/20 border-border';
+  };
+
+  const getSeatTitle = (seat: Seat, isSelected: boolean) => {
+    const seatName = seat.label || seat.id;
+    if (seat.status === 'OCCUPIED') {
+      return `Seat ${seatName} — OCCUPIED (Cannot be booked)`;
+    }
+    if (seat.status === 'RESERVED') {
+      return `Seat ${seatName} — RESERVED (Unavailable for booking)`;
+    }
+    if (seat.status === 'DISABLED') {
+      return `Seat ${seatName} — DISABLED`;
+    }
+    if (isSelected) {
+      return `Seat ${seatName} — SELECTED (MVR ${seat.price.toFixed(2)})`;
+    }
+    return `Seat ${seatName} — AVAILABLE (MVR ${seat.price.toFixed(2)})`;
   };
 
   const currentPrice = seats[0]?.price ?? 15;
@@ -81,14 +98,14 @@ export function CinemaSeatMap({ seats, aisleAfterByRow }: CinemaSeatMapProps) {
                     <React.Fragment key={seat.id}>
                       <motion.button
                         whileHover={seat.status === 'AVAILABLE' ? { scale: 1.12 } : {}}
-                        whileTap={seat.status === 'AVAILABLE' ? { scale: 0.9 } : {}}
+                        whileTap={seat.status === 'AVAILABLE' ? { scale: 0.9 } : { scale: 1 }}
                         animate={isSelected ? { scale: [1, 1.15, 1] } : { scale: 1 }}
                         transition={{ duration: 0.2 }}
                         onClick={() => handleSeatClick(seat)}
                         disabled={seat.status !== 'AVAILABLE'}
-                        title={`${seat.id} - $${seat.price}`}
+                        title={getSeatTitle(seat, isSelected)}
                         className={cn(
-                          'w-6 h-6 sm:w-7 sm:h-7 rounded-md text-[9px] sm:text-[10px] font-extrabold border transition-all flex items-center justify-center shrink-0',
+                          'w-6 h-6 sm:w-7 sm:h-7 rounded-md text-[9px] sm:text-[10px] font-extrabold border transition-all flex items-center justify-center shrink-0 relative group',
                           getSeatColorClass(seat, isSelected)
                         )}
                       >
@@ -123,15 +140,19 @@ export function CinemaSeatMap({ seats, aisleAfterByRow }: CinemaSeatMapProps) {
       <div className="flex flex-wrap items-center justify-center gap-6 text-xs pt-1">
         <div className="flex items-center gap-2">
           <div className="w-4 h-4 rounded bg-secondary border border-border" />
-          <span>Available Seat (${currentPrice.toFixed(2)})</span>
+          <span>Available (MVR {currentPrice.toFixed(2)})</span>
         </div>
         <div className="flex items-center gap-2">
           <div className="w-4 h-4 rounded bg-primary border border-primary shadow-sm" />
           <span className="font-bold text-primary">Selected</span>
         </div>
         <div className="flex items-center gap-2">
-          <div className="w-4 h-4 rounded bg-zinc-700 dark:bg-zinc-800 border border-zinc-600" />
-          <span className="text-muted-foreground">Occupied / Reserved</span>
+          <div className="w-4 h-4 rounded bg-rose-950/80 border border-rose-900/50" />
+          <span className="text-muted-foreground">Occupied (Cannot be booked)</span>
+        </div>
+        <div className="flex items-center gap-2">
+          <div className="w-4 h-4 rounded bg-amber-950/80 border border-amber-900/50" />
+          <span className="text-muted-foreground">Reserved</span>
         </div>
       </div>
     </div>

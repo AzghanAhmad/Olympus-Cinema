@@ -479,7 +479,7 @@ export default function BookingPage() {
                     <div className="flex flex-wrap gap-2">
                       {selectedSeats.map((seat) => (
                         <span key={seat.id} className="px-3 py-1 bg-primary text-primary-foreground text-xs font-bold rounded-lg">
-                          {seat.label || `${seat.row}-${seat.number}`} (${seat.price})
+                          {seat.label || `${seat.row}-${seat.number}`} ({formatCurrency(seat.price)})
                         </span>
                       ))}
                     </div>

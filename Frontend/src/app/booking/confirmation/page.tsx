@@ -4,7 +4,6 @@ import React, { useEffect, useState, Suspense } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
-import { QRCodeSVG } from 'qrcode.react';
 import { PublicLayout } from '@/components/layout/PublicLayout';
 import { bookingService } from '@/services/bookingService';
 import { Booking } from '@/types/booking';
@@ -133,12 +132,29 @@ function ConfirmationContent() {
             </p>
           </div>
 
-          <div className="flex flex-col items-center justify-center p-4 bg-white rounded-2xl border border-zinc-200 space-y-2">
-            <QRCodeSVG value={booking.qrCodeValue} size={140} />
-            <span className="text-[10px] font-mono text-zinc-600 font-bold tracking-widest uppercase">
-              {isConfirmed ? 'Ticket' : 'Reservation Ref'}
+          <div className="flex flex-col items-center justify-center p-5 bg-zinc-900 text-white rounded-2xl border border-zinc-700 space-y-3">
+            <div className="flex flex-col items-center space-y-1 w-full">
+              <div className="h-14 w-full flex items-center justify-center gap-1 bg-white p-2 rounded">
+                {/* Clean digital barcode visual */}
+                <div className="w-1 h-full bg-black"></div>
+                <div className="w-2 h-full bg-black"></div>
+                <div className="w-0.5 h-full bg-black"></div>
+                <div className="w-1.5 h-full bg-black"></div>
+                <div className="w-1 h-full bg-black"></div>
+                <div className="w-3 h-full bg-black"></div>
+                <div className="w-0.5 h-full bg-black"></div>
+                <div className="w-1.5 h-full bg-black"></div>
+                <div className="w-1 h-full bg-black"></div>
+                <div className="w-2 h-full bg-black"></div>
+                <div className="w-0.5 h-full bg-black"></div>
+              </div>
+              <span className="text-[10px] font-mono text-zinc-300 font-bold tracking-widest uppercase pt-1">
+                {booking.bookingCode}
+              </span>
+            </div>
+            <span className="text-[10px] font-semibold text-zinc-400 text-center border-t border-zinc-800 pt-2 w-full">
+              {isConfirmed ? 'Official Entry Ticket' : 'Booking Confirmation Reference'}
             </span>
-            <span className="text-[10px] font-mono text-zinc-500">{booking.bookingCode}</span>
           </div>
         </div>
       </div>
@@ -149,7 +165,7 @@ function ConfirmationContent() {
           className="flex items-center gap-2 px-6 py-3 bg-secondary text-secondary-foreground font-bold rounded-xl text-xs hover:bg-secondary/80 transition-colors border border-border"
         >
           <Printer className="w-4 h-4" />
-          {isConfirmed ? 'Print Ticket' : 'Reservation'}
+          Save / Print E-Ticket
         </button>
         <Link
           href="/"
