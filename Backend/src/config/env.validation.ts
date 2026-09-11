@@ -77,6 +77,22 @@ export class EnvironmentVariables {
 
   @IsOptional()
   @IsString()
+  SMTP_HOST?: string;
+
+  @IsOptional()
+  @IsString()
+  SMTP_PORT?: string;
+
+  @IsOptional()
+  @IsString()
+  SMTP_USER?: string;
+
+  @IsOptional()
+  @IsString()
+  SMTP_PASS?: string;
+
+  @IsOptional()
+  @IsString()
   CLOUDINARY_CLOUD_NAME?: string;
 
   @IsOptional()

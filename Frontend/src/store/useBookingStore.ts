@@ -4,6 +4,7 @@ import { Movie } from '@/types/movie';
 import { CustomerDetails } from '@/types/booking';
 import { toast } from '@/store/useToastStore';
 import { useSiteSettingsStore } from '@/store/useSiteSettingsStore';
+import { apiFetch, ApiSuccess } from '@/lib/api';
 
 interface BookingStoreState {
   screening: Screening | null;
@@ -16,9 +17,9 @@ interface BookingStoreState {
   phoneVerified: boolean;
   emailCodeSent: boolean;
   phoneCodeSent: boolean;
-  /** Demo codes shown after "send" — simulate OTP */
   pendingEmailCode: string;
   pendingPhoneCode: string;
+  otpSending: boolean;
 
   setScreeningAndMovie: (screening: Screening, movie: Movie) => void;
   toggleSeat: (seat: Seat) => 'selected' | 'deselected' | 'limit';
@@ -28,14 +29,10 @@ interface BookingStoreState {
   startHoldTimer: (minutes?: number) => void;
   resetBooking: () => void;
   getTotalPrice: () => number;
-  sendEmailCode: () => void;
-  sendPhoneCode: () => void;
-  verifyEmailCode: (code: string) => boolean;
-  verifyPhoneCode: (code: string) => boolean;
-}
-
-function randomOtp() {
-  return String(Math.floor(100000 + Math.random() * 900000));
+  sendEmailCode: () => Promise<void>;
+  sendPhoneCode: () => Promise<void>;
+  verifyEmailCode: (code: string) => Promise<boolean>;
+  verifyPhoneCode: (code: string) => Promise<boolean>;
 }
 
 export const useBookingStore = create<BookingStoreState>((set, get) => ({
@@ -55,6 +52,7 @@ export const useBookingStore = create<BookingStoreState>((set, get) => ({
   phoneCodeSent: false,
   pendingEmailCode: '',
   pendingPhoneCode: '',
+  otpSending: false,
 
   setScreeningAndMovie: (screening, movie) => {
     const prev = get().screening;
@@ -95,10 +93,8 @@ export const useBookingStore = create<BookingStoreState>((set, get) => ({
   setCustomer: (customer) =>
     set((state) => ({
       customer,
-      // Only reset email verification if email actually changed
       emailVerified: state.customer.email === customer.email ? state.emailVerified : false,
       emailCodeSent: state.customer.email === customer.email ? state.emailCodeSent : false,
-      // Only reset phone verification if phone actually changed
       phoneVerified: state.customer.phone === customer.phone ? state.phoneVerified : false,
       phoneCodeSent: state.customer.phone === customer.phone ? state.phoneCodeSent : false,
     })),
@@ -122,45 +118,110 @@ export const useBookingStore = create<BookingStoreState>((set, get) => ({
       phoneCodeSent: false,
       pendingEmailCode: '',
       pendingPhoneCode: '',
+      otpSending: false,
     }),
 
   getTotalPrice: () => get().selectedSeats.reduce((acc, seat) => acc + seat.price, 0),
 
-  sendEmailCode: () => {
-    const code = randomOtp();
-    set({ pendingEmailCode: code, emailCodeSent: true, emailVerified: false });
-    toast.info('Email code sent', `Demo code: ${code}`);
+  sendEmailCode: async () => {
+    const email = get().customer.email.trim().toLowerCase();
+    if (!email) {
+      toast.warning('Enter email', 'Add a valid email first.');
+      return;
+    }
+    set({ otpSending: true });
+    try {
+      await apiFetch<ApiSuccess<{ sent: boolean }>>('/otp/send', {
+        method: 'POST',
+        body: JSON.stringify({ channel: 'email', email }),
+      });
+      set({ emailCodeSent: true, emailVerified: false, pendingEmailCode: '' });
+      toast.success('Code sent', `Check ${email} for your verification code.`);
+    } catch (err) {
+      toast.error(
+        'Could not send code',
+        err instanceof Error ? err.message : 'Please try again.',
+      );
+    } finally {
+      set({ otpSending: false });
+    }
   },
 
-  sendPhoneCode: () => {
-    const code = randomOtp();
-    set({ pendingPhoneCode: code, phoneCodeSent: true, phoneVerified: false });
-    toast.info('SMS code sent', `Demo code: ${code}`);
+  sendPhoneCode: async () => {
+    const phone = get().customer.phone.trim();
+    const email = get().customer.email.trim().toLowerCase();
+    if (!phone || phone.length < 7) {
+      toast.warning('Enter phone', 'Add a valid phone first.');
+      return;
+    }
+    set({ otpSending: true });
+    try {
+      await apiFetch<ApiSuccess<{ sent: boolean; deliveredVia?: string }>>('/otp/send', {
+        method: 'POST',
+        body: JSON.stringify({ channel: 'phone', phone, email: email || undefined }),
+      });
+      set({ phoneCodeSent: true, phoneVerified: false, pendingPhoneCode: '' });
+      toast.success(
+        'Code sent',
+        email
+          ? `Phone verification code was emailed to ${email}.`
+          : 'Verification code sent.',
+      );
+    } catch (err) {
+      toast.error(
+        'Could not send code',
+        err instanceof Error ? err.message : 'Please try again.',
+      );
+    } finally {
+      set({ otpSending: false });
+    }
   },
 
-  verifyEmailCode: (code) => {
+  verifyEmailCode: async (code) => {
+    const email = get().customer.email.trim().toLowerCase();
     const clean = code.trim();
-    const pending = get().pendingEmailCode.trim();
-    const ok = clean.length > 0 && (clean === pending || /^\d{4,6}$/.test(clean));
-    if (ok) {
+    if (!email || !clean) {
+      toast.error('Invalid code', 'Enter the code from your email.');
+      return false;
+    }
+    try {
+      await apiFetch<ApiSuccess<{ verified: boolean }>>('/otp/verify', {
+        method: 'POST',
+        body: JSON.stringify({ channel: 'email', email, code: clean }),
+      });
       set({ emailVerified: true });
       toast.success('Email verified', 'You can complete your reservation.');
-    } else {
-      toast.error('Invalid code', 'Check the email verification code and try again.');
+      return true;
+    } catch (err) {
+      toast.error(
+        'Invalid code',
+        err instanceof Error ? err.message : 'Check the email verification code and try again.',
+      );
+      return false;
     }
-    return ok;
   },
 
-  verifyPhoneCode: (code) => {
+  verifyPhoneCode: async (code) => {
+    const phone = get().customer.phone.trim();
     const clean = code.trim();
-    const pending = get().pendingPhoneCode.trim();
-    const ok = clean.length > 0 && (clean === pending || /^\d{4,6}$/.test(clean));
-    if (ok) {
+    if (!phone || !clean) {
+      toast.error('Invalid code', 'Enter the phone verification code.');
+      return false;
+    }
+    try {
+      await apiFetch<ApiSuccess<{ verified: boolean }>>('/otp/verify', {
+        method: 'POST',
+        body: JSON.stringify({ channel: 'phone', phone, code: clean }),
+      });
       set({ phoneVerified: true });
       toast.success('Phone verified', 'You can complete your reservation.');
-    } else {
-      toast.error('Invalid code', 'Check the SMS verification code and try again.');
+      return true;
+    } catch (err) {
+      toast.error(
+        'Invalid code',
+        err instanceof Error ? err.message : 'Check the SMS verification code and try again.',
+      );
+      return false;
     }
-    return ok;
   },
 }));

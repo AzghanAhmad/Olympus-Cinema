@@ -22,6 +22,7 @@ import { NewsModule } from './news/news.module';
 import { EventsModule } from './events/events.module';
 import { UploadsModule } from './uploads/uploads.module';
 import { BootstrapModule } from './bootstrap/bootstrap.module';
+import { OtpModule } from './otp/otp.module';
 import { JwtAuthGuard } from './common/guards/jwt-auth.guard';
 import { RolesGuard } from './common/guards/roles.guard';
 
@@ -42,6 +43,7 @@ import { RolesGuard } from './common/guards/roles.guard';
     BootstrapModule,
     RedisModule,
     EmailModule,
+    OtpModule,
     AuthModule,
     UsersModule,
     MoviesModule,

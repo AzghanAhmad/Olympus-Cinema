@@ -1,25 +1,60 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { Resend } from 'resend';
+import nodemailer, { Transporter } from 'nodemailer';
 
 @Injectable()
 export class EmailService {
   private readonly logger = new Logger(EmailService.name);
   private resend: Resend | null = null;
+  private smtp: Transporter | null = null;
   private from: string;
 
   constructor(private config: ConfigService) {
+    this.from = this.config.get<string>(
+      'EMAIL_FROM',
+      'Crystal Entertainment <crystalmaldives@gmail.com>',
+    );
+
+    const smtpUser = this.config.get<string>('SMTP_USER');
+    const smtpPass = this.config.get<string>('SMTP_PASS');
+    const smtpHost = this.config.get<string>('SMTP_HOST', 'smtp.gmail.com');
+    const smtpPort = Number(this.config.get<string>('SMTP_PORT') ?? 465);
+
+    if (smtpUser && smtpPass) {
+      this.smtp = nodemailer.createTransport({
+        host: smtpHost,
+        port: smtpPort,
+        secure: smtpPort === 465,
+        auth: {
+          user: smtpUser,
+          pass: smtpPass.replace(/\s+/g, ''),
+        },
+      });
+      this.logger.log(`SMTP email configured via ${smtpHost}`);
+    }
+
     const apiKey = this.config.get<string>('RESEND_API_KEY');
     if (apiKey) this.resend = new Resend(apiKey);
-    this.from = this.config.get<string>('EMAIL_FROM', 'Cinema <noreply@cinema.local>');
   }
 
   private async send(to: string, subject: string, html: string) {
-    if (!this.resend) {
-      this.logger.log(`[Email stub] To: ${to} | Subject: ${subject}`);
+    if (this.smtp) {
+      await this.smtp.sendMail({
+        from: this.from,
+        to,
+        subject,
+        html,
+      });
       return;
     }
-    await this.resend.emails.send({ from: this.from, to, subject, html });
+
+    if (this.resend) {
+      await this.resend.emails.send({ from: this.from, to, subject, html });
+      return;
+    }
+
+    this.logger.log(`[Email stub] To: ${to} | Subject: ${subject}`);
   }
 
   async sendWelcomeEmail(email: string, firstName: string) {
@@ -36,6 +71,21 @@ export class EmailService {
       email,
       'Password Reset',
       `<p>Reset your password: <a href="${frontend}/reset-password?token=${token}">Click here</a></p>`,
+    );
+  }
+
+  async sendOtpCode(data: {
+    email: string;
+    code: string;
+    purpose?: string;
+  }) {
+    const purpose = data.purpose || 'verification';
+    await this.send(
+      data.email,
+      `Your Crystal Entertainment verification code`,
+      `<p>Your ${purpose} code is:</p>
+       <p style="font-size:28px;font-weight:700;letter-spacing:4px;">${data.code}</p>
+       <p>This code expires in 10 minutes. If you did not request it, you can ignore this email.</p>`,
     );
   }
 
@@ -61,10 +111,18 @@ export class EmailService {
   }
 
   async sendBookingCancellation(email: string, bookingCode: string) {
-    await this.send(email, `Booking Cancelled — ${bookingCode}`, `<p>Your booking ${bookingCode} has been cancelled.</p>`);
+    await this.send(
+      email,
+      `Booking Cancelled — ${bookingCode}`,
+      `<p>Your booking ${bookingCode} has been cancelled.</p>`,
+    );
   }
 
   async sendBookingReminder(email: string, movieTitle: string, startTime: string) {
-    await this.send(email, `Reminder: ${movieTitle}`, `<p>Your screening starts at ${startTime}.</p>`);
+    await this.send(
+      email,
+      `Reminder: ${movieTitle}`,
+      `<p>Your screening starts at ${startTime}.</p>`,
+    );
   }
 }

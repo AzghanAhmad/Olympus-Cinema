@@ -206,7 +206,6 @@ export default function AdminScreensPage() {
                       {rowSeats.map((seat) => {
                         const showAisle = seat.number === aisleAfter;
                         const isDisabled = seat.status === 'DISABLED';
-                        const isVip = seat.seatType === 'VIP';
 
                         return (
                           <React.Fragment key={seat.id}>
@@ -224,9 +223,7 @@ export default function AdminScreensPage() {
                                 'w-6 h-6 sm:w-7 sm:h-7 rounded-md text-[9px] sm:text-[10px] font-extrabold border transition-all flex items-center justify-center shrink-0',
                                 isDisabled
                                   ? 'bg-zinc-900 text-zinc-600 opacity-40 border-transparent'
-                                  : isVip
-                                    ? 'bg-amber-500/20 text-amber-700 dark:text-amber-400 border-amber-500/40 hover:bg-amber-500/30'
-                                    : 'bg-secondary text-foreground border-border hover:bg-primary/20'
+                                  : 'bg-secondary text-foreground border-border hover:bg-primary/20'
                               )}
                             >
                               {seat.number}
@@ -259,11 +256,7 @@ export default function AdminScreensPage() {
             <div className="flex flex-wrap items-center justify-center gap-6 text-xs pt-1">
               <div className="flex items-center gap-2">
                 <div className="w-4 h-4 rounded bg-secondary border border-border" />
-                <span>Active</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <div className="w-4 h-4 rounded bg-amber-500/20 border border-amber-500/40" />
-                <span>VIP</span>
+                <span>Standard seat</span>
               </div>
               <div className="flex items-center gap-2">
                 <div className="w-4 h-4 rounded bg-zinc-900 border border-zinc-700 opacity-40" />

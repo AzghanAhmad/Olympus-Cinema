@@ -62,9 +62,7 @@ function mapSeatStatus(status: ApiSeat['status']): SeatStatus {
   return 'AVAILABLE';
 }
 
-function mapSeatType(seatType?: string): SeatCategory {
-  if (seatType === 'VIP') return 'VIP';
-  if (seatType === 'PREMIUM') return 'PREMIUM';
+function mapSeatType(_seatType?: string): SeatCategory {
   return 'STANDARD';
 }
 

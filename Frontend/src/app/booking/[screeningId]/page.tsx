@@ -71,12 +71,11 @@ export default function BookingPage() {
     phoneVerified,
     emailCodeSent,
     phoneCodeSent,
-    pendingEmailCode,
-    pendingPhoneCode,
     sendEmailCode,
     sendPhoneCode,
     verifyEmailCode,
     verifyPhoneCode,
+    otpSending,
   } = useBookingStore();
 
   const {
@@ -317,9 +316,10 @@ export default function BookingPage() {
                             return;
                           }
                           setCustomer({ ...getValues(), email });
-                          sendEmailCode();
+                          void sendEmailCode();
                         }}
-                        className="px-3 py-2 bg-secondary border border-border rounded-xl text-xs font-bold shrink-0"
+                        disabled={otpSending}
+                        className="px-3 py-2 bg-secondary border border-border rounded-xl text-xs font-bold shrink-0 disabled:opacity-50"
                       >
                         Send code
                       </button>
@@ -336,28 +336,15 @@ export default function BookingPage() {
                           />
                           <button
                             type="button"
-                            onClick={() => verifyEmailCode(emailOtp || pendingEmailCode)}
+                            onClick={() => void verifyEmailCode(emailOtp)}
                             className="px-4 py-2 bg-primary text-primary-foreground rounded-xl text-xs font-bold shadow hover:bg-primary/90 transition-all shrink-0"
                           >
                             Verify email
                           </button>
                         </div>
-                        {pendingEmailCode && (
-                          <div className="flex items-center gap-2 text-xs text-muted-foreground bg-secondary/60 p-2 rounded-xl border border-border">
-                            <span>OTP Code:</span>
-                            <button
-                              type="button"
-                              onClick={() => {
-                                setEmailOtp(pendingEmailCode);
-                                verifyEmailCode(pendingEmailCode);
-                              }}
-                              className="font-mono font-bold text-primary bg-primary/10 hover:bg-primary/20 px-2 py-0.5 rounded border border-primary/20 transition-all"
-                              title="Click to auto-verify"
-                            >
-                              {pendingEmailCode} (Click to verify)
-                            </button>
-                          </div>
-                        )}
+                        <p className="text-[11px] text-muted-foreground">
+                          Enter the 6-digit code sent to your email inbox.
+                        </p>
                       </div>
                     )}
                     {emailVerified && (
@@ -383,9 +370,10 @@ export default function BookingPage() {
                             return;
                           }
                           setCustomer({ ...getValues(), phone });
-                          sendPhoneCode();
+                          void sendPhoneCode();
                         }}
-                        className="px-3 py-2 bg-secondary border border-border rounded-xl text-xs font-bold shrink-0 hover:bg-secondary/80 transition-colors"
+                        disabled={otpSending}
+                        className="px-3 py-2 bg-secondary border border-border rounded-xl text-xs font-bold shrink-0 hover:bg-secondary/80 transition-colors disabled:opacity-50"
                       >
                         Send code
                       </button>
@@ -397,33 +385,20 @@ export default function BookingPage() {
                           <input
                             value={phoneOtp}
                             onChange={(e) => setPhoneOtp(e.target.value)}
-                            placeholder="Enter SMS code"
+                            placeholder="Enter phone code"
                             className="flex-1 py-2 px-3 bg-secondary text-foreground text-sm rounded-xl border border-border focus:outline-none focus:ring-2 focus:ring-primary"
                           />
                           <button
                             type="button"
-                            onClick={() => verifyPhoneCode(phoneOtp || pendingPhoneCode)}
+                            onClick={() => void verifyPhoneCode(phoneOtp)}
                             className="px-4 py-2 bg-primary text-primary-foreground rounded-xl text-xs font-bold shadow hover:bg-primary/90 transition-all shrink-0"
                           >
                             Verify phone
                           </button>
                         </div>
-                        {pendingPhoneCode && (
-                          <div className="flex items-center gap-2 text-xs text-muted-foreground bg-secondary/60 p-2 rounded-xl border border-border">
-                            <span>OTP Code:</span>
-                            <button
-                              type="button"
-                              onClick={() => {
-                                setPhoneOtp(pendingPhoneCode);
-                                verifyPhoneCode(pendingPhoneCode);
-                              }}
-                              className="font-mono font-bold text-primary bg-primary/10 hover:bg-primary/20 px-2 py-0.5 rounded border border-primary/20 transition-all"
-                              title="Click to auto-verify"
-                            >
-                              {pendingPhoneCode} (Click to verify)
-                            </button>
-                          </div>
-                        )}
+                        <p className="text-[11px] text-muted-foreground">
+                          Phone codes are emailed to your address when SMS is unavailable.
+                        </p>
                       </div>
                     )}
                     {phoneVerified && (
@@ -434,7 +409,7 @@ export default function BookingPage() {
                   </div>
 
                   <p className="text-[11px] text-muted-foreground">
-                    Verify at least one contact method (email or phone). Demo OTP codes appear in a toast after you send.
+                    Verify at least one contact method. Email codes are sent to your inbox via Crystal Entertainment mail.
                   </p>
 
                   <div className="pt-4 flex justify-between">

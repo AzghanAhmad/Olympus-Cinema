@@ -41,8 +41,8 @@ export default function ContactPage() {
   };
 
   const cinemaName = site?.cinemaName || 'Crystal Entertainment';
-  const contactEmail = site?.contactEmail || 'hello@crystalentertainment.com';
-  const contactPhone = site?.contactPhone || '+1 (800) 555-OLYM';
+  const contactEmail = site?.contactEmail || 'crystalmaldives@gmail.com';
+  const contactPhone = site?.contactPhone || '7844422';
   const address = site?.address || cinemaName;
 
   return (

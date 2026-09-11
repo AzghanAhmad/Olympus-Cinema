@@ -104,11 +104,18 @@ export function Footer() {
               </li>
               <li className="flex items-center gap-2.5">
                 <Phone className="w-4 h-4 text-primary shrink-0" />
-                <span>+1 (800) 555-OLYM</span>
+                <a href="tel:7844422" className="hover:text-primary transition-colors">
+                  7844422
+                </a>
               </li>
               <li className="flex items-center gap-2.5">
                 <Mail className="w-4 h-4 text-primary shrink-0" />
-                <span>hello@crystalentertainment.com</span>
+                <a
+                  href="mailto:crystalmaldives@gmail.com"
+                  className="hover:text-primary transition-colors"
+                >
+                  crystalmaldives@gmail.com
+                </a>
               </li>
             </ul>
           </div>

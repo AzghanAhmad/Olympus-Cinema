@@ -139,24 +139,30 @@ export async function seedCinemaCatalog(prisma: PrismaClient): Promise<void> {
       status: SeatStatus;
     }[] = [];
 
-    Object.entries(ROW_LAYOUT).forEach(([row, { left, right }], rowIndex) => {
+    Object.entries(ROW_LAYOUT).forEach(([row, { left, right }]) => {
       const total = left + right;
       for (let n = 1; n <= total; n++) {
-        let seatType: SeatType = SeatType.STANDARD;
-        if (rowIndex >= 5 && rowIndex <= 11) seatType = SeatType.PREMIUM;
-        if (rowIndex >= 12) seatType = SeatType.VIP;
         seatData.push({
           screenId: screen.id,
           row,
           number: n,
           label: `${row}-${n}`,
-          seatType,
+          seatType: SeatType.STANDARD,
           status: SeatStatus.ACTIVE,
         });
       }
     });
 
     await prisma.seat.createMany({ data: seatData });
+  } else {
+    // Keep every existing seat as the same standard type (no VIP / premium tiers).
+    await prisma.seat.updateMany({
+      where: {
+        screenId: screen.id,
+        seatType: { not: SeatType.STANDARD },
+      },
+      data: { seatType: SeatType.STANDARD },
+    });
   }
 
   const capacity = await prisma.seat.count({
@@ -234,8 +240,8 @@ export async function seedCinemaCatalog(prisma: PrismaClient): Promise<void> {
 
   const settings: Array<{ key: string; value: string | number }> = [
     { key: 'cinemaName', value: 'Crystal Entertainment' },
-    { key: 'contactEmail', value: 'info@crystalentertainment.local' },
-    { key: 'contactPhone', value: '+1234567890' },
+    { key: 'contactEmail', value: 'crystalmaldives@gmail.com' },
+    { key: 'contactPhone', value: '7844422' },
     { key: 'address', value: 'Crystal Entertainment Cinema' },
     { key: 'seatHoldDuration', value: 10 },
     { key: 'maxTicketsPerPerson', value: 15 },
@@ -244,11 +250,13 @@ export async function seedCinemaCatalog(prisma: PrismaClient): Promise<void> {
   ];
 
   for (const s of settings) {
-    const existing = await prisma.siteSetting.findUnique({ where: { key: s.key } });
-    if (!existing) {
-      await prisma.siteSetting.create({
-        data: { key: s.key, value: s.value },
-      });
-    }
+    await prisma.siteSetting.upsert({
+      where: { key: s.key },
+      update:
+        s.key === 'contactEmail' || s.key === 'contactPhone'
+          ? { value: s.value }
+          : {},
+      create: { key: s.key, value: s.value },
+    });
   }
 }
