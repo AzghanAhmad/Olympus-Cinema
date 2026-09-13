@@ -17,8 +17,6 @@ interface BookingStoreState {
   phoneVerified: boolean;
   emailCodeSent: boolean;
   phoneCodeSent: boolean;
-  pendingEmailCode: string;
-  pendingPhoneCode: string;
   otpSending: boolean;
 
   setScreeningAndMovie: (screening: Screening, movie: Movie) => void;
@@ -29,8 +27,8 @@ interface BookingStoreState {
   startHoldTimer: (minutes?: number) => void;
   resetBooking: () => void;
   getTotalPrice: () => number;
-  sendEmailCode: () => Promise<void>;
-  sendPhoneCode: () => Promise<void>;
+  sendEmailCode: (emailOverride?: string) => Promise<void>;
+  sendPhoneCode: (phoneOverride?: string, emailOverride?: string) => Promise<void>;
   verifyEmailCode: (code: string) => Promise<boolean>;
   verifyPhoneCode: (code: string) => Promise<boolean>;
 }
@@ -50,8 +48,6 @@ export const useBookingStore = create<BookingStoreState>((set, get) => ({
   phoneVerified: false,
   emailCodeSent: false,
   phoneCodeSent: false,
-  pendingEmailCode: '',
-  pendingPhoneCode: '',
   otpSending: false,
 
   setScreeningAndMovie: (screening, movie) => {
@@ -116,26 +112,27 @@ export const useBookingStore = create<BookingStoreState>((set, get) => ({
       phoneVerified: false,
       emailCodeSent: false,
       phoneCodeSent: false,
-      pendingEmailCode: '',
-      pendingPhoneCode: '',
       otpSending: false,
     }),
 
   getTotalPrice: () => get().selectedSeats.reduce((acc, seat) => acc + seat.price, 0),
 
-  sendEmailCode: async () => {
-    const email = get().customer.email.trim().toLowerCase();
-    if (!email) {
+  sendEmailCode: async (emailOverride) => {
+    const email = (emailOverride ?? get().customer.email).trim().toLowerCase();
+    if (!email || !email.includes('@')) {
       toast.warning('Enter email', 'Add a valid email first.');
       return;
     }
-    set({ otpSending: true });
+    set({
+      otpSending: true,
+      customer: { ...get().customer, email },
+    });
     try {
       await apiFetch<ApiSuccess<{ sent: boolean }>>('/otp/send', {
         method: 'POST',
         body: JSON.stringify({ channel: 'email', email }),
       });
-      set({ emailCodeSent: true, emailVerified: false, pendingEmailCode: '' });
+      set({ emailCodeSent: true, emailVerified: false });
       toast.success('Code sent', `Check ${email} for your verification code.`);
     } catch (err) {
       toast.error(
@@ -147,26 +144,31 @@ export const useBookingStore = create<BookingStoreState>((set, get) => ({
     }
   },
 
-  sendPhoneCode: async () => {
-    const phone = get().customer.phone.trim();
-    const email = get().customer.email.trim().toLowerCase();
+  sendPhoneCode: async (phoneOverride, emailOverride) => {
+    const phone = (phoneOverride ?? get().customer.phone).trim();
+    const email = (emailOverride ?? get().customer.email).trim().toLowerCase();
     if (!phone || phone.length < 7) {
       toast.warning('Enter phone', 'Add a valid phone first.');
       return;
     }
-    set({ otpSending: true });
+    if (!email || !email.includes('@')) {
+      toast.warning(
+        'Email required for phone code',
+        'SMS is not available. Enter your email so we can send the phone verification code there.',
+      );
+      return;
+    }
+    set({
+      otpSending: true,
+      customer: { ...get().customer, phone, email },
+    });
     try {
       await apiFetch<ApiSuccess<{ sent: boolean; deliveredVia?: string }>>('/otp/send', {
         method: 'POST',
-        body: JSON.stringify({ channel: 'phone', phone, email: email || undefined }),
+        body: JSON.stringify({ channel: 'phone', phone, email }),
       });
-      set({ phoneCodeSent: true, phoneVerified: false, pendingPhoneCode: '' });
-      toast.success(
-        'Code sent',
-        email
-          ? `Phone verification code was emailed to ${email}.`
-          : 'Verification code sent.',
-      );
+      set({ phoneCodeSent: true, phoneVerified: false });
+      toast.success('Code sent', `Phone verification code emailed to ${email}.`);
     } catch (err) {
       toast.error(
         'Could not send code',
@@ -219,7 +221,7 @@ export const useBookingStore = create<BookingStoreState>((set, get) => ({
     } catch (err) {
       toast.error(
         'Invalid code',
-        err instanceof Error ? err.message : 'Check the SMS verification code and try again.',
+        err instanceof Error ? err.message : 'Check the verification code and try again.',
       );
       return false;
     }

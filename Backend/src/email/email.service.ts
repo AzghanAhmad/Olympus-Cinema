@@ -40,21 +40,30 @@ export class EmailService {
 
   private async send(to: string, subject: string, html: string) {
     if (this.smtp) {
-      await this.smtp.sendMail({
-        from: this.from,
-        to,
-        subject,
-        html,
-      });
+      try {
+        await this.smtp.sendMail({
+          from: this.from,
+          to,
+          subject,
+          html,
+        });
+        this.logger.log(`Email sent via SMTP to ${to}: ${subject}`);
+      } catch (err) {
+        this.logger.error(
+          `SMTP send failed to ${to}: ${err instanceof Error ? err.message : String(err)}`,
+        );
+        throw err;
+      }
       return;
     }
 
     if (this.resend) {
       await this.resend.emails.send({ from: this.from, to, subject, html });
+      this.logger.log(`Email sent via Resend to ${to}: ${subject}`);
       return;
     }
 
-    this.logger.log(`[Email stub] To: ${to} | Subject: ${subject}`);
+    this.logger.warn(`[Email stub] To: ${to} | Subject: ${subject}`);
   }
 
   async sendWelcomeEmail(email: string, firstName: string) {

@@ -316,7 +316,7 @@ export default function BookingPage() {
                             return;
                           }
                           setCustomer({ ...getValues(), email });
-                          void sendEmailCode();
+                          void sendEmailCode(email);
                         }}
                         disabled={otpSending}
                         className="px-3 py-2 bg-secondary border border-border rounded-xl text-xs font-bold shrink-0 disabled:opacity-50"
@@ -365,12 +365,20 @@ export default function BookingPage() {
                         type="button"
                         onClick={() => {
                           const phone = getValues('phone');
+                          const email = getValues('email');
                           if (!phone || phone.length < 7) {
                             toast.warning('Enter phone', 'Add a valid phone first.');
                             return;
                           }
-                          setCustomer({ ...getValues(), phone });
-                          void sendPhoneCode();
+                          if (!email || !email.includes('@')) {
+                            toast.warning(
+                              'Email required',
+                              'Phone codes are emailed. Enter your email first.',
+                            );
+                            return;
+                          }
+                          setCustomer({ ...getValues(), phone, email });
+                          void sendPhoneCode(phone, email);
                         }}
                         disabled={otpSending}
                         className="px-3 py-2 bg-secondary border border-border rounded-xl text-xs font-bold shrink-0 hover:bg-secondary/80 transition-colors disabled:opacity-50"
