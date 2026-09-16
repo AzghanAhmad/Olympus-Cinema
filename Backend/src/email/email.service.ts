@@ -41,7 +41,42 @@ export class EmailService {
     if (apiKey) this.resend = new Resend(apiKey);
   }
 
+  private async sendViaBrevo(apiKey: string, to: string, subject: string, html: string): Promise<void> {
+    const res = await fetch('https://api.brevo.com/v3/smtp/email', {
+      method: 'POST',
+      headers: {
+        'accept': 'application/json',
+        'api-key': apiKey,
+        'content-type': 'application/json',
+      },
+      body: JSON.stringify({
+        sender: { name: 'Crystal Entertainment', email: 'azghanduplicate786@gmail.com' },
+        to: [{ email: to }],
+        subject,
+        htmlContent: html,
+      }),
+    });
+
+    if (!res.ok) {
+      const errText = await res.text();
+      throw new Error(`Brevo API error (${res.status}): ${errText}`);
+    }
+    this.logger.log(`Email sent via Brevo API to ${to}: ${subject}`);
+  }
+
   private async send(to: string, subject: string, html: string) {
+    const brevoApiKey = this.config.get<string>('BREVO_API_KEY');
+    if (brevoApiKey) {
+      await this.sendViaBrevo(brevoApiKey, to, subject, html);
+      return;
+    }
+
+    if (this.resend) {
+      await this.resend.emails.send({ from: this.from, to, subject, html });
+      this.logger.log(`Email sent via Resend to ${to}: ${subject}`);
+      return;
+    }
+
     if (this.smtp) {
       try {
         await this.smtp.sendMail({
@@ -57,12 +92,6 @@ export class EmailService {
         );
         throw err;
       }
-      return;
-    }
-
-    if (this.resend) {
-      await this.resend.emails.send({ from: this.from, to, subject, html });
-      this.logger.log(`Email sent via Resend to ${to}: ${subject}`);
       return;
     }
 
