@@ -53,6 +53,16 @@ if ! npx ts-node --transpile-only prisma/seed.ts; then
   echo "CLI seed failed; Nest bootstrap will seed cinema data on API start."
 fi
 
+echo "Starting Redis..."
+if [ -z "$REDIS_URL" ] || is_local_url "$REDIS_URL"; then
+  if command -v redis-server >/dev/null 2>&1; then
+    redis-server --daemonize yes --protected-mode no --port 6379
+    echo "Embedded Redis server started in background on port 6379."
+  else
+    echo "WARNING: redis-server binary not found."
+  fi
+fi
+
 echo "Starting API..."
 if [ -f dist/main.js ]; then
   exec node dist/main.js
