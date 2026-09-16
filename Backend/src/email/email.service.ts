@@ -19,19 +19,22 @@ export class EmailService {
     const smtpUser = this.config.get<string>('SMTP_USER');
     const smtpPass = this.config.get<string>('SMTP_PASS');
     const smtpHost = this.config.get<string>('SMTP_HOST', 'smtp.gmail.com');
-    const smtpPort = Number(this.config.get<string>('SMTP_PORT') ?? 465);
+    const smtpPort = Number(this.config.get<string>('SMTP_PORT') ?? 587);
 
     if (smtpUser && smtpPass) {
       this.smtp = nodemailer.createTransport({
         host: smtpHost,
         port: smtpPort,
         secure: smtpPort === 465,
+        connectionTimeout: 10000,
+        greetingTimeout: 10000,
+        socketTimeout: 15000,
         auth: {
           user: smtpUser,
           pass: smtpPass.replace(/\s+/g, ''),
         },
       });
-      this.logger.log(`SMTP email configured via ${smtpHost}`);
+      this.logger.log(`SMTP email configured via ${smtpHost}:${smtpPort}`);
     }
 
     const apiKey = this.config.get<string>('RESEND_API_KEY');
