@@ -49,10 +49,12 @@ export class UploadsService {
     }
 
     if (!this.configured) {
-      const stubUrl = `https://placehold.co/800x600?text=${encodeURIComponent(file.originalname)}`;
+      // Fallback when Cloudinary is not configured: convert uploaded image buffer to data URI
+      // so it renders immediately and permanently in the browser and DB without external dependencies.
+      const base64 = `data:${file.mimetype};base64,${file.buffer.toString('base64')}`;
       return {
-        url: stubUrl,
-        publicId: `stub-${Date.now()}`,
+        url: base64,
+        publicId: `local-${Date.now()}`,
       };
     }
 
