@@ -89,7 +89,9 @@ export default function AdminScreensPage() {
   });
 
   const rows = useMemo(() => {
-    return Array.from(new Set(seats.map((s) => s.row))).sort();
+    return Array.from(new Set(seats.map((s) => s.row)))
+      .sort()
+      .reverse();
   }, [seats]);
 
   const aisleAfterByRow = useMemo(() => {
@@ -229,12 +231,27 @@ export default function AdminScreensPage() {
                               {seat.number}
                             </button>
 
+                            {/* On row A, seats 1-8 are left, then 2 empty spaces matching B-9, B-10, then aisle, then 2 empty spaces matching B-11, B-12, then seats 9-16 */}
+                            {rowLetter === 'A' && seat.number === 8 && (
+                              <>
+                                <div className="w-6 h-6 sm:w-7 sm:h-7 shrink-0 invisible pointer-events-none" aria-hidden="true" />
+                                <div className="w-6 h-6 sm:w-7 sm:h-7 shrink-0 invisible pointer-events-none" aria-hidden="true" />
+                              </>
+                            )}
+
                             {showAisle && (
                               <div className="w-5 sm:w-7 flex items-center justify-center shrink-0">
                                 <span className="text-[9px] font-extrabold text-muted-foreground/70">
                                   {rowLetter}
                                 </span>
                               </div>
+                            )}
+
+                            {rowLetter === 'A' && seat.number === 8 && (
+                              <>
+                                <div className="w-6 h-6 sm:w-7 sm:h-7 shrink-0 invisible pointer-events-none" aria-hidden="true" />
+                                <div className="w-6 h-6 sm:w-7 sm:h-7 shrink-0 invisible pointer-events-none" aria-hidden="true" />
+                              </>
                             )}
                           </React.Fragment>
                         );

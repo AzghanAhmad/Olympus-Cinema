@@ -182,16 +182,16 @@ export default function BookingPage() {
 
   const handleGuestSubmit = (data: GuestFormData) => {
     setCustomer(data);
-    if (!emailVerified && !phoneVerified) {
-      toast.warning('Verify contact', 'Confirm your email or phone code before continuing.');
+    if (!emailVerified) {
+      toast.warning('Verify email', 'Please verify your email address with the code before continuing.');
       return;
     }
     setStep(3);
   };
 
   const handleConfirmBooking = async () => {
-    if (!emailVerified && !phoneVerified) {
-      toast.error('Verification required', 'Verify email or phone before reserving.');
+    if (!emailVerified) {
+      toast.error('Verification required', 'Please verify your email before reserving.');
       setStep(2);
       return;
     }
@@ -356,68 +356,16 @@ export default function BookingPage() {
 
                   <div className="space-y-2">
                     <label className="block text-xs font-semibold mb-1">Phone Number</label>
-                    <div className="flex gap-2">
-                      <input
-                        {...register('phone')}
-                        className="flex-1 py-2.5 px-3 bg-secondary text-foreground text-sm rounded-xl border border-border focus:outline-none focus:ring-2 focus:ring-primary"
-                      />
-                      <button
-                        type="button"
-                        onClick={() => {
-                          const phone = getValues('phone');
-                          const email = getValues('email');
-                          if (!phone || phone.length < 7) {
-                            toast.warning('Enter phone', 'Add a valid phone first.');
-                            return;
-                          }
-                          if (!email || !email.includes('@')) {
-                            toast.warning(
-                              'Email required',
-                              'Phone codes are emailed. Enter your email first.',
-                            );
-                            return;
-                          }
-                          setCustomer({ ...getValues(), phone, email });
-                          void sendPhoneCode(phone, email);
-                        }}
-                        disabled={otpSending}
-                        className="px-3 py-2 bg-secondary border border-border rounded-xl text-xs font-bold shrink-0 hover:bg-secondary/80 transition-colors disabled:opacity-50"
-                      >
-                        Send code
-                      </button>
-                    </div>
+                    <input
+                      {...register('phone')}
+                      placeholder="e.g. 7890000"
+                      className="w-full py-2.5 px-3 bg-secondary text-foreground text-sm rounded-xl border border-border focus:outline-none focus:ring-2 focus:ring-primary"
+                    />
                     {errors.phone && <p className="text-xs text-primary mt-1">{errors.phone.message}</p>}
-                    {phoneCodeSent && !phoneVerified && (
-                      <div className="space-y-2 pt-1">
-                        <div className="flex gap-2">
-                          <input
-                            value={phoneOtp}
-                            onChange={(e) => setPhoneOtp(e.target.value)}
-                            placeholder="Enter phone code"
-                            className="flex-1 py-2 px-3 bg-secondary text-foreground text-sm rounded-xl border border-border focus:outline-none focus:ring-2 focus:ring-primary"
-                          />
-                          <button
-                            type="button"
-                            onClick={() => void verifyPhoneCode(phoneOtp)}
-                            className="px-4 py-2 bg-primary text-primary-foreground rounded-xl text-xs font-bold shadow hover:bg-primary/90 transition-all shrink-0"
-                          >
-                            Verify phone
-                          </button>
-                        </div>
-                        <p className="text-[11px] text-muted-foreground">
-                          Phone codes are emailed to your address when SMS is unavailable.
-                        </p>
-                      </div>
-                    )}
-                    {phoneVerified && (
-                      <p className="text-xs font-bold text-emerald-600 flex items-center gap-1 mt-1">
-                        ✓ Phone verified successfully
-                      </p>
-                    )}
                   </div>
 
                   <p className="text-[11px] text-muted-foreground">
-                    Verify at least one contact method. Email codes are sent to your inbox via Crystal Entertainment mail.
+                    A 6-digit verification code will be sent to your email to verify your reservation.
                   </p>
 
                   <div className="pt-4 flex justify-between">
@@ -462,7 +410,7 @@ export default function BookingPage() {
                     <div className="flex flex-wrap gap-2">
                       {selectedSeats.map((seat) => (
                         <span key={seat.id} className="px-3 py-1 bg-primary text-primary-foreground text-xs font-bold rounded-lg">
-                          {seat.label || `${seat.row}-${seat.number}`} ({formatCurrency(seat.price)})
+                          {seat.label || `${seat.row}-${seat.number}`}
                         </span>
                       ))}
                     </div>
@@ -473,7 +421,7 @@ export default function BookingPage() {
                     <p className="font-bold text-foreground">{customer.fullName}</p>
                     <p className="text-muted-foreground">{customer.email} • {customer.phone}</p>
                     <p className="text-emerald-600 font-semibold">
-                      Verified via {[emailVerified && 'email', phoneVerified && 'phone'].filter(Boolean).join(' & ')}
+                      ✓ Verified via email ({customer.email})
                     </p>
                   </div>
                 </div>
@@ -520,11 +468,6 @@ export default function BookingPage() {
                   <span className="text-muted-foreground shrink-0">Seats ({selectedSeats.length}/{maxTickets})</span>
                   <span className="text-right">{selectedSeats.length > 0 ? selectedSeats.map((s) => s.label || `${s.row}-${s.number}`).join(', ') : 'None'}</span>
                 </div>
-              </div>
-
-              <div className="pt-4 border-t border-border flex items-center justify-between">
-                <span className="text-xs text-muted-foreground uppercase font-bold">Total</span>
-                <span className="text-2xl font-black text-primary">{formatCurrency(getTotalPrice())}</span>
               </div>
             </div>
           </div>

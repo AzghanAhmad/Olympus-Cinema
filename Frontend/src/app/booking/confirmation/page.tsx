@@ -115,10 +115,6 @@ function ConfirmationContent() {
                   {booking.seats.map((s) => s.label || s.id).join(', ')}
                 </strong>
               </div>
-              <div>
-                <span className="text-muted-foreground block">Total</span>
-                <strong className="text-foreground text-sm">{formatCurrency(booking.totalPrice)}</strong>
-              </div>
             </div>
 
             <div className="pt-2 text-xs border-t border-border">

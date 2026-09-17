@@ -122,7 +122,7 @@ export default function HomePage() {
             <ol className="space-y-3 text-sm text-muted-foreground list-decimal pl-5">
               <li>Pick one of the open Majnoon shows</li>
               <li>Select seats (maximum 15 per person)</li>
-              <li>Verify email or phone with a code</li>
+              <li>Verify email with a code</li>
               <li>
                 Submit reservation — we will contact as soon as the reservation is confirmed
               </li>

@@ -18,7 +18,10 @@ interface CinemaSeatMapProps {
 export function CinemaSeatMap({ seats, aisleAfterByRow }: CinemaSeatMapProps) {
   const { selectedSeats, toggleSeat } = useBookingStore();
 
-  const rows = Array.from(new Set(seats.map((s) => s.row))).sort();
+  // Display rows from Screen (top) down to Entrance (bottom): U -> A
+  const rows = Array.from(new Set(seats.map((s) => s.row)))
+    .sort()
+    .reverse();
 
   const handleSeatClick = (seat: Seat) => {
     if (seat.status !== 'AVAILABLE') return;
@@ -28,7 +31,7 @@ export function CinemaSeatMap({ seats, aisleAfterByRow }: CinemaSeatMapProps) {
     if (result === 'deselected') {
       toast.info(`Seat ${seat.label || seat.id} Deselected`, 'Removed from booking cart');
     } else if (result === 'selected') {
-      toast.success(`Seat ${seat.label || seat.id} Selected`, formatCurrency(seat.price));
+      toast.success(`Seat ${seat.label || seat.id} Selected`, 'Added to booking cart');
     }
   };
 
@@ -60,9 +63,9 @@ export function CinemaSeatMap({ seats, aisleAfterByRow }: CinemaSeatMapProps) {
       return `Seat ${seatName} — DISABLED`;
     }
     if (isSelected) {
-      return `Seat ${seatName} — SELECTED (MVR ${seat.price.toFixed(2)})`;
+      return `Seat ${seatName} — SELECTED`;
     }
-    return `Seat ${seatName} — AVAILABLE (MVR ${seat.price.toFixed(2)})`;
+    return `Seat ${seatName} — AVAILABLE`;
   };
 
   const currentPrice = seats[0]?.price ?? 15;
@@ -112,12 +115,27 @@ export function CinemaSeatMap({ seats, aisleAfterByRow }: CinemaSeatMapProps) {
                         {seat.number}
                       </motion.button>
 
+                      {/* On row A, seats 1-8 are left, then 2 empty spaces matching B-9, B-10, then aisle, then 2 empty spaces matching B-11, B-12, then seats 9-16 */}
+                      {rowLetter === 'A' && seat.number === 8 && (
+                        <>
+                          <div className="w-6 h-6 sm:w-7 sm:h-7 shrink-0 invisible pointer-events-none" aria-hidden="true" />
+                          <div className="w-6 h-6 sm:w-7 sm:h-7 shrink-0 invisible pointer-events-none" aria-hidden="true" />
+                        </>
+                      )}
+
                       {showAisle && (
                         <div className="w-5 sm:w-7 flex items-center justify-center shrink-0">
                           <span className="text-[9px] font-extrabold text-muted-foreground/70">
                             {rowLetter}
                           </span>
                         </div>
+                      )}
+
+                      {rowLetter === 'A' && seat.number === 8 && (
+                        <>
+                          <div className="w-6 h-6 sm:w-7 sm:h-7 shrink-0 invisible pointer-events-none" aria-hidden="true" />
+                          <div className="w-6 h-6 sm:w-7 sm:h-7 shrink-0 invisible pointer-events-none" aria-hidden="true" />
+                        </>
                       )}
                     </React.Fragment>
                   );
@@ -140,7 +158,7 @@ export function CinemaSeatMap({ seats, aisleAfterByRow }: CinemaSeatMapProps) {
       <div className="flex flex-wrap items-center justify-center gap-6 text-xs pt-1">
         <div className="flex items-center gap-2">
           <div className="w-4 h-4 rounded bg-secondary border border-border" />
-          <span>Available (MVR {currentPrice.toFixed(2)})</span>
+          <span>Available</span>
         </div>
         <div className="flex items-center gap-2">
           <div className="w-4 h-4 rounded bg-primary border border-primary shadow-sm" />

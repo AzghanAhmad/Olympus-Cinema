@@ -22,6 +22,17 @@ export const adminApi = {
       apiFetch<ApiSuccess<{ message: string }>>(`/admin/movies/${id}`, { method: 'DELETE' }),
   },
 
+  uploads: {
+    image: (file: File) => {
+      const formData = new FormData();
+      formData.append('file', file);
+      return apiFetch<ApiSuccess<{ url: string; publicId?: string }>>('/uploads/image', {
+        method: 'POST',
+        body: formData,
+      });
+    },
+  },
+
   screenings: {
     list: () => apiFetch<ApiPaginated<AdminScreening>>(`/admin/screenings${qs({ limit: 100 })}`),
     create: (body: Record<string, unknown>) =>
