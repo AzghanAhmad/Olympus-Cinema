@@ -2,7 +2,7 @@
 
 import React, { useMemo, useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { Plus, Save, Trash2 } from 'lucide-react';
+import { Plus, Save, Trash2, Info, MousePointerClick } from 'lucide-react';
 import { toast } from '@/store/useToastStore';
 import { adminApi, AdminSeat } from '@/services/adminApi';
 import { getAisleAfter } from '@/data/seats';
@@ -56,7 +56,11 @@ export default function AdminScreensPage() {
       adminApi.screens.updateSeat(screenId, seat.id, {
         status: seat.status === 'DISABLED' ? 'ACTIVE' : 'DISABLED',
       }),
-    onSuccess: () => qc.invalidateQueries({ queryKey: ['admin', 'seats', screenId] }),
+    onSuccess: (_, seat) => {
+      const next = seat.status === 'DISABLED' ? 'enabled' : 'disabled';
+      toast.success(`Seat ${seat.label} ${next}`);
+      qc.invalidateQueries({ queryKey: ['admin', 'seats', screenId] });
+    },
     onError: (e: Error) => toast.error('Seat update failed', e.message),
   });
 
@@ -182,6 +186,21 @@ export default function AdminScreensPage() {
             </div>
           </div>
 
+          {/* Prominent Instruction Banner */}
+          <div className="flex items-center gap-3 p-4 bg-primary/10 border border-primary/20 rounded-2xl text-xs">
+            <div className="p-2 rounded-xl bg-primary text-white shrink-0 shadow-sm">
+              <MousePointerClick className="w-4 h-4" />
+            </div>
+            <div className="space-y-0.5">
+              <p className="font-extrabold text-foreground">
+                1-Click Seat Management
+              </p>
+              <p className="text-muted-foreground leading-relaxed">
+                Click on any seat once to immediately <strong className="text-foreground">Enable</strong> or <strong className="text-foreground">Disable</strong> it. Disabled seats will be blocked from customer bookings. Right-click on a seat to permanently delete it.
+              </p>
+            </div>
+          </div>
+
           {/* Same seat-chart format as the user booking panel */}
           <div className="w-full flex flex-col items-center space-y-6 py-4 overflow-x-auto">
             <div className="w-full max-w-3xl flex flex-col items-center space-y-2">
@@ -273,17 +292,17 @@ export default function AdminScreensPage() {
             <div className="flex flex-wrap items-center justify-center gap-6 text-xs pt-1">
               <div className="flex items-center gap-2">
                 <div className="w-4 h-4 rounded bg-secondary border border-border" />
-                <span>Standard seat</span>
+                <span className="font-semibold text-foreground">Active (Available for booking)</span>
               </div>
               <div className="flex items-center gap-2">
                 <div className="w-4 h-4 rounded bg-zinc-900 border border-zinc-700 opacity-40" />
-                <span className="text-muted-foreground">Disabled</span>
+                <span className="font-semibold text-muted-foreground">Disabled (Blocked)</span>
               </div>
             </div>
           </div>
 
-          <p className="text-[10px] text-muted-foreground text-center">
-            Click a seat to enable/disable. Right-click to delete.
+          <p className="text-[11px] text-muted-foreground text-center font-medium">
+            💡 <strong>Tip:</strong> Simply click any seat once to toggle between <strong>Active</strong> and <strong>Disabled</strong>. Right-click to delete.
           </p>
         </div>
       )}
