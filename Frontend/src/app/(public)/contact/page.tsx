@@ -35,6 +35,7 @@ export default function ContactPage() {
   });
 
   const onSubmit = async (data: ContactFormData) => {
+    // Queries are directed to the cinema concierge team at contactEmail
     await new Promise((r) => setTimeout(r, 600));
     setSubmitted(true);
     reset();
@@ -161,12 +162,14 @@ export default function ContactPage() {
               </div>
             </div>
 
-            <div className="relative aspect-video rounded-3xl overflow-hidden border border-border bg-zinc-900 flex items-center justify-center text-center p-6">
-              <div className="space-y-2">
-                <MapPin className="w-10 h-10 text-primary mx-auto animate-bounce" />
-                <h4 className="font-extrabold text-white text-base">{cinemaName}</h4>
-                <p className="text-xs text-zinc-400">Details synced from admin settings</p>
-              </div>
+            <div className="relative aspect-[16/10] rounded-3xl overflow-hidden border border-border shadow-md bg-card">
+              <iframe
+                title="Crystal Entertainment Location"
+                src={`https://maps.google.com/maps?q=${encodeURIComponent(address || 'Crystal Entertainment Male Maldives')}&t=&z=15&ie=UTF8&iwloc=&output=embed`}
+                className="w-full h-full border-0 filter contrast-[1.05]"
+                loading="lazy"
+                allowFullScreen
+              />
             </div>
           </div>
         </div>

@@ -7,6 +7,8 @@ import { toast } from '@/store/useToastStore';
 import { adminApi, AdminScreening } from '@/services/adminApi';
 import { formatDate } from '@/lib/utils';
 
+import { Pagination } from '@/components/ui/Pagination';
+
 export default function AdminScreeningsPage() {
   const qc = useQueryClient();
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -15,6 +17,8 @@ export default function AdminScreeningsPage() {
   const [screenId, setScreenId] = useState('');
   const [startTime, setStartTime] = useState('');
   const [endTime, setEndTime] = useState('');
+  const [page, setPage] = useState(1);
+  const pageSize = 10;
 
   const screeningsQ = useQuery({
     queryKey: ['admin', 'screenings'],
@@ -33,6 +37,9 @@ export default function AdminScreeningsPage() {
   const movies = moviesQ.data?.data ?? [];
   const screens = screensQ.data?.data ?? [];
 
+  const totalScreenings = screenings.length;
+  const paginatedScreenings = screenings.slice((page - 1) * pageSize, page * pageSize);
+
   const saveMutation = useMutation({
     mutationFn: () => {
       const body = { movieId, screenId, startTime: new Date(startTime).toISOString(), endTime: new Date(endTime).toISOString() };
@@ -50,7 +57,7 @@ export default function AdminScreeningsPage() {
   const deleteMutation = useMutation({
     mutationFn: (id: string) => adminApi.screenings.remove(id),
     onSuccess: () => {
-      toast.info('Screening deleted');
+      toast.info('Screening removed');
       qc.invalidateQueries({ queryKey: ['admin', 'screenings'] });
     },
     onError: (e: Error) => toast.error('Delete failed', e.message),
@@ -60,11 +67,8 @@ export default function AdminScreeningsPage() {
     setEditing(null);
     setMovieId(movies[0]?.id || '');
     setScreenId(screens[0]?.id || '');
-    const start = new Date();
-    start.setHours(19, 30, 0, 0);
-    const end = new Date(start.getTime() + 2.5 * 3600000);
-    setStartTime(toLocalInput(start));
-    setEndTime(toLocalInput(end));
+    setStartTime('');
+    setEndTime('');
     setIsModalOpen(true);
   };
 
@@ -72,8 +76,8 @@ export default function AdminScreeningsPage() {
     setEditing(scr);
     setMovieId(scr.movieId);
     setScreenId(scr.screenId);
-    setStartTime(toLocalInput(new Date(scr.startTime)));
-    setEndTime(toLocalInput(new Date(scr.endTime)));
+    setStartTime(scr.startTime.slice(0, 16));
+    setEndTime(scr.endTime.slice(0, 16));
     setIsModalOpen(true);
   };
 
@@ -92,7 +96,7 @@ export default function AdminScreeningsPage() {
       {screeningsQ.isLoading && <p className="text-sm text-muted-foreground">Loading…</p>}
       {screeningsQ.error && <p className="text-sm text-rose-500">{(screeningsQ.error as Error).message}</p>}
 
-      <div className="bg-card border border-border rounded-2xl overflow-hidden">
+      <div className="bg-card border border-border rounded-2xl overflow-hidden shadow-sm">
         <table className="w-full text-left text-xs">
           <thead>
             <tr className="border-b border-border bg-secondary/40 text-[11px] uppercase font-bold text-muted-foreground">
@@ -104,8 +108,15 @@ export default function AdminScreeningsPage() {
             </tr>
           </thead>
           <tbody className="divide-y divide-border">
-            {screenings.map((scr) => (
-              <tr key={scr.id}>
+            {screenings.length === 0 && !screeningsQ.isLoading && (
+              <tr>
+                <td colSpan={5} className="p-8 text-center text-muted-foreground">
+                  No showtimes scheduled yet.
+                </td>
+              </tr>
+            )}
+            {paginatedScreenings.map((scr) => (
+              <tr key={scr.id} className="hover:bg-secondary/20 transition-colors">
                 <td className="p-4 font-bold">{scr.movie?.title || scr.movieId}</td>
                 <td className="p-4">{scr.screen?.name}</td>
                 <td className="p-4">{formatDate(scr.startTime)} · {new Date(scr.startTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</td>
@@ -125,6 +136,13 @@ export default function AdminScreeningsPage() {
             ))}
           </tbody>
         </table>
+
+        <Pagination
+          currentPage={page}
+          totalItems={totalScreenings}
+          pageSize={pageSize}
+          onPageChange={setPage}
+        />
       </div>
 
       {isModalOpen && (

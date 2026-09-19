@@ -9,10 +9,14 @@ import { toast } from '@/store/useToastStore';
 import { adminApi, AdminMovie } from '@/services/adminApi';
 import { ApiError } from '@/lib/api';
 
+import { Pagination } from '@/components/ui/Pagination';
+
 export default function AdminMoviesPage() {
   const qc = useQueryClient();
   const searchParams = useSearchParams();
   const [search, setSearch] = useState('');
+  const [page, setPage] = useState(1);
+  const pageSize = 10;
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editing, setEditing] = useState<AdminMovie | null>(null);
   const [formData, setFormData] = useState({
@@ -38,9 +42,12 @@ export default function AdminMoviesPage() {
   useEffect(() => {
     const q = searchParams.get('q') || '';
     setSearch(q);
+    setPage(1);
   }, [searchParams]);
 
   const movies = data?.data ?? [];
+  const totalMovies = movies.length;
+  const paginatedMovies = movies.slice((page - 1) * pageSize, page * pageSize);
 
   const saveMutation = useMutation({
     mutationFn: async () => {
@@ -103,13 +110,13 @@ export default function AdminMoviesPage() {
       title: movie.title,
       tagline: movie.tagline || '',
       synopsis: movie.synopsis || '',
-      durationMinutes: movie.durationMinutes,
-      releaseDate: movie.releaseDate.slice(0, 10),
-      language: movie.language,
-      ageRating: movie.ageRating,
-      rating: movie.rating,
-      posterUrl: movie.posterUrl || '',
-      backdropUrl: movie.backdropUrl || '',
+      durationMinutes: movie.durationMinutes || 120,
+      releaseDate: movie.releaseDate ? movie.releaseDate.slice(0, 10) : new Date().toISOString().slice(0, 10),
+      language: movie.language || 'English',
+      ageRating: movie.ageRating || 'PG-13',
+      rating: movie.rating || 8.5,
+      posterUrl: movie.posterUrl || '/images/majnoon-poster.jpg',
+      backdropUrl: movie.backdropUrl || '/images/majnoon-backdrop.jpeg',
       trailerUrl: movie.trailerUrl || '',
       status: movie.status,
     });
@@ -118,16 +125,16 @@ export default function AdminMoviesPage() {
 
   return (
     <div className="space-y-6">
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+      <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-extrabold tracking-tight">Movie Catalog</h1>
-          <p className="text-xs text-muted-foreground mt-1">Loaded from the cinema API.</p>
+          <h1 className="text-2xl font-extrabold tracking-tight">Movies</h1>
+          <p className="text-xs text-muted-foreground mt-1">Catalog stored in PostgreSQL.</p>
         </div>
         <button
           onClick={openAdd}
-          className="flex items-center gap-2 px-4 py-2.5 bg-primary text-white font-bold text-xs rounded-xl"
+          className="flex items-center gap-2 px-4 py-2.5 bg-primary text-white text-xs font-bold rounded-xl"
         >
-          <Plus className="w-4 h-4" /> Add Movie
+          <Plus className="w-4 h-4" /> Add movie
         </button>
       </div>
 
@@ -135,20 +142,23 @@ export default function AdminMoviesPage() {
         <Search className="absolute left-3 top-3 w-4 h-4 text-muted-foreground" />
         <input
           value={search}
-          onChange={(e) => setSearch(e.target.value)}
-          placeholder="Search movies..."
+          onChange={(e) => {
+            setSearch(e.target.value);
+            setPage(1);
+          }}
+          placeholder="Search by title..."
           className="w-full pl-9 pr-4 py-2 bg-card text-xs rounded-xl border border-border"
         />
       </div>
 
-      {isLoading && <p className="text-sm text-muted-foreground">Loading movies…</p>}
+      {isLoading && <p className="text-sm text-muted-foreground">Loading…</p>}
       {error && (
         <p className="text-sm text-rose-500">
           {error instanceof ApiError ? error.message : 'Could not load movies from the API.'}
         </p>
       )}
 
-      <div className="bg-card border border-border rounded-2xl overflow-hidden">
+      <div className="bg-card border border-border rounded-2xl overflow-hidden shadow-sm">
         <table className="w-full text-left">
           <thead>
             <tr className="border-b border-border bg-secondary/40 text-[11px] uppercase font-bold text-muted-foreground">
@@ -159,8 +169,15 @@ export default function AdminMoviesPage() {
             </tr>
           </thead>
           <tbody className="divide-y divide-border text-xs">
-            {movies.map((movie) => (
-              <tr key={movie.id} className="hover:bg-secondary/20">
+            {movies.length === 0 && !isLoading && (
+              <tr>
+                <td colSpan={4} className="p-8 text-center text-muted-foreground">
+                  No movies found.
+                </td>
+              </tr>
+            )}
+            {paginatedMovies.map((movie) => (
+              <tr key={movie.id} className="hover:bg-secondary/20 transition-colors">
                 <td className="p-4">
                   <div className="flex items-center gap-3">
                     <div className="relative w-10 h-14 rounded overflow-hidden bg-zinc-900 shrink-0">
@@ -195,6 +212,13 @@ export default function AdminMoviesPage() {
             ))}
           </tbody>
         </table>
+
+        <Pagination
+          currentPage={page}
+          totalItems={totalMovies}
+          pageSize={pageSize}
+          onPageChange={setPage}
+        />
       </div>
 
       {isModalOpen && (

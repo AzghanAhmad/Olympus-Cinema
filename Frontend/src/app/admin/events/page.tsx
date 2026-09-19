@@ -6,6 +6,7 @@ import { Plus, Edit2, Trash2, X } from 'lucide-react';
 import { toast } from '@/store/useToastStore';
 import { adminApi, AdminEvent } from '@/services/adminApi';
 import { formatDate } from '@/lib/utils';
+import { Pagination } from '@/components/ui/Pagination';
 
 export default function AdminEventsPage() {
   const qc = useQueryClient();
@@ -14,6 +15,11 @@ export default function AdminEventsPage() {
     queryFn: () => adminApi.events.list(),
   });
   const events = data?.data ?? [];
+  const [page, setPage] = useState(1);
+  const pageSize = 10;
+  const totalEvents = events.length;
+  const paginatedEvents = events.slice((page - 1) * pageSize, page * pageSize);
+
   const [open, setOpen] = useState(false);
   const [editing, setEditing] = useState<AdminEvent | null>(null);
   const [title, setTitle] = useState('');
@@ -58,29 +64,28 @@ export default function AdminEventsPage() {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-extrabold tracking-tight">Events</h1>
-          <p className="text-xs text-muted-foreground mt-1">Special events from the API.</p>
+          <p className="text-xs text-muted-foreground mt-1">Calendar events from PostgreSQL.</p>
         </div>
         <button
           onClick={() => {
             setEditing(null);
             setTitle('');
             setDescription('');
-            const start = new Date();
-            const end = new Date(start.getTime() + 3 * 3600000);
-            setStartTime(toLocal(start));
-            setEndTime(toLocal(end));
+            setLocation('Crystal Entertainment');
+            setStartTime('');
+            setEndTime('');
             setStatus('PUBLISHED');
             setOpen(true);
           }}
-          className="flex items-center gap-2 px-4 py-2 bg-primary text-white text-xs font-bold rounded-xl"
+          className="flex items-center gap-2 px-4 py-2.5 bg-primary text-white text-xs font-bold rounded-xl"
         >
-          <Plus className="w-4 h-4" /> Create event
+          <Plus className="w-4 h-4" /> New event
         </button>
       </div>
       {isLoading && <p className="text-sm text-muted-foreground">Loading…</p>}
       {error && <p className="text-sm text-rose-500">{(error as Error).message}</p>}
 
-      <div className="bg-card border border-border rounded-2xl overflow-hidden">
+      <div className="bg-card border border-border rounded-2xl overflow-hidden shadow-sm">
         <table className="w-full text-left text-xs">
           <thead>
             <tr className="border-b border-border bg-secondary/40 text-[11px] uppercase font-bold text-muted-foreground">
@@ -91,8 +96,15 @@ export default function AdminEventsPage() {
             </tr>
           </thead>
           <tbody className="divide-y divide-border">
-            {events.map((e) => (
-              <tr key={e.id}>
+            {events.length === 0 && !isLoading && (
+              <tr>
+                <td colSpan={4} className="p-8 text-center text-muted-foreground">
+                  No events found.
+                </td>
+              </tr>
+            )}
+            {paginatedEvents.map((e) => (
+              <tr key={e.id} className="hover:bg-secondary/20 transition-colors">
                 <td className="p-4 font-bold">{e.title}</td>
                 <td className="p-4">{formatDate(e.startTime)}</td>
                 <td className="p-4">{e.location}</td>
@@ -125,6 +137,13 @@ export default function AdminEventsPage() {
             ))}
           </tbody>
         </table>
+
+        <Pagination
+          currentPage={page}
+          totalItems={totalEvents}
+          pageSize={pageSize}
+          onPageChange={setPage}
+        />
       </div>
 
       {open && (

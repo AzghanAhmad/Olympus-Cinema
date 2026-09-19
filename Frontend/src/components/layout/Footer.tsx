@@ -141,8 +141,12 @@ export function Footer() {
         <div className="mt-12 pt-8 border-t border-zinc-900 flex flex-col md:flex-row items-center justify-between text-xs text-zinc-500 gap-4">
           <p>© {new Date().getFullYear()} Crystal Entertainment. All rights reserved.</p>
           <div className="flex space-x-6">
-            <a href="#" className="hover:text-zinc-400 transition-colors">Privacy Policy</a>
-            <a href="#" className="hover:text-zinc-400 transition-colors">Terms of Service</a>
+            <Link href="/privacy-policy" className="hover:text-primary transition-colors font-medium">
+              Privacy Policy
+            </Link>
+            <Link href="/terms" className="hover:text-primary transition-colors font-medium">
+              Terms & Conditions
+            </Link>
           </div>
         </div>
       </div>

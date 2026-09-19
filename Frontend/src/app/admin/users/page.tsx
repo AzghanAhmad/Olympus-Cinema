@@ -8,10 +8,15 @@ import { toast } from '@/store/useToastStore';
 import { adminApi } from '@/services/adminApi';
 import { formatDate } from '@/lib/utils';
 
+import { Pagination } from '@/components/ui/Pagination';
+
 export default function AdminUsersPage() {
   const qc = useQueryClient();
   const searchParams = useSearchParams();
   const [search, setSearch] = useState('');
+  const [page, setPage] = useState(1);
+  const pageSize = 10;
+
   const { data, isLoading, error } = useQuery({
     queryKey: ['admin', 'users', search],
     queryFn: () => adminApi.users.list(search || undefined),
@@ -21,7 +26,11 @@ export default function AdminUsersPage() {
   useEffect(() => {
     const q = searchParams.get('q') || '';
     setSearch(q);
+    setPage(1);
   }, [searchParams]);
+
+  const totalUsers = users.length;
+  const paginatedUsers = users.slice((page - 1) * pageSize, page * pageSize);
 
   const statusMutation = useMutation({
     mutationFn: ({ id, status }: { id: string; status: string }) =>
@@ -43,7 +52,10 @@ export default function AdminUsersPage() {
         <Search className="absolute left-3 top-3 w-4 h-4 text-muted-foreground" />
         <input
           value={search}
-          onChange={(e) => setSearch(e.target.value)}
+          onChange={(e) => {
+            setSearch(e.target.value);
+            setPage(1);
+          }}
           placeholder="Search name or email..."
           className="w-full pl-9 pr-4 py-2 bg-card text-xs rounded-xl border border-border"
         />
@@ -51,7 +63,7 @@ export default function AdminUsersPage() {
       {isLoading && <p className="text-sm text-muted-foreground">Loading…</p>}
       {error && <p className="text-sm text-rose-500">{(error as Error).message}</p>}
 
-      <div className="bg-card border border-border rounded-2xl overflow-hidden">
+      <div className="bg-card border border-border rounded-2xl overflow-hidden shadow-sm">
         <table className="w-full text-left text-xs">
           <thead>
             <tr className="border-b border-border bg-secondary/40 text-[11px] uppercase font-bold text-muted-foreground">
@@ -63,8 +75,15 @@ export default function AdminUsersPage() {
             </tr>
           </thead>
           <tbody className="divide-y divide-border">
-            {users.map((usr) => (
-              <tr key={usr.id}>
+            {users.length === 0 && !isLoading && (
+              <tr>
+                <td colSpan={5} className="p-8 text-center text-muted-foreground">
+                  No users found.
+                </td>
+              </tr>
+            )}
+            {paginatedUsers.map((usr) => (
+              <tr key={usr.id} className="hover:bg-secondary/20 transition-colors">
                 <td className="p-4">
                   <strong className="block">{usr.firstName} {usr.lastName}</strong>
                   <span className="text-[10px] text-muted-foreground">{usr.email}</span>
@@ -87,6 +106,13 @@ export default function AdminUsersPage() {
             ))}
           </tbody>
         </table>
+
+        <Pagination
+          currentPage={page}
+          totalItems={totalUsers}
+          pageSize={pageSize}
+          onPageChange={setPage}
+        />
       </div>
     </div>
   );

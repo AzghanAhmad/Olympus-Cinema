@@ -8,10 +8,15 @@ import { toast } from '@/store/useToastStore';
 import { adminApi } from '@/services/adminApi';
 import { formatDate } from '@/lib/utils';
 
+import { Pagination } from '@/components/ui/Pagination';
+
 export default function AdminBookingsPage() {
   const qc = useQueryClient();
   const searchParams = useSearchParams();
   const [search, setSearch] = useState('');
+  const [page, setPage] = useState(1);
+  const pageSize = 10;
+
   const { data, isLoading, error } = useQuery({
     queryKey: ['admin', 'bookings', search],
     queryFn: () => adminApi.bookings.list(search || undefined),
@@ -21,7 +26,11 @@ export default function AdminBookingsPage() {
   useEffect(() => {
     const q = searchParams.get('q') || '';
     setSearch(q);
+    setPage(1);
   }, [searchParams]);
+
+  const totalBookings = bookings.length;
+  const paginatedBookings = bookings.slice((page - 1) * pageSize, page * pageSize);
 
   const confirmMutation = useMutation({
     mutationFn: (id: string) => adminApi.bookings.confirm(id),
@@ -51,7 +60,10 @@ export default function AdminBookingsPage() {
         <Search className="absolute left-3 top-3 w-4 h-4 text-muted-foreground" />
         <input
           value={search}
-          onChange={(e) => setSearch(e.target.value)}
+          onChange={(e) => {
+            setSearch(e.target.value);
+            setPage(1);
+          }}
           placeholder="Search code or email..."
           className="w-full pl-9 pr-4 py-2 bg-card text-xs rounded-xl border border-border"
         />
@@ -59,7 +71,7 @@ export default function AdminBookingsPage() {
       {isLoading && <p className="text-sm text-muted-foreground">Loading…</p>}
       {error && <p className="text-sm text-rose-500">{(error as Error).message}</p>}
 
-      <div className="bg-card border border-border rounded-2xl overflow-hidden">
+      <div className="bg-card border border-border rounded-2xl overflow-hidden shadow-sm">
         <table className="w-full text-left text-xs">
           <thead>
             <tr className="border-b border-border bg-secondary/40 text-[11px] uppercase font-bold text-muted-foreground">
@@ -81,8 +93,8 @@ export default function AdminBookingsPage() {
                 </td>
               </tr>
             )}
-            {bookings.map((bk) => (
-              <tr key={bk.id}>
+            {paginatedBookings.map((bk) => (
+              <tr key={bk.id} className="hover:bg-secondary/20 transition-colors">
                 <td className="p-4 font-mono font-bold text-primary">{bk.bookingCode}</td>
                 <td className="p-4 font-semibold">{bk.customerName}</td>
                 <td className="p-4">{bk.customerEmail || '—'}</td>
@@ -129,6 +141,13 @@ export default function AdminBookingsPage() {
             ))}
           </tbody>
         </table>
+
+        <Pagination
+          currentPage={page}
+          totalItems={totalBookings}
+          pageSize={pageSize}
+          onPageChange={setPage}
+        />
       </div>
     </div>
   );

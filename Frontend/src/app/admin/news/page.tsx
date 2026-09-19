@@ -5,6 +5,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { Plus, Edit2, Trash2, X } from 'lucide-react';
 import { toast } from '@/store/useToastStore';
 import { adminApi, AdminNews } from '@/services/adminApi';
+import { Pagination } from '@/components/ui/Pagination';
 
 export default function AdminNewsPage() {
   const qc = useQueryClient();
@@ -13,6 +14,11 @@ export default function AdminNewsPage() {
     queryFn: () => adminApi.news.list(),
   });
   const news = data?.data ?? [];
+  const [page, setPage] = useState(1);
+  const pageSize = 10;
+  const totalNews = news.length;
+  const paginatedNews = news.slice((page - 1) * pageSize, page * pageSize);
+
   const [open, setOpen] = useState(false);
   const [editing, setEditing] = useState<AdminNews | null>(null);
   const [title, setTitle] = useState('');
@@ -59,15 +65,15 @@ export default function AdminNewsPage() {
             setStatus('PUBLISHED');
             setOpen(true);
           }}
-          className="flex items-center gap-2 px-4 py-2 bg-primary text-white text-xs font-bold rounded-xl"
+          className="flex items-center gap-2 px-4 py-2.5 bg-primary text-white text-xs font-bold rounded-xl"
         >
-          <Plus className="w-4 h-4" /> Publish
+          <Plus className="w-4 h-4" /> New article
         </button>
       </div>
       {isLoading && <p className="text-sm text-muted-foreground">Loading…</p>}
       {error && <p className="text-sm text-rose-500">{(error as Error).message}</p>}
 
-      <div className="bg-card border border-border rounded-2xl overflow-hidden">
+      <div className="bg-card border border-border rounded-2xl overflow-hidden shadow-sm">
         <table className="w-full text-left text-xs">
           <thead>
             <tr className="border-b border-border bg-secondary/40 text-[11px] uppercase font-bold text-muted-foreground">
@@ -77,8 +83,15 @@ export default function AdminNewsPage() {
             </tr>
           </thead>
           <tbody className="divide-y divide-border">
-            {news.map((n) => (
-              <tr key={n.id}>
+            {news.length === 0 && !isLoading && (
+              <tr>
+                <td colSpan={3} className="p-8 text-center text-muted-foreground">
+                  No articles published yet.
+                </td>
+              </tr>
+            )}
+            {paginatedNews.map((n) => (
+              <tr key={n.id} className="hover:bg-secondary/20 transition-colors">
                 <td className="p-4 font-bold">{n.title}</td>
                 <td className="p-4">{n.status}</td>
                 <td className="p-4 text-right space-x-2">
@@ -108,6 +121,13 @@ export default function AdminNewsPage() {
             ))}
           </tbody>
         </table>
+
+        <Pagination
+          currentPage={page}
+          totalItems={totalNews}
+          pageSize={pageSize}
+          onPageChange={setPage}
+        />
       </div>
 
       {open && (
