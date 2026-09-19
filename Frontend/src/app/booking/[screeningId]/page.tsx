@@ -242,8 +242,8 @@ export default function BookingPage() {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           <div className="lg:col-span-2 space-y-6">
             {step === 1 && (
-              <div className="p-6 bg-card border border-border rounded-3xl space-y-6">
-                <div className="flex items-center justify-between border-b border-border pb-4 gap-3">
+              <div className="p-4 sm:p-6 bg-card border border-border rounded-3xl space-y-6">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between border-b border-border pb-4 gap-2">
                   <div>
                     <h2 className="text-xl font-extrabold">Select Your Seats</h2>
                     <p className="text-xs text-muted-foreground">
@@ -259,11 +259,11 @@ export default function BookingPage() {
                 )}
                 <CinemaSeatMap seats={seats} aisleAfterByRow={aisleMap} />
 
-                <div className="flex justify-end pt-4 border-t border-border">
+                <div className="flex flex-col sm:flex-row justify-end pt-4 border-t border-border">
                   <button
                     disabled={selectedSeats.length === 0}
                     onClick={() => setStep(2)}
-                    className="flex items-center gap-2 px-8 py-3 bg-primary text-primary-foreground font-bold text-sm rounded-xl shadow-lg shadow-primary/30 hover:bg-primary/90 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+                    className="w-full sm:w-auto flex items-center justify-center gap-2 px-8 py-3.5 bg-primary text-primary-foreground font-bold text-sm rounded-xl shadow-lg shadow-primary/30 hover:bg-primary/90 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
                   >
                     <span>Continue ({selectedSeats.length} seats)</span>
                     <ArrowRight className="w-4 h-4" />
@@ -273,8 +273,8 @@ export default function BookingPage() {
             )}
 
             {step === 2 && (
-              <div className="p-8 bg-card border border-border rounded-3xl space-y-6">
-                <div className="flex items-center justify-between border-b border-border pb-4">
+              <div className="p-4 sm:p-8 bg-card border border-border rounded-3xl space-y-6">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between border-b border-border pb-4 gap-2">
                   <div>
                     <h2 className="text-xl font-extrabold">Guest Details & Verification</h2>
                     <p className="text-xs text-muted-foreground">
@@ -283,7 +283,7 @@ export default function BookingPage() {
                   </div>
                   <button
                     onClick={() => setStep(1)}
-                    className="text-xs font-bold text-primary hover:underline flex items-center gap-1"
+                    className="text-xs font-bold text-primary hover:underline flex items-center gap-1 self-start sm:self-auto"
                   >
                     <ArrowLeft className="w-3.5 h-3.5" /> Back to Seats
                   </button>
@@ -301,7 +301,7 @@ export default function BookingPage() {
 
                   <div className="space-y-2">
                     <label className="block text-xs font-semibold mb-1">Email Address</label>
-                    <div className="flex gap-2">
+                    <div className="flex flex-col sm:flex-row gap-2">
                       <input
                         {...register('email')}
                         type="email"
@@ -319,7 +319,7 @@ export default function BookingPage() {
                           void sendEmailCode(email);
                         }}
                         disabled={otpSending}
-                        className="px-3 py-2 bg-secondary border border-border rounded-xl text-xs font-bold shrink-0 disabled:opacity-50"
+                        className="w-full sm:w-auto px-4 py-2.5 bg-secondary border border-border rounded-xl text-xs font-bold shrink-0 disabled:opacity-50"
                       >
                         Send code
                       </button>
@@ -327,7 +327,7 @@ export default function BookingPage() {
                     {errors.email && <p className="text-xs text-primary mt-1">{errors.email.message}</p>}
                     {emailCodeSent && !emailVerified && (
                       <div className="space-y-2 pt-1">
-                        <div className="flex gap-2">
+                        <div className="flex flex-col sm:flex-row gap-2">
                           <input
                             value={emailOtp}
                             onChange={(e) => setEmailOtp(e.target.value)}
@@ -337,7 +337,7 @@ export default function BookingPage() {
                           <button
                             type="button"
                             onClick={() => void verifyEmailCode(emailOtp)}
-                            className="px-4 py-2 bg-primary text-primary-foreground rounded-xl text-xs font-bold shadow hover:bg-primary/90 transition-all shrink-0"
+                            className="w-full sm:w-auto px-4 py-2 bg-primary text-primary-foreground rounded-xl text-xs font-bold shadow hover:bg-primary/90 transition-all shrink-0"
                           >
                             Verify email
                           </button>
@@ -368,17 +368,17 @@ export default function BookingPage() {
                     A 6-digit verification code will be sent to your email to verify your reservation.
                   </p>
 
-                  <div className="pt-4 flex justify-between">
+                  <div className="pt-4 flex flex-col-reverse sm:flex-row items-stretch sm:items-center justify-between gap-3">
                     <button
                       type="button"
                       onClick={() => setStep(1)}
-                      className="px-5 py-2.5 bg-secondary text-secondary-foreground font-semibold rounded-xl text-xs"
+                      className="w-full sm:w-auto px-5 py-3 bg-secondary text-secondary-foreground font-semibold rounded-xl text-xs text-center"
                     >
                       Back
                     </button>
                     <button
                       type="submit"
-                      className="flex items-center gap-2 px-8 py-3 bg-primary text-primary-foreground font-bold text-sm rounded-xl shadow-lg shadow-primary/30 hover:bg-primary/90 transition-all"
+                      className="w-full sm:w-auto flex items-center justify-center gap-2 px-6 sm:px-8 py-3.5 bg-primary text-primary-foreground font-bold text-sm rounded-xl shadow-lg shadow-primary/30 hover:bg-primary/90 transition-all"
                     >
                       <span>Review Reservation</span>
                       <ArrowRight className="w-4 h-4" />
@@ -389,7 +389,7 @@ export default function BookingPage() {
             )}
 
             {step === 3 && (
-              <div className="p-8 bg-card border border-border rounded-3xl space-y-6">
+              <div className="p-4 sm:p-8 bg-card border border-border rounded-3xl space-y-6">
                 <div className="border-b border-border pb-4">
                   <h2 className="text-xl font-extrabold">Confirm Reservation</h2>
                   <p className="text-xs text-muted-foreground">
@@ -426,17 +426,17 @@ export default function BookingPage() {
                   </div>
                 </div>
 
-                <div className="pt-4 flex justify-between items-center">
+                <div className="pt-4 flex flex-col-reverse sm:flex-row items-stretch sm:items-center justify-between gap-3">
                   <button
                     onClick={() => setStep(2)}
-                    className="px-5 py-2.5 bg-secondary text-secondary-foreground font-semibold rounded-xl text-xs"
+                    className="w-full sm:w-auto px-5 py-3 bg-secondary text-secondary-foreground font-semibold rounded-xl text-xs text-center"
                   >
                     Edit Info
                   </button>
 
                   <button
                     onClick={handleConfirmBooking}
-                    className="flex items-center gap-2 px-8 py-3.5 bg-primary text-primary-foreground font-black text-sm rounded-xl shadow-xl shadow-primary/40 hover:bg-primary/90 hover:scale-[1.02] transition-all"
+                    className="w-full sm:w-auto flex items-center justify-center gap-2 px-6 sm:px-8 py-3.5 bg-primary text-primary-foreground font-black text-sm rounded-xl shadow-xl shadow-primary/40 hover:bg-primary/90 hover:scale-[1.02] transition-all"
                   >
                     <ShieldCheck className="w-5 h-5" />
                     Submit Reservation
