@@ -6,6 +6,8 @@ export const adminApi = {
   movies: {
     list: (search?: string) =>
       apiFetch<ApiPaginated<AdminMovie>>(`/admin/movies${qs({ search, limit: 50 })}`),
+    get: (id: string) =>
+      apiFetch<ApiSuccess<AdminMovie>>(`/admin/movies/${id}`),
     create: (body: Record<string, unknown>) =>
       apiFetch<ApiSuccess<AdminMovie>>('/admin/movies', {
         method: 'POST',
@@ -188,6 +190,9 @@ export interface AdminMovie {
   status: string;
   isFeatured: boolean;
   genres?: Array<{ id: string; name: string }>;
+  cast?: Array<{ id?: string; name: string; characterName: string; imageUrl?: string | null; displayOrder?: number }>;
+  crew?: Array<{ id?: string; name: string; role: string; imageUrl?: string | null; displayOrder?: number }>;
+  gallery?: Array<{ id?: string; imageUrl: string; altText?: string | null; displayOrder?: number }>;
 }
 
 export interface AdminScreening {

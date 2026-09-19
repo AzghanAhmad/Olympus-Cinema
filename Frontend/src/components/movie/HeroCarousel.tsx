@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { Movie } from '@/types/movie';
-import { Play, Ticket, ChevronLeft, ChevronRight, Star, Clock } from 'lucide-react';
+import { Play, Ticket, ChevronLeft, ChevronRight, Clock } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { AnimatedButton } from '@/components/motion/AnimatedButton';
 import { toast } from '@/store/useToastStore';
@@ -82,10 +82,6 @@ export function HeroCarousel({ movies, onWatchTrailer }: HeroCarouselProps) {
               <span className="px-2.5 py-0.5 bg-white/20 backdrop-blur-md rounded text-white border border-white/20">
                 {current.ageRating}
               </span>
-              <div className="flex items-center gap-1 text-amber-400">
-                <Star className="w-4 h-4 fill-amber-400" />
-                <span className="font-bold">{current.rating}</span>
-              </div>
               <div className="flex items-center gap-1 text-zinc-300">
                 <Clock className="w-3.5 h-3.5" />
                 <span>{current.durationMinutes} mins</span>

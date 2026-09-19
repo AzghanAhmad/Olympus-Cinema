@@ -155,7 +155,6 @@ export default function AdminMoviesPage() {
               <th className="p-4">Movie</th>
               <th className="p-4">Status</th>
               <th className="p-4">Language</th>
-              <th className="p-4">Rating</th>
               <th className="p-4 text-right">Actions</th>
             </tr>
           </thead>
@@ -179,7 +178,6 @@ export default function AdminMoviesPage() {
                 </td>
                 <td className="p-4 font-bold">{movie.status}</td>
                 <td className="p-4 text-muted-foreground">{movie.language}</td>
-                <td className="p-4 text-amber-400 font-bold">★ {movie.rating}</td>
                 <td className="p-4 text-right space-x-2">
                   <button onClick={() => openEdit(movie)} className="p-1.5 text-primary">
                     <Edit2 className="w-4 h-4" />

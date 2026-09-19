@@ -10,7 +10,7 @@ import { movieService } from '@/services/movieService';
 import { screeningService } from '@/services/screeningService';
 import { Movie } from '@/types/movie';
 import { Screening } from '@/types/screening';
-import { Play, Ticket, Star, Clock, User, Image as ImageIcon } from 'lucide-react';
+import { Play, Ticket, Clock, User, Image as ImageIcon } from 'lucide-react';
 import { formatDate } from '@/lib/utils';
 import { useSiteSettingsStore } from '@/store/useSiteSettingsStore';
 
@@ -89,10 +89,6 @@ export default function MovieDetailsPage() {
                   {movie.status === 'NOW_SHOWING' ? 'Now Showing' : 'Coming Soon'}
                 </span>
                 <span className="px-2.5 py-0.5 bg-white/20 backdrop-blur-md rounded font-bold">{movie.ageRating}</span>
-                <div className="flex items-center gap-1 text-amber-400 font-bold">
-                  <Star className="w-4 h-4 fill-amber-400" />
-                  <span>{movie.rating} / 10</span>
-                </div>
                 <div className="flex items-center gap-1 text-zinc-300">
                   <Clock className="w-3.5 h-3.5" />
                   <span>{movie.durationMinutes} minutes</span>

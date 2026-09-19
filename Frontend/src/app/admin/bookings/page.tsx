@@ -113,12 +113,14 @@ export default function AdminBookingsPage() {
                     {bk.status !== 'CANCELLED' && bk.status !== 'EXPIRED' && (
                       <button
                         onClick={() => {
-                          if (confirm('Cancel this booking?')) cancelMutation.mutate(bk.id);
+                          if (confirm(`Cancel booking ${bk.bookingCode} for ${bk.customerName}? This will free up reserved seats.`)) {
+                            cancelMutation.mutate(bk.id);
+                          }
                         }}
                         disabled={cancelMutation.isPending}
-                        className="px-3 py-1.5 bg-secondary text-[11px] font-bold rounded-lg disabled:opacity-50"
+                        className="px-3 py-1.5 bg-rose-500/10 hover:bg-rose-500/20 text-rose-500 border border-rose-500/20 text-[11px] font-bold rounded-lg disabled:opacity-50 transition-colors"
                       >
-                        Cancel
+                        Cancel Booking
                       </button>
                     )}
                   </div>

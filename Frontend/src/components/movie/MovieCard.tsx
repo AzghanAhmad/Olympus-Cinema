@@ -4,7 +4,7 @@ import React from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { Movie } from '@/types/movie';
-import { Star, Clock, Ticket, Play } from 'lucide-react';
+import { Clock, Ticket, Play } from 'lucide-react';
 import { motion } from 'framer-motion';
 
 interface MovieCardProps {
@@ -59,11 +59,6 @@ export function MovieCard({ movie, onWatchTrailer }: MovieCardProps) {
         </div>
 
         {/* Badges */}
-        <div className="absolute top-3 left-3 bg-black/75 backdrop-blur-md text-amber-400 px-2.5 py-1 rounded-lg text-xs font-bold flex items-center gap-1 border border-white/10">
-          <Star className="w-3.5 h-3.5 fill-amber-400" />
-          <span>{movie.rating}</span>
-        </div>
-
         <div className="absolute top-3 right-3 bg-zinc-900/80 backdrop-blur-md text-zinc-200 px-2 py-0.5 rounded text-[10px] font-bold border border-white/10">
           {movie.ageRating}
         </div>

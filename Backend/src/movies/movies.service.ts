@@ -222,7 +222,7 @@ export class MoviesService {
     const existing = await this.prisma.movie.findUnique({ where: { id } });
     if (!existing) throw new NotFoundException('Movie not found');
 
-    const { genreIds, cast, crew, gallery, slug, releaseDate, ...data } = dto;
+    const { genreIds, genres, cast, crew, gallery, slug, releaseDate, ...data } = dto;
     const resolvedSlug =
       slug || dto.title
         ? await this.resolveUniqueSlug(dto.title ?? existing.title, slug ?? existing.slug, id)
@@ -238,7 +238,27 @@ export class MoviesService {
         },
       });
 
-      if (genreIds !== undefined) {
+      if (genres !== undefined) {
+        // Resolve or create genres by name
+        const resolvedGenreIds: string[] = [];
+        for (const name of genres.filter(Boolean)) {
+          const trimmed = name.trim();
+          if (!trimmed) continue;
+          const slug = trimmed.toLowerCase().replace(/\s+/g, '-');
+          const g = await tx.genre.upsert({
+            where: { slug },
+            update: { name: trimmed },
+            create: { name: trimmed, slug },
+          });
+          resolvedGenreIds.push(g.id);
+        }
+        await tx.movieGenre.deleteMany({ where: { movieId: id } });
+        if (resolvedGenreIds.length) {
+          await tx.movieGenre.createMany({
+            data: resolvedGenreIds.map((genreId) => ({ movieId: id, genreId })),
+          });
+        }
+      } else if (genreIds !== undefined) {
         await tx.movieGenre.deleteMany({ where: { movieId: id } });
         if (genreIds.length) {
           await tx.movieGenre.createMany({

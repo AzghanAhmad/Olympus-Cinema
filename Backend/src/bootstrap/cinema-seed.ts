@@ -34,16 +34,16 @@ const ROW_LAYOUT: Record<string, { left: number; right: number }> = {
 };
 
 const MAJNOON = {
-  title: 'Majnoon',
+  title: 'Majunoon',
   slug: 'majnoon',
-  tagline: 'Brotherhood, faith, and sacrifice on Majnoon Island.',
+  tagline: 'Love can save you or destroy you',
   synopsis:
-    'Directed by Mehdi Shamohammadi, Majnoon centers on the courageous actions of Mehdi Zeinoddin during the Iran–Iraq war, particularly on Majnoon Island during the Khaybar operation. Presented by Crystal Entertainment.',
-  durationMinutes: 101,
-  language: 'Persian (English Subtitles)',
-  releaseDate: new Date('2024-02-01'),
-  ageRating: 'PG-13',
-  rating: 8.2,
+    'Fifteen years after a tragic incident shattered two young lives, Laana returns the the life where ghosts of her past still linger. There, she comes face to face with Aayan—a man who never stopped loving her.\n\nOnce gentle and full of promise, Aayan has spent years haunted by childhood trauma, wrongful imprisonment, and devastating loss. Unable to escape his painful memories, he retreats into a fractured reality where love and obsession become impossible to separate. In his mind, Laana is no longer just the woman he lost—she is the only thing keeping him alive.',
+  durationMinutes: 175,
+  language: 'Dhivehi',
+  releaseDate: new Date('2026-10-26T00:00:00.000Z'),
+  ageRating: '18+',
+  rating: 0,
   posterUrl: '/images/majnoon-poster.jpg',
   backdropUrl: '/images/majnoon-backdrop.jpg',
   trailerUrl: 'https://www.youtube.com/embed/sWE0jjKHQXo',
@@ -54,11 +54,11 @@ const MAJNOON = {
 /** Safe to re-run on Railway. Fills missing cinema catalog without wiping admin edits. */
 export async function seedCinemaCatalog(prisma: PrismaClient): Promise<void> {
   const genres = await Promise.all(
-    ['War', 'Drama', 'Biography', 'Action'].map((name) =>
+    ['Romance Thriller', 'Romance', 'Thriller', 'Drama'].map((name) =>
       prisma.genre.upsert({
-        where: { slug: name.toLowerCase() },
+        where: { slug: name.toLowerCase().replace(/\s+/g, '-') },
         update: { name },
-        create: { name, slug: name.toLowerCase() },
+        create: { name, slug: name.toLowerCase().replace(/\s+/g, '-') },
       }),
     ),
   );
@@ -83,35 +83,35 @@ export async function seedCinemaCatalog(prisma: PrismaClient): Promise<void> {
     create: MAJNOON,
   });
 
-  for (const genre of genres.slice(0, 3)) {
-    await prisma.movieGenre.upsert({
-      where: { movieId_genreId: { movieId: movie.id, genreId: genre.id } },
-      update: {},
-      create: { movieId: movie.id, genreId: genre.id },
-    });
-  }
+  await prisma.movieGenre.deleteMany({ where: { movieId: movie.id } });
+  await prisma.movieGenre.createMany({
+    data: [
+      { movieId: movie.id, genreId: genres[0].id },
+    ],
+  });
 
-  const castCount = await prisma.castMember.count({ where: { movieId: movie.id } });
-  if (castCount === 0) {
-    await prisma.castMember.createMany({
-      data: [
-        { movieId: movie.id, name: 'Sajjad Babaei', characterName: 'Mehdi Zeinoddin', displayOrder: 1 },
-        { movieId: movie.id, name: 'Shabnam Ghorbani', characterName: 'Monireh Armaghan', displayOrder: 2 },
-        { movieId: movie.id, name: 'Behzad Khalaj', characterName: 'Majid Zeinoddin', displayOrder: 3 },
-      ],
-    });
-  }
+  await prisma.castMember.deleteMany({ where: { movieId: movie.id } });
+  await prisma.castMember.createMany({
+    data: [
+      { movieId: movie.id, name: 'AHMED SHARIF', characterName: 'Lead Cast', displayOrder: 1 },
+      { movieId: movie.id, name: 'MARIYAM SHIFA', characterName: 'Lead Cast', displayOrder: 2 },
+      { movieId: movie.id, name: 'AHMED EASA', characterName: 'Cast', displayOrder: 3 },
+      { movieId: movie.id, name: 'WASHIYA MOHAMED', characterName: 'Cast', displayOrder: 4 },
+      { movieId: movie.id, name: 'AYESHA LAYALI SINAN', characterName: 'Cast', displayOrder: 5 },
+      { movieId: movie.id, name: 'EVELIN LIVY FIRASH', characterName: 'Cast', displayOrder: 6 },
+      { movieId: movie.id, name: 'SAAMEE HUSSAIN DIDI', characterName: 'Cast', displayOrder: 7 },
+      { movieId: movie.id, name: 'ALI AZIM', characterName: 'Cast', displayOrder: 8 },
+    ],
+  });
 
-  const crewCount = await prisma.crewMember.count({ where: { movieId: movie.id } });
-  if (crewCount === 0) {
-    await prisma.crewMember.createMany({
-      data: [
-        { movieId: movie.id, name: 'Mehdi Shamohammadi', role: 'Director', displayOrder: 1 },
-        { movieId: movie.id, name: 'Alireza Mohsooli', role: 'Writer', displayOrder: 2 },
-        { movieId: movie.id, name: 'Crystal Entertainment', role: 'Presented By', displayOrder: 3 },
-      ],
-    });
-  }
+  await prisma.crewMember.deleteMany({ where: { movieId: movie.id } });
+  await prisma.crewMember.createMany({
+    data: [
+      { movieId: movie.id, name: 'Mohamed Faisal', role: 'Director', displayOrder: 1 },
+      { movieId: movie.id, name: 'Fathimath Nahula', role: 'Writer', displayOrder: 2 },
+      { movieId: movie.id, name: 'Crystal Entertainment', role: 'Presented By', displayOrder: 3 },
+    ],
+  });
 
   const screen = await prisma.screen.upsert({
     where: { slug: 'crystal-entertainment' },

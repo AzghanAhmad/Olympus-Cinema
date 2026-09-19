@@ -32,11 +32,20 @@ export default function AdminSettingsPage() {
   const [maxTickets, setMaxTickets] = useState('15');
   const [seatHold, setSeatHold] = useState('10');
 
-  // Movie form states (selected movie to configure name, synopsis, images)
+  // Movie form states (selected movie to configure name, synopsis, images, genres, cast, crew, etc.)
   const [selectedMovieId, setSelectedMovieId] = useState<string>('');
   const [movieTitle, setMovieTitle] = useState('');
   const [movieTagline, setMovieTagline] = useState('');
   const [movieSynopsis, setMovieSynopsis] = useState('');
+  const [movieGenre, setMovieGenre] = useState('');
+  const [movieCast, setMovieCast] = useState('');
+  const [movieDirector, setMovieDirector] = useState('');
+  const [movieWriter, setMovieWriter] = useState('');
+  const [moviePresentedBy, setMoviePresentedBy] = useState('');
+  const [movieDuration, setMovieDuration] = useState('175');
+  const [movieLanguage, setMovieLanguage] = useState('Dhivehi');
+  const [movieAgeRating, setMovieAgeRating] = useState('18+');
+  const [movieReleaseDate, setMovieReleaseDate] = useState('2026-10-26');
   const [moviePosterUrl, setMoviePosterUrl] = useState('');
   const [movieBackdropUrl, setMovieBackdropUrl] = useState('');
   const [movieTrailerUrl, setMovieTrailerUrl] = useState('');
@@ -72,17 +81,57 @@ export default function AdminSettingsPage() {
     }
   }, [movies, selectedMovieId]);
 
-  // Populate movie inputs when selectedMovieId changes
+  // Populate movie inputs when selectedMovieId changes (fetch full movie details)
   useEffect(() => {
     if (!selectedMovieId) return;
-    const target = movies.find((m) => m.id === selectedMovieId);
-    if (!target) return;
-    setMovieTitle(target.title || '');
-    setMovieTagline(target.tagline || '');
-    setMovieSynopsis(target.synopsis || '');
-    setMoviePosterUrl(target.posterUrl || '');
-    setMovieBackdropUrl(target.backdropUrl || '');
-    setMovieTrailerUrl(target.trailerUrl || '');
+    adminApi.movies.get(selectedMovieId).then((res) => {
+      const target = res.data;
+      if (!target) return;
+      setMovieTitle(target.title || '');
+      setMovieTagline(target.tagline || '');
+      setMovieSynopsis(target.synopsis || '');
+      setMoviePosterUrl(target.posterUrl || '');
+      setMovieBackdropUrl(target.backdropUrl || '');
+      setMovieTrailerUrl(target.trailerUrl || '');
+      setMovieDuration(String(target.durationMinutes ?? 175));
+      setMovieLanguage(target.language || 'Dhivehi');
+      setMovieAgeRating(target.ageRating || '18+');
+      setMovieReleaseDate(target.releaseDate ? target.releaseDate.slice(0, 10) : '2026-10-26');
+
+      const genreNames = target.genres?.map((g) => g.name).join(', ') || '';
+      setMovieGenre(genreNames);
+
+      const castNames = target.cast?.map((c) => c.name).join('\n') || '';
+      setMovieCast(castNames);
+
+      const dir = target.crew?.find((cr) => cr.role.toLowerCase() === 'director')?.name || '';
+      const wr = target.crew?.find((cr) => cr.role.toLowerCase() === 'writer')?.name || '';
+      const pres = target.crew?.find((cr) => cr.role.toLowerCase().includes('present'))?.name || '';
+      setMovieDirector(dir);
+      setMovieWriter(wr);
+      setMoviePresentedBy(pres);
+
+      if (target.gallery && target.gallery.length > 0) {
+        setGalleryUrls(target.gallery.map((g) => g.imageUrl));
+      }
+    }).catch(() => {
+      // Fallback to list object if get fails
+      const target = movies.find((m) => m.id === selectedMovieId);
+      if (!target) return;
+      setMovieTitle(target.title || '');
+      setMovieTagline(target.tagline || '');
+      setMovieSynopsis(target.synopsis || '');
+      setMoviePosterUrl(target.posterUrl || '');
+      setMovieBackdropUrl(target.backdropUrl || '');
+      setMovieTrailerUrl(target.trailerUrl || '');
+      setMovieDuration(String(target.durationMinutes ?? 175));
+      setMovieLanguage(target.language || 'Dhivehi');
+      setMovieAgeRating(target.ageRating || '18+');
+      setMovieReleaseDate(target.releaseDate ? target.releaseDate.slice(0, 10) : '2026-10-26');
+      if (target.genres) {
+        setMovieGenre(target.genres.map((g) => g.name).join(', '));
+      }
+    });
   }, [selectedMovieId, movies]);
 
   // Mutation to save settings
@@ -108,22 +157,56 @@ export default function AdminSettingsPage() {
   const saveMovieMutation = useMutation({
     mutationFn: async () => {
       if (!selectedMovieId) return;
-      const target = movies.find((m) => m.id === selectedMovieId);
-      if (!target) return;
 
       const galleryPayload = galleryUrls.map((url, i) => ({
         imageUrl: url,
         displayOrder: i,
       }));
 
+      // Parse genres
+      const parsedGenres = movieGenre
+        .split(',')
+        .map((s) => s.trim())
+        .filter(Boolean);
+
+      // Parse cast (each line or comma separated)
+      const parsedCast = movieCast
+        .split(/[\n,]+/)
+        .map((s) => s.trim())
+        .filter(Boolean)
+        .map((name, i) => ({
+          name,
+          characterName: i < 2 ? 'Lead Cast' : 'Cast',
+          displayOrder: i + 1,
+        }));
+
+      // Parse crew
+      const parsedCrew: Array<{ name: string; role: string; displayOrder: number }> = [];
+      if (movieDirector.trim()) {
+        parsedCrew.push({ name: movieDirector.trim(), role: 'Director', displayOrder: 1 });
+      }
+      if (movieWriter.trim()) {
+        parsedCrew.push({ name: movieWriter.trim(), role: 'Writer', displayOrder: 2 });
+      }
+      if (moviePresentedBy.trim()) {
+        parsedCrew.push({ name: moviePresentedBy.trim(), role: 'Presented By', displayOrder: 3 });
+      }
+
       await adminApi.movies.update(selectedMovieId, {
         title: movieTitle,
         tagline: movieTagline,
         synopsis: movieSynopsis,
+        durationMinutes: Number(movieDuration) || 175,
+        language: movieLanguage,
+        ageRating: movieAgeRating,
+        releaseDate: new Date(movieReleaseDate).toISOString(),
         posterUrl: moviePosterUrl,
         backdropUrl: movieBackdropUrl,
         trailerUrl: movieTrailerUrl || undefined,
-        ...(galleryPayload.length > 0 ? { gallery: galleryPayload } : {}),
+        genres: parsedGenres,
+        cast: parsedCast,
+        crew: parsedCrew,
+        gallery: galleryPayload,
       });
     },
     onSuccess: () => {
@@ -246,6 +329,78 @@ export default function AdminSettingsPage() {
                 className="w-full py-2.5 px-3 bg-secondary text-sm rounded-xl border border-border resize-none"
               />
             </div>
+
+            <div className="sm:col-span-2">
+              <Field
+                label="Genre (comma-separated, e.g. Romance Thriller, Drama)"
+                value={movieGenre}
+                onChange={setMovieGenre}
+                placeholder="Romance Thriller"
+              />
+            </div>
+
+            <div className="sm:col-span-2">
+              <label className="block text-xs font-semibold mb-1">
+                Casting / Actors (one actor name per line)
+              </label>
+              <textarea
+                rows={4}
+                value={movieCast}
+                onChange={(e) => setMovieCast(e.target.value)}
+                placeholder="AHMED SHARIF&#10;MARIYAM SHIFA&#10;AHMED EASA&#10;WASHIYA MOHAMED&#10;..."
+                className="w-full py-2.5 px-3 bg-secondary text-sm rounded-xl border border-border font-mono text-xs"
+              />
+            </div>
+
+            <Field
+              label="Director"
+              value={movieDirector}
+              onChange={setMovieDirector}
+              placeholder="e.g. Mohamed Faisal"
+            />
+
+            <Field
+              label="Writer"
+              value={movieWriter}
+              onChange={setMovieWriter}
+              placeholder="e.g. Fathimath Nahula"
+            />
+
+            <Field
+              label="Presented By"
+              value={moviePresentedBy}
+              onChange={setMoviePresentedBy}
+              placeholder="e.g. Crystal Entertainment"
+            />
+
+            <Field
+              label="Duration (minutes, e.g. 175)"
+              value={movieDuration}
+              onChange={setMovieDuration}
+              type="number"
+              placeholder="175"
+            />
+
+            <Field
+              label="Language"
+              value={movieLanguage}
+              onChange={setMovieLanguage}
+              placeholder="Dhivehi"
+            />
+
+            <Field
+              label="Age Rating"
+              value={movieAgeRating}
+              onChange={setMovieAgeRating}
+              placeholder="18+"
+            />
+
+            <Field
+              label="Release Date"
+              value={movieReleaseDate}
+              onChange={setMovieReleaseDate}
+              type="date"
+            />
 
             <div className="sm:col-span-2">
               <Field

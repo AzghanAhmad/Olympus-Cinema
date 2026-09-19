@@ -119,7 +119,8 @@ function ConfirmationContent() {
 
             <div className="pt-2 text-xs border-t border-border">
               <span className="text-muted-foreground">Guest: </span>
-              <strong className="text-foreground">{booking.customer.fullName}</strong> ({booking.customer.email})
+              <strong className="text-foreground">{booking.customer.fullName}</strong> ({booking.customer.email}
+              {booking.customer.phone ? ` • ${booking.customer.phone}` : ''})
             </div>
             <p className="text-[11px] text-muted-foreground leading-relaxed">
               {isConfirmed

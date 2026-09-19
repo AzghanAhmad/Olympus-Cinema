@@ -249,6 +249,12 @@ export class UpdateMovieDto {
   @IsString({ each: true })
   genreIds?: string[];
 
+  @ApiPropertyOptional({ type: [String] })
+  @IsOptional()
+  @IsArray()
+  @IsString({ each: true })
+  genres?: string[];
+
   @ApiPropertyOptional({ type: [CastMemberDto] })
   @IsOptional()
   @IsArray()
