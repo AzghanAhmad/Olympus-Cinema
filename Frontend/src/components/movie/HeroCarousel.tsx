@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { Movie } from '@/types/movie';
-import { Play, Ticket, ChevronLeft, ChevronRight, Clock } from 'lucide-react';
+import { Play, Ticket, ChevronLeft, ChevronRight, Clock, ChevronDown, ChevronUp } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { AnimatedButton } from '@/components/motion/AnimatedButton';
 import { toast } from '@/store/useToastStore';
@@ -15,14 +15,19 @@ interface HeroCarouselProps {
 
 export function HeroCarousel({ movies, onWatchTrailer }: HeroCarouselProps) {
   const [currentIndex, setCurrentIndex] = useState(0);
+  const [isExpanded, setIsExpanded] = useState(false);
 
   useEffect(() => {
-    if (movies.length <= 1) return;
+    setIsExpanded(false);
+  }, [currentIndex]);
+
+  useEffect(() => {
+    if (movies.length <= 1 || isExpanded) return;
     const interval = setInterval(() => {
       setCurrentIndex((prev) => (prev + 1) % movies.length);
     }, 6500);
     return () => clearInterval(interval);
-  }, [movies.length]);
+  }, [movies.length, isExpanded]);
 
   if (!movies || movies.length === 0) return null;
 
@@ -108,13 +113,33 @@ export function HeroCarousel({ movies, onWatchTrailer }: HeroCarouselProps) {
               ))}
             </motion.div>
 
-            {/* Synopsis */}
-            <motion.p
+            {/* Synopsis with Read More / Read Less */}
+            <motion.div
               variants={{ hidden: { opacity: 0, y: 10 }, visible: { opacity: 1, y: 0 } }}
-              className="text-sm sm:text-base text-zinc-300 line-clamp-3 leading-relaxed drop-shadow"
+              className="space-y-2 max-w-3xl"
             >
-              {current.synopsis}
-            </motion.p>
+              <p
+                className={`text-sm sm:text-base text-zinc-300 leading-relaxed drop-shadow transition-all duration-300 ${
+                  isExpanded ? 'max-h-96 overflow-y-auto pr-2' : 'line-clamp-3'
+                }`}
+              >
+                {current.synopsis}
+              </p>
+              {current.synopsis && current.synopsis.length > 180 && (
+                <button
+                  type="button"
+                  onClick={() => setIsExpanded((prev) => !prev)}
+                  className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold transition-all duration-200 cursor-pointer shadow-sm bg-secondary text-secondary-foreground hover:bg-secondary/80 border border-border"
+                >
+                  <span>{isExpanded ? 'Read Less' : 'Read More'}</span>
+                  {isExpanded ? (
+                    <ChevronUp className="w-3.5 h-3.5 text-primary" />
+                  ) : (
+                    <ChevronDown className="w-3.5 h-3.5 text-primary" />
+                  )}
+                </button>
+              )}
+            </motion.div>
 
             {/* Action CTAs */}
             <motion.div

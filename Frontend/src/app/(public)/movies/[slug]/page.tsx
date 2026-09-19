@@ -10,7 +10,7 @@ import { movieService } from '@/services/movieService';
 import { screeningService } from '@/services/screeningService';
 import { Movie } from '@/types/movie';
 import { Screening } from '@/types/screening';
-import { Play, Ticket, Clock, User, Image as ImageIcon } from 'lucide-react';
+import { Play, Ticket, Clock, User, Image as ImageIcon, ChevronDown, ChevronUp } from 'lucide-react';
 import { formatDate } from '@/lib/utils';
 import { useSiteSettingsStore } from '@/store/useSiteSettingsStore';
 
@@ -24,6 +24,7 @@ export default function MovieDetailsPage() {
   const [trailerUrl, setTrailerUrl] = useState<string | null>(null);
   const [selectedPhoto, setSelectedPhoto] = useState<string | null>(null);
   const [screenings, setScreenings] = useState<Screening[]>([]);
+  const [synopsisExpanded, setSynopsisExpanded] = useState(false);
 
   useEffect(() => {
     async function load() {
@@ -128,7 +129,29 @@ export default function MovieDetailsPage() {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-10">
           <div className="lg:col-span-2 space-y-6">
             <h2 className="text-2xl font-extrabold">Synopsis</h2>
-            <p className="text-muted-foreground text-base leading-relaxed">{movie.synopsis}</p>
+            <div className="space-y-3">
+              <p
+                className={`text-muted-foreground text-base leading-relaxed whitespace-pre-line transition-all duration-300 ${
+                  synopsisExpanded ? '' : 'line-clamp-4'
+                }`}
+              >
+                {movie.synopsis}
+              </p>
+              {movie.synopsis && movie.synopsis.length > 220 && (
+                <button
+                  type="button"
+                  onClick={() => setSynopsisExpanded((prev) => !prev)}
+                  className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all duration-200 cursor-pointer shadow-xs bg-secondary text-secondary-foreground hover:bg-secondary/80 border border-border"
+                >
+                  <span>{synopsisExpanded ? 'Read Less' : 'Read More'}</span>
+                  {synopsisExpanded ? (
+                    <ChevronUp className="w-3.5 h-3.5 text-primary" />
+                  ) : (
+                    <ChevronDown className="w-3.5 h-3.5 text-primary" />
+                  )}
+                </button>
+              )}
+            </div>
 
             {movie.cast.length > 0 && (
               <div className="space-y-4 pt-4">
