@@ -134,7 +134,8 @@ select option {
 
 @media print {
   @page {
-    margin: 12mm;
+    margin: 8mm;
+    size: auto;
   }
 
   html,
@@ -143,6 +144,8 @@ select option {
     color: #111 !important;
     height: auto !important;
     overflow: visible !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
   }
 
   body * {

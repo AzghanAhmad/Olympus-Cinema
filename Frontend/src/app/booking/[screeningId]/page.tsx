@@ -11,6 +11,7 @@ import { CinemaSeatMap } from '@/components/booking/CinemaSeatMap';
 import { SeatHoldTimer } from '@/components/booking/SeatHoldTimer';
 import { useBookingStore } from '@/store/useBookingStore';
 import { useSiteSettingsStore } from '@/store/useSiteSettingsStore';
+import { useAuthStore } from '@/store/useAuthStore';
 import { screeningService } from '@/services/screeningService';
 import { movieService } from '@/services/movieService';
 import { bookingService } from '@/services/bookingService';
@@ -56,6 +57,7 @@ export default function BookingPage() {
   const [emailOtp, setEmailOtp] = useState('');
   const [phoneOtp, setPhoneOtp] = useState('');
 
+  const currentUser = useAuthStore((s) => s.user);
   const maxTickets = useSiteSettingsStore((s) => s.maxTicketsPerPerson);
   const cinemaName = useSiteSettingsStore((s) => s.cinemaName);
 
@@ -82,11 +84,38 @@ export default function BookingPage() {
     register,
     handleSubmit,
     getValues,
+    setValue,
+    reset,
     formState: { errors },
   } = useForm<GuestFormData>({
     resolver: zodResolver(guestSchema),
-    defaultValues: customer,
+    defaultValues: {
+      fullName: customer.fullName || currentUser?.name || '',
+      email: customer.email || currentUser?.email || '',
+      phone: customer.phone || currentUser?.phone || '',
+    },
   });
+
+  // Autofill form if user signs in or user profile hydrates
+  useEffect(() => {
+    if (currentUser) {
+      const currentValues = getValues();
+      const newFullName = currentValues.fullName || currentUser.name || '';
+      const newEmail = currentValues.email || currentUser.email || '';
+      const newPhone = currentValues.phone || currentUser.phone || '';
+
+      if (newFullName !== currentValues.fullName) setValue('fullName', newFullName);
+      if (newEmail !== currentValues.email) setValue('email', newEmail);
+      if (newPhone !== currentValues.phone) setValue('phone', newPhone);
+
+      // Pre-populate customer in booking store as well so review matches
+      setCustomer({
+        fullName: newFullName,
+        email: newEmail,
+        phone: newPhone,
+      });
+    }
+  }, [currentUser, setValue, getValues, setCustomer]);
 
   useEffect(() => {
     async function loadData() {
