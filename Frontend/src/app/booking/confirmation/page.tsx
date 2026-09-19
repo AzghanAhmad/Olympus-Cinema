@@ -61,7 +61,7 @@ function BarcodeSvg({ code }: { code: string }) {
       >
         {elements}
       </svg>
-      <span className="font-mono text-xs font-black tracking-[0.3em] text-zinc-800 dark:text-zinc-200 mt-1 uppercase">
+      <span className="font-mono text-xs sm:text-sm font-black tracking-[0.25em] text-black !text-black dark:text-black mt-1.5 uppercase select-all">
         {code}
       </span>
     </div>
