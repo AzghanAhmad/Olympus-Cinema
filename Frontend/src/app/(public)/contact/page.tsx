@@ -44,7 +44,7 @@ export default function ContactPage() {
   const cinemaName = site?.cinemaName || 'Crystal Entertainment';
   const contactEmail = site?.contactEmail || 'crystalmaldives@gmail.com';
   const contactPhone = site?.contactPhone || '7844422';
-  const address = site?.address || cinemaName;
+  const rawAddress = site?.address?.trim();
 
   return (
     <PublicLayout>
@@ -140,7 +140,9 @@ export default function ContactPage() {
                   <MapPin className="w-5 h-5 text-primary shrink-0 mt-0.5" />
                   <div>
                     <strong className="text-foreground block">{cinemaName}</strong>
-                    <span>{address}</span>
+                    {rawAddress && rawAddress !== cinemaName ? (
+                      <span>{rawAddress}</span>
+                    ) : null}
                   </div>
                 </div>
 
@@ -160,16 +162,6 @@ export default function ContactPage() {
                   </div>
                 </div>
               </div>
-            </div>
-
-            <div className="relative aspect-[16/10] rounded-3xl overflow-hidden border border-border shadow-md bg-card">
-              <iframe
-                title="Crystal Entertainment Location"
-                src={`https://maps.google.com/maps?q=${encodeURIComponent(address || 'Crystal Entertainment Male Maldives')}&t=&z=15&ie=UTF8&iwloc=&output=embed`}
-                className="w-full h-full border-0 filter contrast-[1.05]"
-                loading="lazy"
-                allowFullScreen
-              />
             </div>
           </div>
         </div>

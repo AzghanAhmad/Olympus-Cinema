@@ -301,8 +301,30 @@ export class BookingsService {
       });
     });
 
+    const screening = updated.screening;
+    const startTime = screening?.startTime ? new Date(screening.startTime) : null;
+    const dateStr = startTime
+      ? startTime.toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' })
+      : undefined;
+    const dayStr = startTime
+      ? startTime.toLocaleDateString('en-US', { weekday: 'long' })
+      : undefined;
+    const timeStr = startTime
+      ? startTime.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })
+      : undefined;
+    const seatLabels = updated.seats?.map((s) => s.seat?.label).filter(Boolean) as string[] || [];
+
     await this.email
-      .sendBookingCancellation(booking.customerEmail, booking.bookingCode)
+      .sendBookingCancellation({
+        email: updated.customerEmail,
+        bookingCode: updated.bookingCode,
+        movieTitle: screening?.movie?.title,
+        customerName: updated.customerName,
+        date: dateStr,
+        day: dayStr,
+        time: timeStr,
+        seats: seatLabels,
+      })
       .catch((err) => this.logger.warn('Cancellation email failed', err));
 
     return updated;

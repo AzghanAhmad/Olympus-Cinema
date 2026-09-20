@@ -151,11 +151,33 @@ export class EmailService {
     );
   }
 
-  async sendBookingCancellation(email: string, bookingCode: string) {
+  async sendBookingCancellation(data: {
+    email: string;
+    bookingCode: string;
+    movieTitle?: string;
+    customerName?: string;
+    date?: string;
+    day?: string;
+    time?: string;
+    seats?: string[];
+  }) {
+    const seatsFormatted = data.seats && data.seats.length > 0 ? data.seats.join(', ') : 'N/A';
+    const dayAndDate = [data.day, data.date].filter(Boolean).join(', ');
+
+    const detailsHtml = `
+      ${data.customerName ? `<p>Hi ${data.customerName},</p>` : ''}
+      <p>Your booking <strong>${data.bookingCode}</strong> has been cancelled.</p>
+      ${data.movieTitle ? `<p><strong>Movie:</strong> ${data.movieTitle}</p>` : ''}
+      ${dayAndDate ? `<p><strong>Date & Day:</strong> ${dayAndDate}</p>` : ''}
+      ${data.time ? `<p><strong>Time:</strong> ${data.time}</p>` : ''}
+      <p><strong>Seats:</strong> ${seatsFormatted}</p>
+      <p>If you have any questions or this was done in error, please contact our support team.</p>
+    `;
+
     await this.send(
-      email,
-      `Booking Cancelled — ${bookingCode}`,
-      `<p>Your booking ${bookingCode} has been cancelled.</p>`,
+      data.email,
+      `Booking Cancelled — ${data.bookingCode}`,
+      detailsHtml,
     );
   }
 
