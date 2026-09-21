@@ -4,7 +4,8 @@ import * as argon2 from 'argon2';
 import { PrismaService } from '../prisma/prisma.service';
 import { seedCinemaCatalog } from './cinema-seed';
 
-const SEED_PASSWORD = 'Password123!';
+const DEFAULT_ADMIN_EMAIL = 'admin-crystalmaldives@gmail.com';
+const DEFAULT_ADMIN_PASSWORD = 'Crystal@999';
 
 @Injectable()
 export class BootstrapService implements OnModuleInit {
@@ -14,21 +15,22 @@ export class BootstrapService implements OnModuleInit {
 
   async onModuleInit(): Promise<void> {
     try {
-      const passwordHash = await argon2.hash(SEED_PASSWORD);
+      const adminPasswordHash = await argon2.hash(DEFAULT_ADMIN_PASSWORD);
+      const defaultPasswordHash = await argon2.hash('Password123!');
 
       const admin = await this.prisma.user.upsert({
-        where: { email: 'admin@cinema.local' },
+        where: { email: DEFAULT_ADMIN_EMAIL },
         update: {
           role: UserRole.ADMIN,
           status: UserStatus.ACTIVE,
           emailVerified: true,
-          passwordHash,
+          passwordHash: adminPasswordHash,
         },
         create: {
           firstName: 'Admin',
           lastName: 'User',
-          email: 'admin@cinema.local',
-          passwordHash,
+          email: DEFAULT_ADMIN_EMAIL,
+          passwordHash: adminPasswordHash,
           role: UserRole.ADMIN,
           status: UserStatus.ACTIVE,
           emailVerified: true,
@@ -42,7 +44,7 @@ export class BootstrapService implements OnModuleInit {
           firstName: 'Staff',
           lastName: 'Member',
           email: 'staff@cinema.local',
-          passwordHash,
+          passwordHash: defaultPasswordHash,
           role: UserRole.STAFF,
           status: UserStatus.ACTIVE,
           emailVerified: true,
@@ -57,7 +59,7 @@ export class BootstrapService implements OnModuleInit {
           lastName: 'User',
           email: 'user@cinema.local',
           phone: '+1234567890',
-          passwordHash,
+          passwordHash: defaultPasswordHash,
           role: UserRole.USER,
           status: UserStatus.ACTIVE,
           emailVerified: true,

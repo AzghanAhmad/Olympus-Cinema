@@ -1,5 +1,5 @@
 export const ADMIN_ACCOUNT = {
-  email: 'admin@cinema.local',
-  password: 'Password123!',
+  email: 'admin-crystalmaldives@gmail.com',
+  password: 'Crystal@999',
   name: 'Admin User',
 } as const;

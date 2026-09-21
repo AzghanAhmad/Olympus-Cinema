@@ -261,17 +261,32 @@ export class ScreeningsService {
       where: { id },
       include: {
         bookings: {
-          where: { status: { in: ['CONFIRMED', 'CHECKED_IN', 'PENDING'] } },
-          take: 1,
+          select: {
+            id: true,
+            status: true,
+          },
         },
       },
     });
     if (!screening) throw new NotFoundException('Screening not found');
-    if (screening.bookings.length) {
-      throw new ConflictException('Cannot delete screening with active bookings');
+
+    const activeBookings = screening.bookings.filter((b) =>
+      ['CONFIRMED', 'CHECKED_IN', 'PENDING'].includes(b.status),
+    );
+
+    if (activeBookings.length > 0) {
+      throw new ConflictException(
+        `Cannot delete screening with active bookings (${activeBookings.length} active/pending/confirmed). Please cancel the bookings or cancel the screening first.`,
+      );
     }
 
-    await this.prisma.screening.delete({ where: { id } });
+    // Safely delete any non-active (e.g. CANCELLED/EXPIRED) bookings and associated reservations in a transaction
+    await this.prisma.$transaction(async (tx) => {
+      await tx.screeningSeatReservation.deleteMany({ where: { screeningId: id } });
+      await tx.booking.deleteMany({ where: { screeningId: id } });
+      await tx.screening.delete({ where: { id } });
+    });
+
     return { message: 'Screening deleted' };
   }
 }

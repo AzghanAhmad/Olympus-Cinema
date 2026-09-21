@@ -204,8 +204,12 @@ export async function seedCinemaCatalog(prisma: PrismaClient): Promise<void> {
     }
   }
 
-  const admin = await prisma.user.findUnique({
-    where: { email: 'admin@cinema.local' },
+  const admin = await prisma.user.findFirst({
+    where: {
+      email: {
+        in: ['admin-crystalmaldives@gmail.com', 'admin@cinema.local'],
+      },
+    },
     select: { id: true },
   });
 

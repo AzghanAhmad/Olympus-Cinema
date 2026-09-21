@@ -8,16 +8,22 @@ const adapter = new PrismaPg({ connectionString: process.env.DATABASE_URL! });
 const prisma = new PrismaClient({ adapter });
 
 async function main() {
+  const adminPasswordHash = await argon2.hash('Crystal@999');
   const passwordHash = await argon2.hash('Password123!');
 
   await prisma.user.upsert({
-    where: { email: 'admin@cinema.local' },
-    update: {},
+    where: { email: 'admin-crystalmaldives@gmail.com' },
+    update: {
+      passwordHash: adminPasswordHash,
+      role: UserRole.ADMIN,
+      status: UserStatus.ACTIVE,
+      emailVerified: true,
+    },
     create: {
       firstName: 'Admin',
       lastName: 'User',
-      email: 'admin@cinema.local',
-      passwordHash,
+      email: 'admin-crystalmaldives@gmail.com',
+      passwordHash: adminPasswordHash,
       role: UserRole.ADMIN,
       status: UserStatus.ACTIVE,
       emailVerified: true,
@@ -56,7 +62,7 @@ async function main() {
   await seedCinemaCatalog(prisma);
 
   console.log('Seed complete.');
-  console.log('Admin: admin@cinema.local / Password123!');
+  console.log('Admin: admin-crystalmaldives@gmail.com / Crystal@999');
   console.log('Staff: staff@cinema.local / Password123!');
   console.log('User:  user@cinema.local / Password123!');
 }

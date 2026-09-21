@@ -36,9 +36,6 @@ export default function LoginPage() {
             <p className="text-sm text-muted-foreground">
               Access your reservations. Admin sign-in opens the cinema panel.
             </p>
-            <p className="text-[11px] text-muted-foreground">
-              Admin: admin@cinema.local / Password123!
-            </p>
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-4">

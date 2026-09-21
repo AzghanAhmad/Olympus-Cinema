@@ -31,6 +31,25 @@ export class GlobalExceptionFilter implements ExceptionFilter {
         message = (obj.message as string) ?? message;
         errors = obj.errors ?? obj.message;
       }
+    } else if (
+      typeof exception === 'object' &&
+      exception !== null &&
+      'code' in exception &&
+      typeof (exception as { code: unknown }).code === 'string'
+    ) {
+      const prismaError = exception as { code: string; message: string; meta?: Record<string, unknown> };
+      if (prismaError.code === 'P2003') {
+        status = HttpStatus.CONFLICT;
+        message = 'Cannot delete or modify record because it is referenced by existing bookings or related data.';
+      } else if (prismaError.code === 'P2025') {
+        status = HttpStatus.NOT_FOUND;
+        message = 'Record not found.';
+      } else if (prismaError.code === 'P2002') {
+        status = HttpStatus.CONFLICT;
+        message = 'A record with this unique value already exists.';
+      } else {
+        this.logger.error(`Prisma error [${prismaError.code}]: ${prismaError.message}`);
+      }
     } else if (exception instanceof Error) {
       this.logger.error(exception.message, exception.stack);
     }
