@@ -31,6 +31,7 @@ interface BookingStoreState {
   sendPhoneCode: (phoneOverride?: string, emailOverride?: string) => Promise<void>;
   verifyEmailCode: (code: string) => Promise<boolean>;
   verifyPhoneCode: (code: string) => Promise<boolean>;
+  setEmailVerified: (verified: boolean) => void;
 }
 
 export const useBookingStore = create<BookingStoreState>((set, get) => ({
@@ -226,4 +227,6 @@ export const useBookingStore = create<BookingStoreState>((set, get) => ({
       return false;
     }
   },
+
+  setEmailVerified: (verified: boolean) => set({ emailVerified: verified }),
 }));

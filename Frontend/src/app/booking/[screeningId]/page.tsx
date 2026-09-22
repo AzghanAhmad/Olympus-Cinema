@@ -58,6 +58,7 @@ export default function BookingPage() {
   const [phoneOtp, setPhoneOtp] = useState('');
 
   const currentUser = useAuthStore((s) => s.user);
+  const isAdminUser = useAuthStore((s) => s.isAdmin());
   const maxTickets = useSiteSettingsStore((s) => s.maxTicketsPerPerson);
   const cinemaName = useSiteSettingsStore((s) => s.cinemaName);
 
@@ -77,6 +78,7 @@ export default function BookingPage() {
     sendPhoneCode,
     verifyEmailCode,
     verifyPhoneCode,
+    setEmailVerified,
     otpSending,
   } = useBookingStore();
 
@@ -96,7 +98,7 @@ export default function BookingPage() {
     },
   });
 
-  // Autofill form if user signs in or user profile hydrates
+  // Autofill form if user signs in or user profile hydrates, auto-verify if admin
   useEffect(() => {
     if (currentUser) {
       const currentValues = getValues();
@@ -114,8 +116,12 @@ export default function BookingPage() {
         email: newEmail,
         phone: newPhone,
       });
+
+      if (isAdminUser) {
+        setEmailVerified(true);
+      }
     }
-  }, [currentUser, setValue, getValues, setCustomer]);
+  }, [currentUser, isAdminUser, setValue, getValues, setCustomer, setEmailVerified]);
 
   useEffect(() => {
     async function loadData() {
@@ -211,7 +217,7 @@ export default function BookingPage() {
 
   const handleGuestSubmit = (data: GuestFormData) => {
     setCustomer(data);
-    if (!emailVerified) {
+    if (!isAdminUser && !emailVerified) {
       toast.warning('Verify email', 'Please verify your email address with the code before continuing.');
       return;
     }
@@ -219,7 +225,7 @@ export default function BookingPage() {
   };
 
   const handleConfirmBooking = async () => {
-    if (!emailVerified) {
+    if (!isAdminUser && !emailVerified) {
       toast.error('Verification required', 'Please verify your email before reserving.');
       setStep(2);
       return;
@@ -258,7 +264,7 @@ export default function BookingPage() {
             </span>
             <span>→</span>
             <span className={`px-3 py-1 rounded-full ${step >= 2 ? 'bg-primary text-primary-foreground' : 'bg-secondary'}`}>
-              2. Verify & Details
+              {isAdminUser ? '2. Customer Details' : '2. Verify & Details'}
             </span>
             <span>→</span>
             <span className={`px-3 py-1 rounded-full ${step >= 3 ? 'bg-primary text-primary-foreground' : 'bg-secondary'}`}>
@@ -305,9 +311,13 @@ export default function BookingPage() {
               <div className="p-4 sm:p-8 bg-card border border-border rounded-3xl space-y-6">
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between border-b border-border pb-4 gap-2">
                   <div>
-                    <h2 className="text-xl font-extrabold">Guest Details & Verification</h2>
+                    <h2 className="text-xl font-extrabold">
+                      {isAdminUser ? 'Customer Details' : 'Guest Details & Verification'}
+                    </h2>
                     <p className="text-xs text-muted-foreground">
-                      Verify email or phone with a code before your reservation is created.
+                      {isAdminUser
+                        ? 'Admin Direct Booking — Email verification and OTP are bypassed.'
+                        : 'Verify email or phone with a code before your reservation is created.'}
                     </p>
                   </div>
                   <button
@@ -330,56 +340,71 @@ export default function BookingPage() {
 
                   <div className="space-y-2">
                     <label className="block text-xs font-semibold mb-1">Email Address</label>
-                    <div className="flex flex-col sm:flex-row gap-2">
-                      <input
-                        {...register('email')}
-                        type="email"
-                        className="flex-1 py-2.5 px-3 bg-secondary text-foreground text-sm rounded-xl border border-border focus:outline-none focus:ring-2 focus:ring-primary"
-                      />
-                      <button
-                        type="button"
-                        onClick={() => {
-                          const email = getValues('email');
-                          if (!email || !email.includes('@')) {
-                            toast.warning('Enter email', 'Add a valid email first.');
-                            return;
-                          }
-                          setCustomer({ ...getValues(), email });
-                          void sendEmailCode(email);
-                        }}
-                        disabled={otpSending}
-                        className="w-full sm:w-auto px-4 py-2.5 bg-secondary border border-border rounded-xl text-xs font-bold shrink-0 disabled:opacity-50"
-                      >
-                        Send code
-                      </button>
-                    </div>
-                    {errors.email && <p className="text-xs text-primary mt-1">{errors.email.message}</p>}
-                    {emailCodeSent && !emailVerified && (
-                      <div className="space-y-2 pt-1">
+                    {isAdminUser ? (
+                      <div>
+                        <input
+                          {...register('email')}
+                          type="email"
+                          className="w-full py-2.5 px-3 bg-secondary text-foreground text-sm rounded-xl border border-border focus:outline-none focus:ring-2 focus:ring-primary"
+                        />
+                        <p className="text-xs font-bold text-emerald-600 flex items-center gap-1 mt-1.5">
+                          ✓ Verified (Admin Booking — OTP waived)
+                        </p>
+                      </div>
+                    ) : (
+                      <>
                         <div className="flex flex-col sm:flex-row gap-2">
                           <input
-                            value={emailOtp}
-                            onChange={(e) => setEmailOtp(e.target.value)}
-                            placeholder="Enter email code"
-                            className="flex-1 py-2 px-3 bg-secondary text-foreground text-sm rounded-xl border border-border focus:outline-none focus:ring-2 focus:ring-primary"
+                            {...register('email')}
+                            type="email"
+                            className="flex-1 py-2.5 px-3 bg-secondary text-foreground text-sm rounded-xl border border-border focus:outline-none focus:ring-2 focus:ring-primary"
                           />
                           <button
                             type="button"
-                            onClick={() => void verifyEmailCode(emailOtp)}
-                            className="w-full sm:w-auto px-4 py-2 bg-primary text-primary-foreground rounded-xl text-xs font-bold shadow hover:bg-primary/90 transition-all shrink-0"
+                            onClick={() => {
+                              const email = getValues('email');
+                              if (!email || !email.includes('@')) {
+                                toast.warning('Enter email', 'Add a valid email first.');
+                                return;
+                              }
+                              setCustomer({ ...getValues(), email });
+                              void sendEmailCode(email);
+                            }}
+                            disabled={otpSending}
+                            className="w-full sm:w-auto px-4 py-2.5 bg-secondary border border-border rounded-xl text-xs font-bold shrink-0 disabled:opacity-50"
                           >
-                            Verify email
+                            Send code
                           </button>
                         </div>
-                        <p className="text-[11px] text-muted-foreground">
-                          Enter the 6-digit code sent to your email inbox.
-                        </p>
-                      </div>
-                    )}
-                    {emailVerified && (
-                      <p className="text-xs font-bold text-emerald-600 flex items-center gap-1 mt-1">
-                        ✓ Email verified successfully
-                      </p>
+                        {errors.email && <p className="text-xs text-primary mt-1">{errors.email.message}</p>}
+                        {emailCodeSent && !emailVerified && (
+                          <div className="space-y-2 pt-1">
+                            <div className="flex flex-col sm:flex-row gap-2">
+                              <input
+                                value={emailOtp}
+                                onChange={(e) => setEmailOtp(e.target.value)}
+                                placeholder="Enter email code"
+                                className="flex-1 py-2 px-3 bg-secondary text-foreground text-sm rounded-xl border border-border focus:outline-none focus:ring-2 focus:ring-primary"
+                              />
+                              <button
+                                type="button"
+                                onClick={() => void verifyEmailCode(emailOtp)}
+                                className="w-full sm:w-auto px-4 py-2 bg-primary text-primary-foreground rounded-xl text-xs font-bold shadow hover:bg-primary/90 transition-all shrink-0"
+                              >
+                                Verify email
+                              </button>
+                            </div>
+                            <p className="text-[11px] text-muted-foreground">
+                              Enter the 6-digit code sent to your email inbox.
+                            </p>
+                          </div>
+                        )}
+                        {emailVerified && (
+                          <p className="text-xs font-bold text-emerald-600 flex items-center gap-1 mt-1">
+                            ✓ Email verified successfully
+                          </p>
+                        )}
+                      </>
                     )}
                   </div>
 
@@ -393,9 +418,11 @@ export default function BookingPage() {
                     {errors.phone && <p className="text-xs text-primary mt-1">{errors.phone.message}</p>}
                   </div>
 
-                  <p className="text-[11px] text-muted-foreground">
-                    A 6-digit verification code will be sent to your email to verify your reservation.
-                  </p>
+                  {!isAdminUser && (
+                    <p className="text-[11px] text-muted-foreground">
+                      A 6-digit verification code will be sent to your email to verify your reservation.
+                    </p>
+                  )}
 
                   <div className="pt-4 flex flex-col-reverse sm:flex-row items-stretch sm:items-center justify-between gap-3">
                     <button
