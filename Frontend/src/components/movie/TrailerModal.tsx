@@ -12,9 +12,50 @@ interface TrailerModalProps {
   title?: string;
 }
 
-function toWatchUrl(embedUrl: string) {
-  const id = embedUrl.split('/embed/')[1]?.split('?')[0];
-  return id ? `https://www.youtube.com/watch?v=${id}` : embedUrl;
+function toEmbedUrl(url: string): string {
+  if (!url) return '';
+  const trimmed = url.trim();
+
+  // If already an embed link (e.g. https://www.youtube.com/embed/xyz)
+  if (trimmed.includes('/embed/')) {
+    return trimmed;
+  }
+
+  // Standard YouTube watch URL: https://www.youtube.com/watch?v=VIDEO_ID
+  const watchMatch = trimmed.match(/(?:youtube\.com\/(?:watch\?.*v=|v\/)|youtu\.be\/|youtube\.com\/shorts\/)([a-zA-Z0-9_-]{11})/);
+  if (watchMatch && watchMatch[1]) {
+    return `https://www.youtube.com/embed/${watchMatch[1]}`;
+  }
+
+  // Vimeo
+  const vimeoMatch = trimmed.match(/vimeo\.com\/(\d+)/);
+  if (vimeoMatch && vimeoMatch[1]) {
+    return `https://player.vimeo.com/video/${vimeoMatch[1]}`;
+  }
+
+  return trimmed;
+}
+
+function toWatchUrl(url: string): string {
+  if (!url) return '';
+  const trimmed = url.trim();
+
+  // If already a regular YouTube watch URL or standard URL
+  if (trimmed.includes('youtube.com/watch')) {
+    return trimmed;
+  }
+
+  const id = trimmed.split('/embed/')[1]?.split('?')[0];
+  if (id) {
+    return `https://www.youtube.com/watch?v=${id}`;
+  }
+
+  const shortMatch = trimmed.match(/(?:youtu\.be\/|youtube\.com\/shorts\/)([a-zA-Z0-9_-]{11})/);
+  if (shortMatch && shortMatch[1]) {
+    return `https://www.youtube.com/watch?v=${shortMatch[1]}`;
+  }
+
+  return trimmed;
 }
 
 async function copyTrailerLink(url: string) {
@@ -27,6 +68,7 @@ async function copyTrailerLink(url: string) {
 }
 
 export function TrailerModal({ videoUrl, onClose, title = 'Majnoon' }: TrailerModalProps) {
+  const embedUrl = videoUrl ? toEmbedUrl(videoUrl) : '';
   const watchUrl = videoUrl ? toWatchUrl(videoUrl) : '';
 
   const handleNativeShare = async () => {
@@ -62,7 +104,7 @@ export function TrailerModal({ videoUrl, onClose, title = 'Majnoon' }: TrailerMo
 
             <div className="relative aspect-video w-full">
               <iframe
-                src={`${videoUrl}?autoplay=1`}
+                src={embedUrl.includes('?') ? `${embedUrl}&autoplay=1` : `${embedUrl}?autoplay=1`}
                 title={`${title} Trailer`}
                 className="w-full h-full border-0"
                 allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"

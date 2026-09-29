@@ -281,6 +281,12 @@ export default function AdminMoviesPage() {
                 placeholder="Poster URL"
                 className="col-span-2 py-2 px-3 bg-secondary text-xs rounded-xl border border-border"
               />
+              <input
+                value={formData.trailerUrl}
+                onChange={(e) => setFormData({ ...formData, trailerUrl: e.target.value })}
+                placeholder="Trailer URL (e.g. https://www.youtube.com/watch?v=...)"
+                className="col-span-2 py-2 px-3 bg-secondary text-xs rounded-xl border border-border"
+              />
             </div>
             <div className="flex justify-end gap-2">
               <button type="button" onClick={() => setIsModalOpen(false)} className="px-4 py-2 bg-secondary text-xs rounded-xl font-bold">

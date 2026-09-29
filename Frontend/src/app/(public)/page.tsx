@@ -20,6 +20,7 @@ import { useSiteSettingsStore } from '@/store/useSiteSettingsStore';
 
 export default function HomePage() {
   const [trailerUrl, setTrailerUrl] = useState<string | null>(null);
+  const [trailerTitle, setTrailerTitle] = useState<string>('Trailer');
   const [featuredMovies, setFeaturedMovies] = useState<Movie[]>([]);
   const [openShows, setOpenShows] = useState<Screening[]>([]);
   const [news, setNews] = useState<NewsArticle[]>([]);
@@ -42,7 +43,13 @@ export default function HomePage() {
     <PublicLayout flushTop>
       <PageTransition>
         {featuredMovies.length > 0 && (
-          <HeroCarousel movies={featuredMovies} onWatchTrailer={(url) => setTrailerUrl(url)} />
+          <HeroCarousel
+            movies={featuredMovies}
+            onWatchTrailer={(url, title) => {
+              setTrailerUrl(url);
+              if (title) setTrailerTitle(title);
+            }}
+          />
         )}
 
         <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 space-y-8">
@@ -160,7 +167,7 @@ export default function HomePage() {
         <TrailerModal
           videoUrl={trailerUrl}
           onClose={() => setTrailerUrl(null)}
-          title={heroMovie?.title ?? 'Trailer'}
+          title={trailerTitle}
         />
       </PageTransition>
     </PublicLayout>

@@ -10,7 +10,7 @@ import { toast } from '@/store/useToastStore';
 
 interface HeroCarouselProps {
   movies: Movie[];
-  onWatchTrailer?: (url: string) => void;
+  onWatchTrailer?: (url: string, title?: string) => void;
 }
 
 export function HeroCarousel({ movies, onWatchTrailer }: HeroCarouselProps) {
@@ -153,11 +153,11 @@ export function HeroCarousel({ movies, onWatchTrailer }: HeroCarouselProps) {
                 </AnimatedButton>
               </Link>
 
-              {onWatchTrailer && (
+              {onWatchTrailer && current.trailerUrl && (
                 <AnimatedButton
                   variant="outline"
                   size="lg"
-                  onClick={() => onWatchTrailer(current.trailerUrl)}
+                  onClick={() => onWatchTrailer(current.trailerUrl, current.title)}
                   className="gap-2 bg-white/10 text-white border-white/20 hover:bg-white/20"
                 >
                   <Play className="w-5 h-5 fill-white" />

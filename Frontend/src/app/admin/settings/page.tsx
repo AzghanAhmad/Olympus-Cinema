@@ -407,8 +407,11 @@ export default function AdminSettingsPage() {
                 label="Trailer YouTube / Video URL"
                 value={movieTrailerUrl}
                 onChange={setMovieTrailerUrl}
-                placeholder="https://www.youtube.com/embed/..."
+                placeholder="https://www.youtube.com/watch?v=... or https://youtu.be/..."
               />
+              <p className="text-[11px] text-muted-foreground mt-1">
+                Accepts any YouTube link (watch, embed, youtu.be, shorts) or Vimeo link.
+              </p>
             </div>
           </div>
 
