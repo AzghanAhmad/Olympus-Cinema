@@ -27,7 +27,7 @@ export class UploadsController {
   @ApiConsumes('multipart/form-data')
   @UseInterceptors(
     FileInterceptor('file', {
-      limits: { fileSize: 5 * 1024 * 1024 },
+      limits: { fileSize: 20 * 1024 * 1024 },
     }),
   )
   async uploadImage(@UploadedFile() file: UploadedFilePayload) {

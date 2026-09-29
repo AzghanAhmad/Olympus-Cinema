@@ -50,6 +50,15 @@ export class GlobalExceptionFilter implements ExceptionFilter {
       } else {
         this.logger.error(`Prisma error [${prismaError.code}]: ${prismaError.message}`);
       }
+    } else if (
+      (exception instanceof Error && exception.name === 'PayloadTooLargeError') ||
+      (typeof exception === 'object' &&
+        exception !== null &&
+        'type' in exception &&
+        (exception as { type?: unknown }).type === 'entity.too.large')
+    ) {
+      status = HttpStatus.PAYLOAD_TOO_LARGE;
+      message = 'Request entity too large. The image or payload exceeds the allowed size.';
     } else if (exception instanceof Error) {
       this.logger.error(exception.message, exception.stack);
     }
