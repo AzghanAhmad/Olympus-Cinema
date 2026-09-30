@@ -3,8 +3,6 @@ import type { NextConfig } from "next";
 const nextConfig: NextConfig = {
   output: "standalone",
   experimental: {
-    // Turbopack FS cache was panicking/restoring on this disk and wedging /account compiles
-    turbopackFileSystemCacheForDev: false,
     optimizePackageImports: ["lucide-react"],
   },
   images: {
